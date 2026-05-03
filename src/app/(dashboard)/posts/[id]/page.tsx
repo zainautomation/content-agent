@@ -146,7 +146,7 @@ export default function PostDetailPage() {
       for (const platform of selectedPlatformsForPublish) {
         const pp = post.platformPosts.find((p) => p.platform === platform);
         if (!pp) continue;
-        const res = await fetch("/api/publish", {
+        const res = await fetch(`/api/posts/${id}/publish`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ platform, platformPost: pp, title: post.title, credentials: {} }),

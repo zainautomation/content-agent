@@ -200,10 +200,10 @@ export default function CreatePage() {
     if (!rawIdea.trim()) return setError("Add your input first.");
     setError(""); setLoading(true); setPromptMessages([]); setFollowUp(""); setOutput([]); setSavedPostId(null); setActiveTab("create");
     try {
-      const res = await fetch("/api/generate-prompt", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ promptKey: ct.promptKey, userInput: rawIdea, brand }),
+        body: JSON.stringify({ mode: "prompt", promptKey: ct.promptKey, userInput: rawIdea, brand }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
@@ -233,14 +233,15 @@ export default function CreatePage() {
     const updatedMessages = [...promptMessages, { role: "user" as const, content: userMsg }];
     setPromptMessages(updatedMessages);
     try {
-      const res = await fetch("/api/generate-prompt", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: "prompt",
           promptKey: ct.promptKey,
           userInput: userMsg,
           brand,
-          messages: promptMessages, // send prior history
+          messages: promptMessages,
         }),
       });
       const data = await res.json();

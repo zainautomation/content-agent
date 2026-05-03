@@ -15,7 +15,7 @@ export default function SetupPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/setup/check")
+    fetch("/api/setup")
       .then((r) => r.json())
       .then((d) => {
         if (d.hasUsers) router.replace("/login");

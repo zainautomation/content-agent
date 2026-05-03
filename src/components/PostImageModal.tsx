@@ -96,10 +96,10 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   const generateWithAI = async () => {
     setAiLoading(true);
     try {
-      const res = await fetch("/api/generate-image-data", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, pillar, imagePrompt, systemPrompt: brand.systemPrompt }),
+        body: JSON.stringify({ mode: "image-data", content, pillar, imagePrompt, systemPrompt: brand.systemPrompt }),
       });
       if (res.ok) {
         const json = await res.json();

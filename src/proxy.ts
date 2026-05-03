@@ -9,7 +9,7 @@ export async function proxy(req: NextRequest) {
   if (pathname.startsWith("/api/auth")) return NextResponse.next();
 
   // Public API routes — no auth required
-  if (pathname === "/api/setup" || pathname === "/api/setup/check") return NextResponse.next();
+  if (pathname === "/api/setup") return NextResponse.next();
   if (pathname.startsWith("/api/invite")) return NextResponse.next();
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
