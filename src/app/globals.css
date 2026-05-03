@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* ─── Zutomate Design Tokens ─── */
+:root,
+[data-theme="dark"] {
+  --bg-page:     #00000e;
+  --bg-sidebar:  #070712;
+  --bg-panel:    #09091a;
+  --bg-surface:  #0e0e1c;
+  --bg-surface2: #111122;
+  --bg-surface3: #060614;
+  --border:      rgba(255, 255, 255, 0.06);
+  --border-md:   rgba(255, 255, 255, 0.10);
+  --border-lg:   rgba(255, 255, 255, 0.18);
+  --text-1:      #ffffff;
+  --text-2:      rgba(255, 255, 255, 0.80);
+  --text-3:      rgba(255, 255, 255, 0.40);
+  --text-4:      rgba(255, 255, 255, 0.25);
+  --text-5:      rgba(255, 255, 255, 0.15);
+  --accent:      #fe710c;
+  --accent-h:    #ff8a2e;
+}
+
+[data-theme="light"] {
+  --bg-page:     #ffffff;
+  --bg-sidebar:  #12305b;
+  --bg-panel:    #f5f5f5;
+  --bg-surface:  #ffffff;
+  --bg-surface2: #f9f9f9;
+  --bg-surface3: #f0f0f0;
+  --border:      rgba(0, 0, 0, 0.08);
+  --border-md:   rgba(0, 0, 0, 0.14);
+  --border-lg:   rgba(0, 0, 0, 0.22);
+  --text-1:      #000000;
+  --text-2:      rgba(0, 0, 0, 0.80);
+  --text-3:      rgba(0, 0, 0, 0.45);
+  --text-4:      rgba(0, 0, 0, 0.30);
+  --text-5:      rgba(0, 0, 0, 0.18);
+  --accent:      #fe710c;
+  --accent-h:    #e8650a;
+}
+
+@theme inline {
+  --font-sans: var(--font-bricolage), var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Base ─── */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--text-1);
+  font-family: var(--font-sans);
+}
+
+/* Dark body: gradient */
+html:not([data-theme]) body,
+[data-theme="dark"] body {
+  background: linear-gradient(160deg, #12305b 0%, #040413 35%, #00000e 100%);
+  background-attachment: fixed;
+}
+
+/* Light body */
+[data-theme="light"] body {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ─── Light mode: text overrides ─── */
+[data-theme="light"] .text-white { color: var(--text-1) !important; }
+[data-theme="light"] .text-white\/85,
+[data-theme="light"] .text-white\/80 { color: var(--text-2) !important; }
+[data-theme="light"] .text-white\/75,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/55 { color: rgba(0, 0, 0, 0.60) !important; }
+[data-theme="light"] .text-white\/45,
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-white\/35,
+[data-theme="light"] .text-white\/30 { color: var(--text-3) !important; }
+[data-theme="light"] .text-white\/25 { color: var(--text-4) !important; }
+[data-theme="light"] .text-white\/20,
+[data-theme="light"] .text-white\/15 { color: var(--text-5) !important; }
+
+/* ─── Light mode: background overrides ─── */
+[data-theme="light"] .bg-\[var\(--bg-page\)\]     { background-color: var(--bg-page) !important; }
+[data-theme="light"] .bg-\[var\(--bg-panel\)\]    { background-color: var(--bg-panel) !important; }
+[data-theme="light"] .bg-\[var\(--bg-surface\)\]  { background-color: var(--bg-surface) !important; }
+[data-theme="light"] .bg-\[var\(--bg-surface2\)\] { background-color: var(--bg-surface2) !important; }
+[data-theme="light"] .bg-\[var\(--bg-surface3\)\] { background-color: var(--bg-surface3) !important; }
+
+[data-theme="light"] .bg-white\/\[0\.02\],
+[data-theme="light"] .bg-white\/\[0\.03\] { background-color: rgba(0, 0, 0, 0.03) !important; }
+[data-theme="light"] .bg-white\/\[0\.04\],
+[data-theme="light"] .bg-white\/\[0\.05\] { background-color: rgba(0, 0, 0, 0.04) !important; }
+[data-theme="light"] .bg-white\/\[0\.06\],
+[data-theme="light"] .bg-white\/\[0\.07\],
+[data-theme="light"] .bg-white\/\[0\.08\] { background-color: rgba(0, 0, 0, 0.05) !important; }
+
+/* ─── Light mode: border overrides ─── */
+[data-theme="light"] .border-white\/\[0\.06\],
+[data-theme="light"] .border-white\/\[0\.07\],
+[data-theme="light"] .border-white\/\[0\.08\] { border-color: var(--border) !important; }
+[data-theme="light"] .border-white\/\[0\.10\],
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/15 { border-color: var(--border-md) !important; }
+[data-theme="light"] .border-white\/20,
+[data-theme="light"] .border-white\/25 { border-color: var(--border-lg) !important; }
+[data-theme="light"] .hover\:border-white\/\[0\.15\]:hover { border-color: var(--border-md) !important; }
+
+/* ─── Light mode: color-scheme for native inputs ─── */
+[data-theme="light"] [color-scheme\:dark],
+[data-theme="light"] .\[color-scheme\:dark\] { color-scheme: light !important; }
+
+/* ─── Legacy ─── */
+.gradient-brand {
+  background: linear-gradient(135deg, #fe710c, #12305b);
+}

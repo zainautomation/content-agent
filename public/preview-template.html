@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zutomate Image Template Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    }
+    .card {
+      width: 540px;
+      height: 540px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #00000e 0%, #0a0010 60%, #00000e 100%);
+      flex-shrink: 0;
+      border-radius: 12px;
+    }
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .glow-tr {
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(254,113,12,0.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .glow-br {
+      position: absolute;
+      bottom: -60px; right: -40px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(254,113,12,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 26px;
+    }
+    /* Top bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+    .logo { height: 18px; width: auto; display: block; }
+    .cta-pill {
+      padding: 5px 13px;
+      border: 1px solid rgba(254,113,12,0.5);
+      border-radius: 100px;
+      color: #fe710c;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(254,113,12,0.07);
+    }
+    /* Body */
+    .body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .category-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+    .cat-line { width: 14px; height: 1px; background: #fe710c; border-radius: 2px; }
+    .cat-text {
+      color: #fe710c;
+      font-size: 6.5px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .headline {
+      font-size: 37px;
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: rgba(255,255,255,0.22);
+      text-decoration: line-through;
+      text-decoration-color: rgba(255,255,255,0.18);
+      text-decoration-thickness: 2px;
+    }
+    .highlight {
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      margin-bottom: 18px;
+      color: #fe710c;
+    }
+    .divider {
+      width: 32px; height: 1px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+    .subtitle {
+      color: rgba(255,255,255,0.55);
+      font-size: 10.5px;
+      line-height: 1.55;
+      max-width: 360px;
+    }
+    /* Feature cards */
+    .features {
+      display: flex;
+      gap: 7px;
+      margin-top: 26px;
+    }
+    .feat-card {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 7px;
+      padding: 11px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, #fe710c 0%, transparent 100%);
+      opacity: 0.6;
+    }
+    .feat-icon { font-size: 13px; }
+    .feat-label { color: rgba(255,255,255,0.88); font-size: 7.5px; font-weight: 700; line-height: 1.3; }
+    .feat-sub { color: rgba(255,255,255,0.32); font-size: 6px; line-height: 1.4; }
+    /* Bottom bar */
+    .bottombar {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bottom-url { color: rgba(255,255,255,0.20); font-size: 6px; letter-spacing: 0.08em; }
+    .bottom-tag {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .dot { width: 3px; height: 3px; border-radius: 50%; background: #fe710c; opacity: 0.7; }
+    .tag-text { color: rgba(255,255,255,0.20); font-size: 6px; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="grid-bg"></div>
+    <div class="glow-tr"></div>
+    <div class="glow-br"></div>
+    <div class="content">
+
+      <!-- Top bar -->
+      <div class="topbar">
+        <img src="/zutomate-logo.svg" alt="Zutomate" class="logo" />
+        <div class="cta-pill">Learn More</div>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <div class="category-row">
+          <div class="cat-line"></div>
+          <span class="cat-text">GTM Automation</span>
+        </div>
+        <div class="headline">Stop Chasing Leads</div>
+        <div class="highlight">Automate Your Pipeline</div>
+        <div class="divider"></div>
+        <div class="subtitle">Build a full-stack outbound engine that works 24/7 — without hiring an SDR team or burning hours on manual prospecting.</div>
+      </div>
+
+      <!-- Feature cards -->
+      <div class="features">
+        <div class="feat-card">
+          <span class="feat-icon">⚡</span>
+          <div>
+            <div class="feat-label">Actionable</div>
+            <div class="feat-sub">Step-by-step insight</div>
+          </div>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🎯</span>
+          <div>
+            <div class="feat-label">Targeted</div>
+            <div class="feat-sub">ICP-specific</div>
+          </div>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🔧</span>
+          <div>
+            <div class="feat-label">Practical</div>
+            <div class="feat-sub">Apply today</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="bottombar">
+        <span class="bottom-url">zutomate.com</span>
+        <div class="bottom-tag">
+          <div class="dot"></div>
+          <span class="tag-text">GTM AUTOMATION</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

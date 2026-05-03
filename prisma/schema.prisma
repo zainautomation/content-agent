@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         String        @default("USER")
+  workspaceId  String?       @unique
+  workspace    Workspace?    @relation(fields: [workspaceId], references: [id])
+  invitesSent  InviteToken[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Workspace {
+  id             String          @id @default(cuid())
+  name           String
+  brandSettings  String          @default("{}")
+  connections    String          @default("{}")
+  user           User?
+  posts          Post[]
+  scheduledPosts ScheduledPost[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Post {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  title         String
+  originalInput String
+  inputType     String
+  brief         String
+  platformPosts String
+  status        String    @default("draft")
+  reviewComment String?
+  scheduledAt   DateTime?
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model ScheduledPost {
+  id          String    @id @default(cuid())
+  postId      String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  platforms   String
+  scheduledAt DateTime
+  createdAt   DateTime  @default(now())
+}
+
+model InviteToken {
+  id          String   @id @default(cuid())
+  token       String   @unique @default(cuid())
+  email       String?
+  used        Boolean  @default(false)
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+}
