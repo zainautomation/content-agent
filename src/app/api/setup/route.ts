@@ -4,8 +4,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const count = await prisma.user.count();
-  return NextResponse.json({ hasUsers: count > 0 });
+  try {
+    const count = await prisma.user.count();
+    return NextResponse.json({ hasUsers: count > 0 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
