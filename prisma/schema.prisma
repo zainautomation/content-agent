@@ -26,6 +26,7 @@ model Workspace {
   name           String
   brandSettings  String          @default("{}")
   connections    String          @default("{}")
+  permissions    String          @default("{}")
   user           User?
   posts          Post[]
   scheduledPosts ScheduledPost[]

@@ -26,6 +26,15 @@ Return JSON: { "content": "...", "hashtags": ["...", ...] }`,
 - Emojis allowed
 Return JSON: { "content": "...", "hashtags": ["...", ...] }`,
 
+  twitter: `Generate a Twitter/X post with:
+- Max 280 characters (hard limit)
+- Hook in the first 5 words — bold, punchy, or provocative
+- No filler phrases
+- 1-2 relevant hashtags maximum, or none
+- Can include a short thread opener if the topic is complex (label it "Thread 🧵")
+- Emojis allowed but minimal
+Return JSON: { "content": "...", "hashtags": ["...", ...] }`,
+
   blog: `Generate a long-form blog post with:
 - SEO-optimized structure
 - H2/H3 headings using markdown

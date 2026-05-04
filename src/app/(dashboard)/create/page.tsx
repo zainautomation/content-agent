@@ -38,10 +38,11 @@ const CTA_OPTIONS: { id: CtaStyle; label: string }[] = [
   { id: "open_question", label: "Open question" },
   { id: "no_cta", label: "No CTA" },
 ];
-const PLATFORM_OPTIONS: { id: Platform; label: string }[] = [
+const ALL_PLATFORM_OPTIONS: { id: Platform; label: string }[] = [
   { id: "linkedin", label: "LinkedIn" },
   { id: "facebook", label: "Facebook" },
   { id: "instagram", label: "Instagram" },
+  { id: "twitter", label: "Twitter / X" },
   { id: "blog", label: "Blog" },
 ];
 const CONTENT_TYPES: { id: ContentType; label: string; tag: string; promptKey?: PromptKey; placeholder: string; inputLabel: string }[] = [
@@ -136,7 +137,8 @@ export default function CreatePage() {
   const addPost = usePostsStore((s) => s.addPost);
   const deletePost = usePostsStore((s) => s.deletePost);
   const posts = usePostsStore((s) => s.posts);
-  const { brand, updateBrand, updatePrompt, getConnection, updateConnection } = useSettingsStore();
+  const { brand, updateBrand, updatePrompt, getConnection, updateConnection, permissions } = useSettingsStore();
+  const PLATFORM_OPTIONS = ALL_PLATFORM_OPTIONS.filter((p) => permissions[p.id as keyof typeof permissions] !== false);
   const { scheduled, unschedulePost } = useScheduleStore();
   const getPost = usePostsStore((s) => s.getPost);
 
@@ -618,9 +620,11 @@ export default function CreatePage() {
                           <div className="px-4 py-2.5 border-b border-white/[0.06] flex items-center justify-between">
                             <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">{item.platform}</span>
                             <div className="flex items-center gap-3">
-                              <button onClick={() => setImageModal(item)} className="flex items-center gap-1.5 text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">
-                                <ImageIcon size={11} /> Create Image
-                              </button>
+                              {permissions.imageCreation !== false && (
+                                <button onClick={() => setImageModal(item)} className="flex items-center gap-1.5 text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">
+                                  <ImageIcon size={11} /> Create Image
+                                </button>
+                              )}
                               <button onClick={() => navigator.clipboard.writeText(item.content)} className="text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">Copy</button>
                             </div>
                           </div>

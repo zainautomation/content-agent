@@ -38,11 +38,13 @@ export async function GET(req: NextRequest, { params }: Params) {
 
   const stored = JSON.parse(workspace.brandSettings || "{}");
   const brand = { ...DEFAULT_BRAND, ...stored };
+  const permissions = JSON.parse((workspace as unknown as { permissions?: string }).permissions || "{}");
 
   if (resource === "settings") {
     const scheduledPosts = await prisma.scheduledPost.findMany({ where: { workspaceId: auth.workspaceId } });
     return NextResponse.json({
       brand,
+      permissions,
       scheduled: scheduledPosts.map((s) => ({
         postId: s.postId,
         platforms: JSON.parse(s.platforms),
@@ -56,6 +58,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   return NextResponse.json({
     brand,
     connections,
+    permissions,
     scheduled: scheduledPosts.map((s) => ({
       postId: s.postId,
       platforms: JSON.parse(s.platforms),

@@ -12,8 +12,9 @@ async function requireAdmin(req: NextRequest) {
   return auth;
 }
 
-// GET /api/admin/users  → list users
-// GET /api/admin/invite → list invites
+// GET /api/admin/users          → list users
+// GET /api/admin/users/[id]     → user + permissions
+// GET /api/admin/invite         → list invites
 export async function GET(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin(req);
   if (!auth) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -22,11 +23,35 @@ export async function GET(req: NextRequest, { params }: Params) {
   const resource = slug?.[0];
 
   if (resource === "users") {
+    const userId = slug?.[1];
+
+    // Single user with permissions
+    if (userId && userId !== "register") {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, name: true, email: true, role: true, workspaceId: true, createdAt: true },
+      });
+      if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+      let permissions = {};
+      if (user.workspaceId) {
+        const ws = await prisma.workspace.findUnique({ where: { id: user.workspaceId } });
+        permissions = JSON.parse((ws as unknown as { permissions?: string })?.permissions || "{}");
+      }
+      return NextResponse.json({ user, permissions });
+    }
+
+    // List all users
     const users = await prisma.user.findMany({
       orderBy: { createdAt: "asc" },
       select: { id: true, name: true, email: true, role: true, workspaceId: true, createdAt: true },
     });
-    return NextResponse.json({ users });
+    // Attach permissions to each user
+    const workspaceIds = users.map((u) => u.workspaceId).filter(Boolean) as string[];
+    const workspaces = await prisma.workspace.findMany({ where: { id: { in: workspaceIds } } });
+    const wsMap = Object.fromEntries(workspaces.map((w) => [w.id, JSON.parse((w as unknown as { permissions?: string }).permissions || "{}")]));
+    return NextResponse.json({
+      users: users.map((u) => ({ ...u, permissions: u.workspaceId ? wsMap[u.workspaceId] ?? {} : {} })),
+    });
   }
 
   if (resource === "invite") {
@@ -42,6 +67,29 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 
   return NextResponse.json({ error: "Not found" }, { status: 404 });
+}
+
+// PATCH /api/admin/users/[id]/permissions → update user workspace permissions
+export async function PATCH(req: NextRequest, { params }: Params) {
+  const auth = await requireAdmin(req);
+  if (!auth) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { slug } = await params;
+  // slug = ["users", id, "permissions"]
+  if (slug?.[0] !== "users" || slug?.[2] !== "permissions") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  const userId = slug[1];
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { workspaceId: true } });
+  if (!user?.workspaceId) return NextResponse.json({ error: "User has no workspace" }, { status: 404 });
+
+  const permissions = await req.json();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (prisma.workspace.update as any)({
+    where: { id: user.workspaceId },
+    data: { permissions: JSON.stringify(permissions) },
+  });
+  return NextResponse.json({ success: true });
 }
 
 // POST /api/admin/invite → create invite

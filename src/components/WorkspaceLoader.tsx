@@ -21,7 +21,7 @@ export default function WorkspaceLoader() {
     ])
       .then(([postsData, settingsData, connectionsData]) => {
         if (postsData.posts) hydratePosts(postsData.posts);
-        if (settingsData.brand) hydrateSettings(settingsData.brand, connectionsData.connections ?? []);
+        if (settingsData.brand) hydrateSettings(settingsData.brand, connectionsData.connections ?? [], settingsData.permissions);
         if (settingsData.scheduled) hydrateSchedule(settingsData.scheduled);
       })
       .catch(console.error);

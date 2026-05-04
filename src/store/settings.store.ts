@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
-import type { BrandSettings, PlatformConnection } from "@/types";
+import type { BrandSettings, PlatformConnection, Permissions } from "@/types";
+import { DEFAULT_PERMISSIONS } from "@/types";
 
 const DEFAULT_BRAND: BrandSettings = {
   systemPrompt: `You are writing on behalf of Zutomate — a GTM automation agency that builds predictable, high-quality lead pipelines for B2B companies.
@@ -219,7 +220,8 @@ After all 4 posts, give me:
 interface SettingsState {
   brand: BrandSettings;
   connections: PlatformConnection[];
-  hydrate: (brand: BrandSettings, connections: PlatformConnection[]) => void;
+  permissions: Permissions;
+  hydrate: (brand: BrandSettings, connections: PlatformConnection[], permissions?: Partial<Permissions>) => void;
   updateBrand: (updates: Partial<BrandSettings>) => void;
   updatePrompt: (key: keyof BrandSettings["prompts"], value: string) => void;
   updateConnection: (platform: string, data: Partial<PlatformConnection>) => void;
@@ -229,8 +231,10 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   brand: DEFAULT_BRAND,
   connections: [],
+  permissions: DEFAULT_PERMISSIONS,
 
-  hydrate: (brand, connections) => set({ brand, connections }),
+  hydrate: (brand, connections, permissions) =>
+    set({ brand, connections, permissions: { ...DEFAULT_PERMISSIONS, ...permissions } }),
 
   updateBrand: (updates) => {
     set((state) => ({ brand: { ...state.brand, ...updates } }));

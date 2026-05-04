@@ -1,4 +1,22 @@
-export type Platform = "linkedin" | "facebook" | "instagram" | "blog";
+export type Platform = "linkedin" | "facebook" | "instagram" | "twitter" | "blog";
+
+export interface Permissions {
+  linkedin: boolean;
+  facebook: boolean;
+  instagram: boolean;
+  twitter: boolean;
+  blog: boolean;
+  imageCreation: boolean;
+}
+
+export const DEFAULT_PERMISSIONS: Permissions = {
+  linkedin: true,
+  facebook: true,
+  instagram: true,
+  twitter: true,
+  blog: true,
+  imageCreation: true,
+};
 
 export type PostStatus =
   | "draft"
