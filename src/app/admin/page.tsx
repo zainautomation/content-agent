@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2, Copy, Check, UserX, Plus, Shield } from "lucide-react";
+import { Loader2, Copy, Check, UserX, Plus, Shield, UserPlus, Eye, EyeOff } from "lucide-react";
 
 type User = {
   id: string;
@@ -22,6 +22,12 @@ type Invite = {
   createdAt: string;
 };
 
+type CreatedCredentials = {
+  name: string;
+  email: string;
+  password: string;
+};
+
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -29,9 +35,21 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+
+  // Invite form
   const [inviteEmail, setInviteEmail] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [creatingInvite, setCreatingInvite] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Create user form
+  const [newName, setNewName] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [createdCredentials, setCreatedCredentials] = useState<CreatedCredentials | null>(null);
+  const [copiedCredentials, setCopiedCredentials] = useState(false);
+
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -56,8 +74,39 @@ export default function AdminPage() {
     setLoadingUsers(false);
   };
 
+  const createUser = async () => {
+    if (!newName.trim() || !newEmail.trim() || !newPassword.trim()) {
+      setError("All fields are required.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    setCreatingUser(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/users/register", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName.trim(), email: newEmail.trim(), password: newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCreatedCredentials({ name: newName.trim(), email: newEmail.trim(), password: newPassword });
+      setNewName("");
+      setNewEmail("");
+      setNewPassword("");
+      loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create user");
+    } finally {
+      setCreatingUser(false);
+    }
+  };
+
   const createInvite = async () => {
-    setCreating(true);
+    setCreatingInvite(true);
     setError("");
     try {
       const res = await fetch("/api/admin/invite", {
@@ -73,7 +122,7 @@ export default function AdminPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create invite");
     } finally {
-      setCreating(false);
+      setCreatingInvite(false);
     }
   };
 
@@ -81,6 +130,15 @@ export default function AdminPage() {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const copyCredentials = () => {
+    if (!createdCredentials) return;
+    navigator.clipboard.writeText(
+      `Email: ${createdCredentials.email}\nPassword: ${createdCredentials.password}`
+    );
+    setCopiedCredentials(true);
+    setTimeout(() => setCopiedCredentials(false), 2000);
   };
 
   const removeUser = async (userId: string) => {
@@ -110,13 +168,99 @@ export default function AdminPage() {
           <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Admin</p>
         </div>
         <h1 className="text-xl font-bold text-white">Workspace Management</h1>
-        <p className="text-sm text-white/30 mt-1">Manage users and invite new members.</p>
+        <p className="text-sm text-white/30 mt-1">Create accounts and manage users.</p>
       </div>
 
-      {/* Create invite */}
+      {error && (
+        <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      {/* Created credentials banner */}
+      {createdCredentials && (
+        <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold text-emerald-400">
+              Account created for {createdCredentials.name}
+            </p>
+            <button
+              onClick={() => setCreatedCredentials(null)}
+              className="text-white/20 hover:text-white/50 text-xs"
+            >
+              Dismiss
+            </button>
+          </div>
+          <div className="bg-black/30 rounded-lg px-4 py-3 font-mono text-sm text-white/70 space-y-1">
+            <p>Email: <span className="text-white">{createdCredentials.email}</span></p>
+            <p>Password: <span className="text-white">{createdCredentials.password}</span></p>
+          </div>
+          <button
+            onClick={copyCredentials}
+            className="mt-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors"
+          >
+            {copiedCredentials ? <Check size={10} /> : <Copy size={10} />}
+            {copiedCredentials ? "Copied!" : "Copy credentials"}
+          </button>
+        </div>
+      )}
+
+      {/* Create user directly */}
+      <div className="bg-[var(--bg-surface)] border border-white/[0.07] rounded-xl p-5 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <UserPlus size={13} className="text-[#fe710c]" />
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">
+            Create User Account
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Full name"
+            className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30"
+          />
+          <input
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="Email address"
+            className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30"
+          />
+        </div>
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Password (min 8 characters)"
+              className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 pr-9 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
+            >
+              {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+            </button>
+          </div>
+          <button
+            onClick={createUser}
+            disabled={creatingUser}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#fe710c] text-black text-xs font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors whitespace-nowrap"
+          >
+            {creatingUser ? <Loader2 size={12} className="animate-spin" /> : <UserPlus size={12} />}
+            Create Account
+          </button>
+        </div>
+      </div>
+
+      {/* Invite link section */}
       <div className="bg-[var(--bg-surface)] border border-white/[0.07] rounded-xl p-5 mb-6">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-3">
-          Invite New User
+          Or Send Invite Link
         </p>
         <div className="flex gap-2">
           <input
@@ -128,16 +272,13 @@ export default function AdminPage() {
           />
           <button
             onClick={createInvite}
-            disabled={creating}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-[#fe710c] text-black text-xs font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors whitespace-nowrap"
+            disabled={creatingInvite}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-white/[0.06] text-white/60 text-xs font-bold hover:bg-white/[0.09] disabled:opacity-50 transition-colors whitespace-nowrap"
           >
-            {creating ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+            {creatingInvite ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
             Generate Link
           </button>
         </div>
-        {error && (
-          <p className="text-xs text-red-400 mt-2">{error}</p>
-        )}
       </div>
 
       {/* Recent invites */}
@@ -184,6 +325,9 @@ export default function AdminPage() {
           </p>
         </div>
         <div className="divide-y divide-white/[0.05]">
+          {users.length === 0 && (
+            <p className="px-5 py-8 text-sm text-white/20 text-center">No users yet.</p>
+          )}
           {users.map((user) => (
             <div key={user.id} className="px-5 py-3.5 flex items-center justify-between">
               <div>
