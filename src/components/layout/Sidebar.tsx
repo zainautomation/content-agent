@@ -83,17 +83,22 @@ export default function Sidebar() {
       <div className="space-y-3 px-1 mt-4">
         {/* User info */}
         {session?.user && (
-          <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/[0.04] border border-white/[0.06]">
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold text-white/70 truncate">{session.user.name}</p>
-              <p className="text-[9px] text-white/25 truncate">{session.user.email}</p>
+          <div className="rounded-lg bg-white/[0.04] border border-white/[0.06] overflow-hidden">
+            <div className="flex items-center gap-2 px-2 py-2">
+              <div className="w-6 h-6 rounded-full bg-[#fe710c]/20 flex items-center justify-center text-[10px] font-bold text-[#fe710c] shrink-0">
+                {session.user.name?.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold text-white/70 truncate">{session.user.name}</p>
+                <p className="text-[9px] text-white/25 truncate">{session.user.email}</p>
+              </div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="ml-2 shrink-0 text-white/20 hover:text-red-400 transition-colors"
-              title="Sign out"
+              className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 border-t border-white/[0.06] text-[10px] font-semibold text-white/30 hover:text-red-400 hover:bg-red-400/5 transition-all"
             >
-              <LogOut size={12} />
+              <LogOut size={10} />
+              Sign Out
             </button>
           </div>
         )}
