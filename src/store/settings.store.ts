@@ -222,8 +222,8 @@ interface SettingsState {
   connections: PlatformConnection[];
   permissions: Permissions;
   hydrate: (brand: BrandSettings, connections: PlatformConnection[], permissions?: Partial<Permissions>) => void;
-  updateBrand: (updates: Partial<BrandSettings>) => void;
-  updatePrompt: (key: keyof BrandSettings["prompts"], value: string) => void;
+  updateBrand: (updates: Partial<BrandSettings>) => Promise<void>;
+  updatePrompt: (key: keyof BrandSettings["prompts"], value: string) => Promise<void>;
   updateConnection: (platform: string, data: Partial<PlatformConnection>) => void;
   getConnection: (platform: string) => PlatformConnection | undefined;
 }
@@ -236,16 +236,20 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   hydrate: (brand, connections, permissions) =>
     set({ brand, connections, permissions: { ...DEFAULT_PERMISSIONS, ...permissions } }),
 
-  updateBrand: (updates) => {
+  updateBrand: async (updates) => {
     set((state) => ({ brand: { ...state.brand, ...updates } }));
-    fetch("/api/workspace/settings", {
+    const res = await fetch("/api/workspace/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
-    }).catch(console.error);
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? `Save failed (${res.status})`);
+    }
   },
 
-  updatePrompt: (key, value) => {
+  updatePrompt: async (key, value) => {
     set((state) => ({
       brand: {
         ...state.brand,
@@ -253,11 +257,15 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       },
     }));
     const brand = get().brand;
-    fetch("/api/workspace/settings", {
+    const res = await fetch("/api/workspace/settings", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompts: { ...brand.prompts, [key]: value } }),
-    }).catch(console.error);
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? `Save failed (${res.status})`);
+    }
   },
 
   updateConnection: (platform, data) => {
