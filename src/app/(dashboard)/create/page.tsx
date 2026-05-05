@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { usePostsStore } from "@/store/posts.store";
 import { useSettingsStore } from "@/store/settings.store";
 import { useScheduleStore } from "@/store/schedule.store";
 import {
   Loader2, Zap, ArrowRight, Link2, FileText, ImageIcon,
   History, CalendarDays, PlugZap, Sparkles, Palette,
-  Clock, Trash2, Check, Save, ZapOff, X, Moon, Sun,
+  Clock, Trash2, Check, Save, ZapOff, X, Moon, Sun, LogOut,
 } from "lucide-react";
 import type { Platform, BrandSettings, PostStatus } from "@/types";
 import dynamic from "next/dynamic";
@@ -333,6 +334,12 @@ export default function CreatePage() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             AI Ready
           </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-white/30 hover:text-red-400 hover:bg-red-400/[0.08] border border-transparent hover:border-red-400/20 transition-all"
+          >
+            <LogOut size={11} /> Sign Out
+          </button>
         </div>
       </div>
 
