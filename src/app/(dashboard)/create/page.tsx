@@ -695,15 +695,15 @@ export default function CreatePage() {
               <div className="p-6 space-y-4 max-w-2xl mx-auto">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-1">Prompt Templates</p>
                 {([
-                  { key: "linkedinPost" as PromptKey, label: "LinkedIn Posts", tag: "Post Prompt" },
-                  { key: "commentsReplies" as PromptKey, label: "Comments & Replies", tag: "Engagement Prompt" },
-                  { key: "coldDm" as PromptKey, label: "Cold LinkedIn DM", tag: "Outreach Prompt" },
-                  { key: "coldEmail" as PromptKey, label: "Cold Email", tag: "Outreach Prompt" },
-                  { key: "leadMagnet" as PromptKey, label: "Lead Magnet Copy", tag: "Outreach Prompt" },
-                  { key: "contentPlanning" as PromptKey, label: "Content Planning", tag: "Strategy Prompt" },
-                  { key: "batchContent" as PromptKey, label: "Batch Content (4 Posts)", tag: "Strategy Prompt" },
-                  { key: "imagePost" as PromptKey, label: "Image Post Generation", tag: "Image Prompt" },
-                ] as { key: PromptKey; label: string; tag: string }[]).map(({ key, label, tag }) => (
+                  { key: "linkedinPost" as PromptKey, label: "LinkedIn Posts", tag: "Post Prompt", guard: permissions.linkedin !== false },
+                  { key: "commentsReplies" as PromptKey, label: "Comments & Replies", tag: "Engagement Prompt", guard: true },
+                  { key: "coldDm" as PromptKey, label: "Cold LinkedIn DM", tag: "Outreach Prompt", guard: true },
+                  { key: "coldEmail" as PromptKey, label: "Cold Email", tag: "Outreach Prompt", guard: true },
+                  { key: "leadMagnet" as PromptKey, label: "Lead Magnet Copy", tag: "Outreach Prompt", guard: true },
+                  { key: "contentPlanning" as PromptKey, label: "Content Planning", tag: "Strategy Prompt", guard: true },
+                  { key: "batchContent" as PromptKey, label: "Batch Content (4 Posts)", tag: "Strategy Prompt", guard: true },
+                  { key: "imagePost" as PromptKey, label: "Image Post Generation", tag: "Image Prompt", guard: permissions.imageCreation !== false },
+                ] as { key: PromptKey; label: string; tag: string; guard: boolean }[]).filter((p) => p.guard).map(({ key, label, tag }) => (
                   <Card key={key}>
                     <div className="px-4 py-3 border-b border-white/[0.06] bg-[var(--bg-surface3)] flex items-center justify-between">
                       <div>

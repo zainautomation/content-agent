@@ -61,7 +61,14 @@ function PromptField({
 }
 
 export default function PromptsSettingsPage() {
-  const { brand, updateBrand, updatePrompt } = useSettingsStore();
+  const { brand, updateBrand, updatePrompt, permissions } = useSettingsStore();
+
+  const VISIBLE_TABS = TABS.filter((tab) => {
+    if (tab.id === "linkedin" && permissions.linkedin === false) return false;
+    if (tab.id === "image" && permissions.imageCreation === false) return false;
+    return true;
+  });
+
   const [activeTab, setActiveTab] = useState<TabId>("master");
   const [saved, setSaved] = useState(false);
 
@@ -125,7 +132,7 @@ export default function PromptsSettingsPage() {
 
       {/* Tab nav */}
       <div className="flex gap-1.5 flex-wrap mb-7">
-        {TABS.map((tab) => (
+        {VISIBLE_TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
@@ -200,7 +207,7 @@ export default function PromptsSettingsPage() {
           <div className="bg-[var(--bg-surface)] border border-white/[0.07] rounded-xl p-5">
             <label className="block text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-3">Platform-Specific Instructions</label>
             <div className="space-y-3">
-              {(["linkedin", "facebook", "instagram", "blog"] as Platform[]).map((p) => (
+              {(["linkedin", "facebook", "instagram", "blog"] as Platform[]).filter((p) => permissions[p] !== false).map((p) => (
                 <div key={p}>
                   <label className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-1.5 block">{PLATFORM_LABELS[p]}</label>
                   <textarea
