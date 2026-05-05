@@ -23,6 +23,7 @@ const DEFAULT_BRAND: BrandSettings = {
 export async function GET(req: NextRequest, { params }: Params) {
   const auth = await getAuthInfo(req);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!auth.workspaceId) return NextResponse.json({ error: "No workspace assigned to this account" }, { status: 400 });
 
   const workspace = await prisma.workspace.findUnique({ where: { id: auth.workspaceId } });
   if (!workspace) return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
@@ -72,6 +73,7 @@ export async function GET(req: NextRequest, { params }: Params) {
 export async function PATCH(req: NextRequest, { params }: Params) {
   const auth = await getAuthInfo(req);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!auth.workspaceId) return NextResponse.json({ error: "No workspace assigned to this account" }, { status: 400 });
 
   const workspace = await prisma.workspace.findUnique({ where: { id: auth.workspaceId } });
   if (!workspace) return NextResponse.json({ error: "Workspace not found" }, { status: 404 });

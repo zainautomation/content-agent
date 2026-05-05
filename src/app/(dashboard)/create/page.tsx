@@ -185,11 +185,19 @@ export default function CreatePage() {
 
   /* Brand form */
   const [brandForm, setBrandForm] = useState({ systemPrompt: brand.systemPrompt, brandVoice: brand.brandVoice, primary: brand.brandColors.primary, secondary: brand.brandColors.secondary, accent: brand.brandColors.accent });
-  const [brandSaved, setBrandSaved] = useState(false);
+  const [brandSaved, setBrandSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [brandError, setBrandError] = useState("");
 
   /* Prompts form */
   const [prompts, setPrompts] = useState({ ...brand.prompts });
   const [promptSaved, setPromptSaved] = useState<string | null>(null);
+  const [promptError, setPromptError] = useState("");
+
+  // Sync forms when store hydrates from server
+  useEffect(() => {
+    setBrandForm({ systemPrompt: brand.systemPrompt, brandVoice: brand.brandVoice, primary: brand.brandColors.primary, secondary: brand.brandColors.secondary, accent: brand.brandColors.accent });
+    setPrompts({ ...brand.prompts });
+  }, [brand]);
 
   /* Integrations form */
   const [intForms, setIntForms] = useState<Record<string, Record<string, string>>>({});
@@ -292,14 +300,26 @@ export default function CreatePage() {
     } finally { setLoading(false); }
   };
 
-  const saveBrand = () => {
-    updateBrand({ systemPrompt: brandForm.systemPrompt, brandVoice: brandForm.brandVoice, brandColors: { primary: brandForm.primary, secondary: brandForm.secondary, accent: brandForm.accent } });
-    setBrandSaved(true); setTimeout(() => setBrandSaved(false), 2000);
+  const saveBrand = async () => {
+    setBrandSaved("saving"); setBrandError("");
+    try {
+      await updateBrand({ systemPrompt: brandForm.systemPrompt, brandVoice: brandForm.brandVoice, brandColors: { primary: brandForm.primary, secondary: brandForm.secondary, accent: brandForm.accent } });
+      setBrandSaved("saved"); setTimeout(() => setBrandSaved("idle"), 2000);
+    } catch (err) {
+      setBrandError(err instanceof Error ? err.message : "Save failed");
+      setBrandSaved("error"); setTimeout(() => setBrandSaved("idle"), 4000);
+    }
   };
 
-  const savePrompt = (key: PromptKey) => {
-    updatePrompt(key, prompts[key]);
-    setPromptSaved(key); setTimeout(() => setPromptSaved(null), 2000);
+  const savePrompt = async (key: PromptKey) => {
+    setPromptError("");
+    try {
+      await updatePrompt(key, prompts[key]);
+      setPromptSaved(key); setTimeout(() => setPromptSaved(null), 2000);
+    } catch (err) {
+      setPromptError(err instanceof Error ? err.message : "Save failed");
+      setTimeout(() => setPromptError(""), 4000);
+    }
   };
 
   const getIntVal = (id: string, field: string) => {
@@ -702,9 +722,15 @@ export default function CreatePage() {
                   </div>
                 </Card>
 
-                <button onClick={saveBrand} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#fe710c] text-black text-sm font-bold hover:bg-[#ff8a2e] transition-colors">
-                  {brandSaved ? <Check size={14} /> : <Save size={14} />}
-                  {brandSaved ? "Saved!" : "Save Brand"}
+                {brandError && (
+                  <p className="text-xs text-red-400 flex items-center gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" />{brandError}
+                  </p>
+                )}
+                <button onClick={saveBrand} disabled={brandSaved === "saving"}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-50 ${brandSaved === "error" ? "bg-red-500 text-white" : "bg-[#fe710c] text-black hover:bg-[#ff8a2e]"}`}>
+                  {brandSaved === "saving" ? null : brandSaved === "saved" ? <Check size={14} /> : <Save size={14} />}
+                  {brandSaved === "saving" ? "Saving..." : brandSaved === "saved" ? "Saved!" : brandSaved === "error" ? "Save failed" : "Save Brand"}
                 </button>
               </div>
             )}
@@ -713,6 +739,11 @@ export default function CreatePage() {
             {activeTab === "prompts" && (
               <div className="p-6 space-y-4 max-w-2xl mx-auto">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-1">Prompt Templates</p>
+                {promptError && (
+                  <p className="text-xs text-red-400 flex items-center gap-1.5 mb-2">
+                    <span className="w-1 h-1 rounded-full bg-red-400 shrink-0" />{promptError}
+                  </p>
+                )}
                 {([
                   { key: "linkedinPost" as PromptKey, label: "LinkedIn Posts", tag: "Post Prompt", guard: permissions.linkedin !== false && permissions.socialPost !== false },
                   { key: "commentsReplies" as PromptKey, label: "Comments & Replies", tag: "Engagement Prompt", guard: permissions.commentReply !== false },
