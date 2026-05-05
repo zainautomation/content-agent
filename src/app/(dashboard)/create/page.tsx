@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { usePostsStore } from "@/store/posts.store";
@@ -140,6 +140,25 @@ export default function CreatePage() {
   const posts = usePostsStore((s) => s.posts);
   const { brand, updateBrand, updatePrompt, getConnection, updateConnection, permissions } = useSettingsStore();
   const PLATFORM_OPTIONS = ALL_PLATFORM_OPTIONS.filter((p) => permissions[p.id as keyof typeof permissions] !== false);
+
+  const CONTENT_TYPE_PERMISSION_MAP: Record<ContentType, keyof typeof permissions> = {
+    social_post: "socialPost",
+    comment_reply: "commentReply",
+    cold_dm: "coldDm",
+    cold_email: "coldEmail",
+    lead_magnet: "leadMagnet",
+    content_plan: "contentPlan",
+    batch_content: "batchContent",
+  };
+  const VISIBLE_CONTENT_TYPES = CONTENT_TYPES.filter(
+    (ct) => permissions[CONTENT_TYPE_PERMISSION_MAP[ct.id]] !== false
+  );
+  // Auto-reset if selected content type is revoked by permissions
+  useEffect(() => {
+    if (!VISIBLE_CONTENT_TYPES.find((ct) => ct.id === contentType) && VISIBLE_CONTENT_TYPES.length > 0) {
+      setContentType(VISIBLE_CONTENT_TYPES[0].id);
+    }
+  }, [permissions]);
   const { scheduled, unschedulePost } = useScheduleStore();
   const getPost = usePostsStore((s) => s.getPost);
 
@@ -352,7 +371,7 @@ export default function CreatePage() {
             <div>
               <SL>Content Type</SL>
               <div className="space-y-1">
-                {CONTENT_TYPES.map((ct) => (
+                {VISIBLE_CONTENT_TYPES.map((ct) => (
                   <button
                     key={ct.id}
                     onClick={() => { setContentType(ct.id); setRawIdea(""); setOutput([]); setPromptMessages([]); setFollowUp(""); setError(""); }}

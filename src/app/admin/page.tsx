@@ -29,6 +29,16 @@ const PLATFORM_PERMS: { key: keyof Permissions; label: string; icon: string }[] 
   { key: "blog", label: "Blog", icon: "B" },
 ];
 
+const CONTENT_TYPE_PERMS: { key: keyof Permissions; label: string }[] = [
+  { key: "socialPost", label: "Social Post" },
+  { key: "commentReply", label: "Comment / Reply" },
+  { key: "coldDm", label: "Cold DM" },
+  { key: "coldEmail", label: "Cold Email" },
+  { key: "leadMagnet", label: "Lead Magnet" },
+  { key: "contentPlan", label: "Content Plan" },
+  { key: "batchContent", label: "Batch Content" },
+];
+
 const FEATURE_PERMS: { key: keyof Permissions; label: string; desc: string }[] = [
   { key: "imageCreation", label: "Image Creation", desc: "Generate branded social images" },
 ];
@@ -139,12 +149,15 @@ function UserRow({
             <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Platform Access</p>
             <div className="flex flex-wrap gap-2">
               {PLATFORM_PERMS.map((p) => (
-                <PermissionToggle
-                  key={p.key}
-                  label={p.label}
-                  enabled={perms[p.key]}
-                  onChange={(v) => toggle(p.key)}
-                />
+                <PermissionToggle key={p.key} label={p.label} enabled={perms[p.key]} onChange={() => toggle(p.key)} />
+              ))}
+            </div>
+          </div>
+          <div className="mb-3">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Content Types</p>
+            <div className="flex flex-wrap gap-2">
+              {CONTENT_TYPE_PERMS.map((c) => (
+                <PermissionToggle key={c.key} label={c.label} enabled={perms[c.key]} onChange={() => toggle(c.key)} />
               ))}
             </div>
           </div>
@@ -152,12 +165,7 @@ function UserRow({
             <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Feature Access</p>
             <div className="flex flex-wrap gap-2">
               {FEATURE_PERMS.map((f) => (
-                <PermissionToggle
-                  key={f.key}
-                  label={f.label}
-                  enabled={perms[f.key]}
-                  onChange={(v) => toggle(f.key)}
-                />
+                <PermissionToggle key={f.key} label={f.label} enabled={perms[f.key]} onChange={() => toggle(f.key)} />
               ))}
             </div>
           </div>
@@ -379,12 +387,17 @@ export default function AdminPage() {
           <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Platform Access</p>
           <div className="flex flex-wrap gap-2">
             {PLATFORM_PERMS.map((p) => (
-              <PermissionToggle
-                key={p.key}
-                label={p.label}
-                enabled={newPerms[p.key]}
-                onChange={() => toggleNewPerm(p.key)}
-              />
+              <PermissionToggle key={p.key} label={p.label} enabled={newPerms[p.key]} onChange={() => toggleNewPerm(p.key)} />
+            ))}
+          </div>
+        </div>
+
+        {/* Content type permissions */}
+        <div className="mb-4">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Content Types</p>
+          <div className="flex flex-wrap gap-2">
+            {CONTENT_TYPE_PERMS.map((c) => (
+              <PermissionToggle key={c.key} label={c.label} enabled={newPerms[c.key]} onChange={() => toggleNewPerm(c.key)} />
             ))}
           </div>
         </div>
@@ -394,12 +407,7 @@ export default function AdminPage() {
           <p className="text-[10px] font-semibold uppercase tracking-widest text-white/20 mb-2">Feature Access</p>
           <div className="flex flex-wrap gap-2">
             {FEATURE_PERMS.map((f) => (
-              <PermissionToggle
-                key={f.key}
-                label={f.label}
-                enabled={newPerms[f.key]}
-                onChange={() => toggleNewPerm(f.key)}
-              />
+              <PermissionToggle key={f.key} label={f.label} enabled={newPerms[f.key]} onChange={() => toggleNewPerm(f.key)} />
             ))}
           </div>
         </div>

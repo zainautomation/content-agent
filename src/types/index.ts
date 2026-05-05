@@ -1,11 +1,21 @@
 export type Platform = "linkedin" | "facebook" | "instagram" | "twitter" | "blog";
 
 export interface Permissions {
+  // Platforms
   linkedin: boolean;
   facebook: boolean;
   instagram: boolean;
   twitter: boolean;
   blog: boolean;
+  // Content types
+  socialPost: boolean;
+  commentReply: boolean;
+  coldDm: boolean;
+  coldEmail: boolean;
+  leadMagnet: boolean;
+  contentPlan: boolean;
+  batchContent: boolean;
+  // Features
   imageCreation: boolean;
 }
 
@@ -15,6 +25,13 @@ export const DEFAULT_PERMISSIONS: Permissions = {
   instagram: true,
   twitter: true,
   blog: true,
+  socialPost: true,
+  commentReply: true,
+  coldDm: true,
+  coldEmail: true,
+  leadMagnet: true,
+  contentPlan: true,
+  batchContent: true,
   imageCreation: true,
 };
 
