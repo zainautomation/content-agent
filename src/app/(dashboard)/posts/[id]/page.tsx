@@ -51,6 +51,7 @@ export default function PostDetailPage() {
   const router = useRouter();
   const { getPost, setStatus, updatePlatformPost } = usePostsStore();
   const brand = useSettingsStore((s) => s.brand);
+  const permissions = useSettingsStore((s) => s.permissions);
   const schedulePost = useScheduleStore((s) => s.schedulePost);
 
   const post = getPost(id);
@@ -212,37 +213,40 @@ export default function PostDetailPage() {
                 {PLATFORM_LABELS[pp.platform]}
               </span>
               <div className="flex items-center gap-3">
-                {/* Create Image button */}
-                <button
-                  onClick={() => setImageModal({ content: pp.content, platform: pp.platform as Platform })}
-                  className="flex items-center gap-1 text-[10px] text-white/25 hover:text-[#fe710c] transition-colors uppercase tracking-widest font-semibold"
-                >
-                  <ImageIcon size={10} />
-                  Create Image
-                </button>
+                {permissions.imageCreation !== false && (
+                  <>
+                    <button
+                      onClick={() => setImageModal({ content: pp.content, platform: pp.platform as Platform })}
+                      className="flex items-center gap-1 text-[10px] text-white/25 hover:text-[#fe710c] transition-colors uppercase tracking-widest font-semibold"
+                    >
+                      <ImageIcon size={10} />
+                      Create Image
+                    </button>
 
-                {pp.canvaDesignUrl ? (
-                  <a
-                    href={pp.canvaDesignUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-[10px] text-[#fe710c]/60 hover:text-[#fe710c] transition-colors uppercase tracking-widest"
-                  >
-                    <ExternalLink size={10} /> Open in Canva
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => handleCreateCanvaDesign(pp)}
-                    disabled={canvaLoading === pp.platform}
-                    className="flex items-center gap-1 text-[10px] text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest disabled:opacity-40"
-                  >
-                    {canvaLoading === pp.platform ? (
-                      <Loader2 size={10} className="animate-spin" />
+                    {pp.canvaDesignUrl ? (
+                      <a
+                        href={pp.canvaDesignUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[10px] text-[#fe710c]/60 hover:text-[#fe710c] transition-colors uppercase tracking-widest"
+                      >
+                        <ExternalLink size={10} /> Open in Canva
+                      </a>
                     ) : (
-                      <Palette size={10} />
+                      <button
+                        onClick={() => handleCreateCanvaDesign(pp)}
+                        disabled={canvaLoading === pp.platform}
+                        className="flex items-center gap-1 text-[10px] text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest disabled:opacity-40"
+                      >
+                        {canvaLoading === pp.platform ? (
+                          <Loader2 size={10} className="animate-spin" />
+                        ) : (
+                          <Palette size={10} />
+                        )}
+                        Design in Canva
+                      </button>
                     )}
-                    Design in Canva
-                  </button>
+                  </>
                 )}
               </div>
             </div>

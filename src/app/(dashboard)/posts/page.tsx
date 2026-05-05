@@ -1,5 +1,6 @@
 "use client";
 import { usePostsStore } from "@/store/posts.store";
+import { useSettingsStore } from "@/store/settings.store";
 import { useRouter } from "next/navigation";
 import { formatDate, PLATFORM_LABELS } from "@/lib/utils";
 import { PenSquare, Trash2, FileText, ArrowRight, ImageIcon } from "lucide-react";
@@ -38,6 +39,7 @@ interface ImageTarget {
 export default function PostsPage() {
   const posts = usePostsStore((s) => s.posts);
   const deletePost = usePostsStore((s) => s.deletePost);
+  const permissions = useSettingsStore((s) => s.permissions);
   const router = useRouter();
   const [imageTarget, setImageTarget] = useState<ImageTarget | null>(null);
 
@@ -109,7 +111,7 @@ export default function PostsPage() {
               </span>
 
               {/* Create Image button */}
-              {firstPP && (
+              {firstPP && permissions.imageCreation !== false && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
