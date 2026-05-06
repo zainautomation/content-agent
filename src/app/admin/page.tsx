@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   Loader2, Shield, UserPlus, Eye, EyeOff, Copy, Check,
-  UserX, ChevronDown, ChevronUp, Users, Key,
+  UserX, ChevronDown, ChevronUp, Users, Key, KeyRound, RefreshCw,
 } from "lucide-react";
 import type { Permissions } from "@/types";
 import { DEFAULT_PERMISSIONS } from "@/types";
@@ -61,6 +61,11 @@ function PermissionToggle({
   );
 }
 
+function generatePassword() {
+  const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%";
+  return Array.from({ length: 12 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+}
+
 function UserRow({
   user, currentUserId, onRemove, onSave,
 }: {
@@ -74,6 +79,15 @@ function UserRow({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [removing, setRemoving] = useState(false);
+
+  // Password reset state
+  const [showPwReset, setShowPwReset] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [pwResetting, setPwResetting] = useState(false);
+  const [pwResetDone, setPwResetDone] = useState(false);
+  const [pwResetError, setPwResetError] = useState("");
+  const [copiedPw, setCopiedPw] = useState(false);
 
   const toggle = (key: keyof Permissions) =>
     setPerms((p) => ({ ...p, [key]: !p[key] }));
@@ -90,6 +104,34 @@ function UserRow({
     if (!confirm(`Remove ${user.name} and all their data? This cannot be undone.`)) return;
     setRemoving(true);
     onRemove(user.id);
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword.trim() || newPassword.length < 8) {
+      setPwResetError("Password must be at least 8 characters.");
+      return;
+    }
+    setPwResetting(true); setPwResetError("");
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/password`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Reset failed");
+      setPwResetDone(true);
+    } catch (err) {
+      setPwResetError(err instanceof Error ? err.message : "Reset failed");
+    } finally {
+      setPwResetting(false);
+    }
+  };
+
+  const copyPassword = () => {
+    navigator.clipboard.writeText(newPassword);
+    setCopiedPw(true);
+    setTimeout(() => setCopiedPw(false), 2000);
   };
 
   const isSelf = user.id === currentUserId;
@@ -169,14 +211,88 @@ function UserRow({
               ))}
             </div>
           </div>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#fe710c] text-black text-[10px] font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors"
-          >
-            {saving ? <Loader2 size={10} className="animate-spin" /> : saved ? <Check size={10} /> : null}
-            {saved ? "Saved!" : "Save Permissions"}
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#fe710c] text-black text-[10px] font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors"
+            >
+              {saving ? <Loader2 size={10} className="animate-spin" /> : saved ? <Check size={10} /> : null}
+              {saved ? "Saved!" : "Save Permissions"}
+            </button>
+            <button
+              onClick={() => { setShowPwReset((v) => !v); setPwResetDone(false); setPwResetError(""); setNewPassword(""); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.10] bg-white/[0.03] text-[10px] font-bold text-white/35 hover:text-white/60 hover:border-white/20 transition-colors"
+            >
+              <KeyRound size={10} />
+              Reset Password
+            </button>
+          </div>
+
+          {/* Password reset panel */}
+          {showPwReset && (
+            <div className="mt-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.07]">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-3">Reset Password for {user.name}</p>
+              {pwResetDone ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2.5">
+                    <Check size={12} className="text-emerald-400 shrink-0" />
+                    <span className="text-xs text-emerald-400 font-medium">Password updated successfully</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-black/30 rounded-lg px-3 py-2 font-mono text-sm text-white/70 border border-white/[0.06]">
+                      {newPassword}
+                    </div>
+                    <button onClick={copyPassword} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.06] text-white/40 hover:text-white/70 text-[10px] font-bold transition-colors border border-white/[0.07]">
+                      {copiedPw ? <Check size={10} /> : <Copy size={10} />}
+                      {copiedPw ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                  <button onClick={() => { setShowPwReset(false); setPwResetDone(false); setNewPassword(""); }} className="text-[10px] text-white/20 hover:text-white/45 transition-colors">
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showNewPw ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="New password (min 8 chars)"
+                        className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 pr-8 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30"
+                      />
+                      <button type="button" onClick={() => setShowNewPw((v) => !v)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50">
+                        {showNewPw ? <EyeOff size={12} /> : <Eye size={12} />}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => { const pw = generatePassword(); setNewPassword(pw); setShowNewPw(true); }}
+                      className="flex items-center gap-1 px-3 py-2 rounded-lg border border-white/[0.08] bg-white/[0.03] text-[10px] font-bold text-white/30 hover:text-white/60 transition-colors whitespace-nowrap"
+                    >
+                      <RefreshCw size={10} /> Generate
+                    </button>
+                  </div>
+                  {pwResetError && <p className="text-xs text-red-400">{pwResetError}</p>}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleResetPassword}
+                      disabled={pwResetting || !newPassword.trim()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#fe710c] text-black text-[10px] font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors"
+                    >
+                      {pwResetting ? <Loader2 size={10} className="animate-spin" /> : <KeyRound size={10} />}
+                      {pwResetting ? "Resetting..." : "Set New Password"}
+                    </button>
+                    <button onClick={() => setShowPwReset(false)} className="text-[10px] text-white/20 hover:text-white/45 px-2 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

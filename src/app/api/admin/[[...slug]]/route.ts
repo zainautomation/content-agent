@@ -69,17 +69,31 @@ export async function GET(req: NextRequest, { params }: Params) {
   return NextResponse.json({ error: "Not found" }, { status: 404 });
 }
 
-// PATCH /api/admin/users/[id]/permissions → update user workspace permissions
+// PATCH /api/admin/users/[id]/permissions  → update user workspace permissions
+// PATCH /api/admin/users/[id]/password     → reset user password
 export async function PATCH(req: NextRequest, { params }: Params) {
   const auth = await requireAdmin(req);
   if (!auth) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { slug } = await params;
-  // slug = ["users", id, "permissions"]
-  if (slug?.[0] !== "users" || slug?.[2] !== "permissions") {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  if (slug?.[0] !== "users") return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   const userId = slug[1];
+
+  // Reset password
+  if (slug?.[2] === "password") {
+    const { password } = await req.json();
+    if (!password?.trim() || password.length < 8) {
+      return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
+    }
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+    return NextResponse.json({ success: true });
+  }
+
+  // Update permissions
+  if (slug?.[2] !== "permissions") return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { workspaceId: true } });
   if (!user?.workspaceId) return NextResponse.json({ error: "User has no workspace" }, { status: 404 });
 
