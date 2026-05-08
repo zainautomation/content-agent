@@ -84,17 +84,25 @@ export default function PromptsSettingsPage() {
 
   const [prompts, setPrompts] = useState({ ...brand.prompts });
 
-  // Sync local form when store hydrates from server
+  // Sync local form when store hydrates from server — only overwrite with non-empty server values
   useEffect(() => {
-    setMasterForm({
-      systemPrompt: brand.systemPrompt,
-      brandVoice: brand.brandVoice,
-      primaryColor: brand.brandColors.primary,
-      secondaryColor: brand.brandColors.secondary,
-      accentColor: brand.brandColors.accent,
-      platformOverrides: { ...brand.platformOverrides } as Record<Platform, string>,
+    setMasterForm((prev) => ({
+      systemPrompt: brand.systemPrompt || prev.systemPrompt,
+      brandVoice: brand.brandVoice || prev.brandVoice,
+      primaryColor: brand.brandColors.primary || prev.primaryColor,
+      secondaryColor: brand.brandColors.secondary || prev.secondaryColor,
+      accentColor: brand.brandColors.accent || prev.accentColor,
+      platformOverrides: Object.keys(brand.platformOverrides ?? {}).length
+        ? { ...prev.platformOverrides, ...brand.platformOverrides } as Record<Platform, string>
+        : prev.platformOverrides,
+    }));
+    setPrompts((prev) => {
+      const next = { ...prev };
+      (Object.keys(brand.prompts) as PromptKey[]).forEach((key) => {
+        if (brand.prompts[key]) next[key] = brand.prompts[key];
+      });
+      return next;
     });
-    setPrompts({ ...brand.prompts });
   }, [brand]);
 
   const withSaveState = async (fn: () => Promise<void>) => {

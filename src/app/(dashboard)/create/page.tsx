@@ -193,10 +193,22 @@ export default function CreatePage() {
   const [promptSaved, setPromptSaved] = useState<string | null>(null);
   const [promptError, setPromptError] = useState("");
 
-  // Sync forms when store hydrates from server
+  // Sync forms when store hydrates from server — only overwrite with non-empty server values
   useEffect(() => {
-    setBrandForm({ systemPrompt: brand.systemPrompt, brandVoice: brand.brandVoice, primary: brand.brandColors.primary, secondary: brand.brandColors.secondary, accent: brand.brandColors.accent });
-    setPrompts({ ...brand.prompts });
+    setBrandForm((prev) => ({
+      systemPrompt: brand.systemPrompt || prev.systemPrompt,
+      brandVoice: brand.brandVoice || prev.brandVoice,
+      primary: brand.brandColors.primary || prev.primary,
+      secondary: brand.brandColors.secondary || prev.secondary,
+      accent: brand.brandColors.accent || prev.accent,
+    }));
+    setPrompts((prev) => {
+      const next = { ...prev };
+      (Object.keys(brand.prompts) as PromptKey[]).forEach((key) => {
+        if (brand.prompts[key]) next[key] = brand.prompts[key];
+      });
+      return next;
+    });
   }, [brand]);
 
   /* Integrations form */
