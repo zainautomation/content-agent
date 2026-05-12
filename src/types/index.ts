@@ -17,6 +17,7 @@ export interface Permissions {
   batchContent: boolean;
   // Features
   imageCreation: boolean;
+  carouselPost: boolean;
 }
 
 export const DEFAULT_PERMISSIONS: Permissions = {
@@ -33,6 +34,7 @@ export const DEFAULT_PERMISSIONS: Permissions = {
   contentPlan: true,
   batchContent: true,
   imageCreation: true,
+  carouselPost: true,
 };
 
 export type PostStatus =
@@ -92,6 +94,7 @@ export interface BrandSettings {
     contentPlanning: string;
     batchContent: string;
     imagePost: string;
+    carouselPost: string;
   };
 }
 

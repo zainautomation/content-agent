@@ -13,7 +13,7 @@ const DEFAULT_BRAND: BrandSettings = {
   platformOverrides: {},
   prompts: {
     linkedinPost: "", commentsReplies: "", coldDm: "", coldEmail: "",
-    leadMagnet: "", contentPlanning: "", batchContent: "", imagePost: "",
+    leadMagnet: "", contentPlanning: "", batchContent: "", imagePost: "", carouselPost: "",
   },
 };
 

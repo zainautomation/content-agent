@@ -178,26 +178,70 @@ Output format for the 2-week plan:
 
     imagePost: `You are creating structured data for a 1080x1080 social media image post for Zutomate.
 
-Given the following post content, extract and return a JSON object with these exact fields:
+Given the following post content, return a JSON object with these exact fields:
 
 {
-  "category": "short category label in ALL CAPS (e.g. B2B LEAD GENERATION, GTM AUTOMATION, CLIENT RESULTS)",
-  "headline": "2-4 words to show as strikethrough (the OLD way of thinking — what we're challenging)",
-  "highlight": "the bold orange punchline (the NEW truth — max 5 words, punchy and outcome-focused)",
+  "tag": "3-4 word category in ALL CAPS (e.g. GTM AUTOMATION, B2B LEAD GENERATION, CLIENT RESULTS)",
+  "titleMain": "first line of the headline — white text, max 6 words",
+  "titleAccent": "second line of the headline — orange text, max 4 words — the punchy punchline or outcome",
   "subtitle": "one supporting sentence, max 120 characters, that backs up the headline",
-  "cta": "2-3 word CTA button label (e.g. Free Audit, Book a Call, See Results)",
-  "features": [
-    { "icon": "emoji", "label": "Feature Name", "sub": "short descriptor" },
-    { "icon": "emoji", "label": "Feature Name", "sub": "short descriptor" },
-    { "icon": "emoji", "label": "Feature Name", "sub": "short descriptor" }
+  "items": [
+    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" },
+    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" },
+    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" }
+  ],
+  "authorName": "Zutomate",
+  "authorTitle": "GTM Automation Agency",
+  "website": "zutomate.com"
+}
+
+Rules:
+— titleMain + titleAccent together form the headline. titleAccent is the orange punchline.
+— subtitle must feel earned, not generic — tie it to the specific content of the post.
+— items should be the 3 key proof points or benefits from the post.
+— Return only valid JSON. No explanation, no markdown fences.`,
+
+    carouselPost: `You are creating a LinkedIn carousel post for Zutomate — a GTM automation agency.
+
+Given the following content, generate 5-7 slides and return a JSON object:
+
+{
+  "slides": [
+    {
+      "type": "cover",
+      "tag": "GTM AUTOMATION",
+      "titleMain": "first line of the headline — white, max 6 words",
+      "titleAccent": "second line — orange, max 4 words, punchy outcome",
+      "body": "subtitle / hook text, max 120 chars",
+      "authorName": "Zutomate",
+      "authorTitle": "GTM Automation Agency"
+    },
+    {
+      "type": "point",
+      "tag": "GTM AUTOMATION",
+      "heading": "Point heading, max 8 words",
+      "body": "2-3 sentences expanding on this point",
+      "icon": "relevant emoji",
+      "authorName": "Zutomate",
+      "authorTitle": "GTM Automation Agency"
+    },
+    {
+      "type": "cta",
+      "tag": "GTM AUTOMATION",
+      "heading": "CTA heading — white, e.g. Want more leads?",
+      "titleAccent": "Orange close, e.g. Let's talk.",
+      "body": "1-2 sentences inviting action",
+      "authorName": "Zutomate",
+      "authorTitle": "GTM Automation Agency"
+    }
   ]
 }
 
 Rules:
-— headline should be a phrase the target audience currently believes (the wrong assumption)
-— highlight is the punchline that replaces it — this is what stops the scroll
-— subtitle must feel earned, not generic — tie it to the specific content
-— features should reflect the 3 key proof points or benefits from the post
+— Always start with a cover slide and end with a cta slide.
+— Point slides should flow logically as a step-by-step or insight sequence.
+— Each point slide needs a distinct icon emoji.
+— All text must use the Zutomate brand voice: confident, direct, no hollow agency language.
 — Return only valid JSON. No explanation, no markdown fences.`,
 
     batchContent: `Using the Zutomate master brand voice, write 4 LinkedIn posts — one for each content pillar: Educate, Provoke, Prove, Connect.

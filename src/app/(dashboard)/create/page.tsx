@@ -9,13 +9,15 @@ import {
   Loader2, Zap, ArrowRight, Link2, FileText, ImageIcon,
   History, CalendarDays, PlugZap, Sparkles, Palette,
   Clock, Trash2, Check, Save, ZapOff, X, Moon, Sun, LogOut,
+  LayoutTemplate,
 } from "lucide-react";
 import type { Platform, BrandSettings, PostStatus } from "@/types";
 import dynamic from "next/dynamic";
 import { formatDate, PLATFORM_LABELS } from "@/lib/utils";
 import { useAppTheme } from "@/components/ThemeProvider";
 
-const PostImageModal = dynamic(() => import("@/components/PostImageModal"), { ssr: false });
+const PostImageModal  = dynamic(() => import("@/components/PostImageModal"),  { ssr: false });
+const CarouselModal   = dynamic(() => import("@/components/CarouselModal"),   { ssr: false });
 
 /* ─── Types ─── */
 type Pillar = "educate" | "provoke" | "prove" | "connect";
@@ -24,7 +26,7 @@ type InputMode = "idea" | "url";
 type Variants = 1 | 2 | 3;
 type RightTab = "create" | "brand" | "prompts" | "calendar" | "integrations" | "history";
 type PromptKey = keyof BrandSettings["prompts"];
-type ContentType = "social_post" | "comment_reply" | "cold_dm" | "cold_email" | "lead_magnet" | "content_plan" | "batch_content";
+type ContentType = "social_post" | "comment_reply" | "cold_dm" | "cold_email" | "lead_magnet" | "content_plan" | "batch_content" | "carousel_post";
 
 /* ─── Constants ─── */
 const PILLARS: { id: Pillar; label: string; desc: string }[] = [
@@ -89,6 +91,12 @@ const CONTENT_TYPES: { id: ContentType; label: string; tag: string; promptKey?: 
     inputLabel: "Theme for this batch",
     placeholder: "e.g. 'why outbound fails at seed-stage companies' or 'what we learned running 50 Clay campaigns'",
   },
+  {
+    id: "carousel_post", label: "Carousel Post", tag: "CAROUSEL",
+    promptKey: undefined,
+    inputLabel: "Topic or raw idea",
+    placeholder: "e.g. '5 reasons cold email still works in 2025' or paste your post idea here...",
+  },
 ];
 
 const EXAMPLE_IDEAS = [
@@ -142,13 +150,14 @@ export default function CreatePage() {
   const PLATFORM_OPTIONS = ALL_PLATFORM_OPTIONS.filter((p) => permissions[p.id as keyof typeof permissions] !== false);
 
   const CONTENT_TYPE_PERMISSION_MAP: Record<ContentType, keyof typeof permissions> = {
-    social_post: "socialPost",
+    social_post:   "socialPost",
     comment_reply: "commentReply",
-    cold_dm: "coldDm",
-    cold_email: "coldEmail",
-    lead_magnet: "leadMagnet",
-    content_plan: "contentPlan",
+    cold_dm:       "coldDm",
+    cold_email:    "coldEmail",
+    lead_magnet:   "leadMagnet",
+    content_plan:  "contentPlan",
     batch_content: "batchContent",
+    carousel_post: "carouselPost",
   };
   const VISIBLE_CONTENT_TYPES = CONTENT_TYPES.filter(
     (ct) => permissions[CONTENT_TYPE_PERMISSION_MAP[ct.id]] !== false
@@ -178,7 +187,8 @@ export default function CreatePage() {
   const [followUp, setFollowUp] = useState("");
   const [followUpLoading, setFollowUpLoading] = useState(false);
   const [savedPostId, setSavedPostId] = useState<string | null>(null);
-  const [imageModal, setImageModal] = useState<{ content: string; platform: Platform } | null>(null);
+  const [imageModal,    setImageModal]    = useState<{ content: string; platform: Platform } | null>(null);
+  const [carouselModal, setCarouselModal] = useState<{ content: string; platform: Platform } | null>(null);
 
   /* Tab */
   const [activeTab, setActiveTab] = useState<RightTab>("create");
@@ -297,6 +307,11 @@ export default function CreatePage() {
   };
 
   const handleGenerate = async () => {
+    if (contentType === "carousel_post") {
+      if (!rawIdea.trim()) return setError("Add your topic first.");
+      setCarouselModal({ content: rawIdea, platform: platforms[0] ?? "linkedin" });
+      return;
+    }
     if (contentType !== "social_post") return handleGeneratePrompt();
     if (!rawIdea.trim()) return setError("Drop your raw idea first.");
     setError(""); setLoading(true); setOutput([]); setPromptMessages([]); setFollowUp(""); setSavedPostId(null); setActiveTab("create");
@@ -675,7 +690,12 @@ export default function CreatePage() {
                             <div className="flex items-center gap-3">
                               {permissions.imageCreation !== false && (
                                 <button onClick={() => setImageModal(item)} className="flex items-center gap-1.5 text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">
-                                  <ImageIcon size={11} /> Create Image
+                                  <ImageIcon size={11} /> Image
+                                </button>
+                              )}
+                              {permissions.carouselPost !== false && (
+                                <button onClick={() => setCarouselModal(item)} className="flex items-center gap-1.5 text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">
+                                  <LayoutTemplate size={11} /> Carousel
                                 </button>
                               )}
                               <button onClick={() => navigator.clipboard.writeText(item.content)} className="text-[10px] font-medium text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest">Copy</button>
@@ -760,6 +780,7 @@ export default function CreatePage() {
                   { key: "contentPlanning" as PromptKey, label: "Content Planning", tag: "Strategy Prompt", guard: permissions.contentPlan !== false },
                   { key: "batchContent" as PromptKey, label: "Batch Content (4 Posts)", tag: "Strategy Prompt", guard: permissions.batchContent !== false },
                   { key: "imagePost" as PromptKey, label: "Image Post Generation", tag: "Image Prompt", guard: permissions.imageCreation !== false },
+                  { key: "carouselPost" as PromptKey, label: "Carousel Post Generation", tag: "Carousel Prompt", guard: permissions.carouselPost !== false },
                 ] as { key: PromptKey; label: string; tag: string; guard: boolean }[]).filter((p) => p.guard).map(({ key, label, tag }) => (
                   <Card key={key}>
                     <div className="px-4 py-3 border-b border-white/[0.06] bg-[var(--bg-surface3)] flex items-center justify-between">
@@ -912,6 +933,9 @@ export default function CreatePage() {
 
       {imageModal && (
         <PostImageModal content={imageModal.content} platform={imageModal.platform} pillar={pillar} onClose={() => setImageModal(null)} />
+      )}
+      {carouselModal && (
+        <CarouselModal content={carouselModal.content} platform={carouselModal.platform} pillar={pillar} onClose={() => setCarouselModal(null)} />
       )}
     </div>
   );

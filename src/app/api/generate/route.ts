@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ output });
     }
 
-    // ── Image data generation (was /api/generate-image-data) ─────────
+    // ── Image data generation ─────────────────────────────────────────
     if (mode === "image-data") {
       const { content, pillar, imagePrompt, systemPrompt } = body;
       if (!content || !imagePrompt) {
@@ -84,7 +84,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "No JSON returned from AI" }, { status: 500 });
       }
       const data = JSON.parse(jsonMatch[0]);
-      if (!Array.isArray(data.features)) data.features = [];
+      if (!Array.isArray(data.items)) data.items = [];
+      return NextResponse.json({ data });
+    }
+
+    // ── Carousel slide generation ─────────────────────────────────────
+    if (mode === "carousel") {
+      const { content, pillar, carouselPrompt, systemPrompt } = body;
+      if (!content || !carouselPrompt) {
+        return NextResponse.json({ error: "content and carouselPrompt are required" }, { status: 400 });
+      }
+      const userPrompt = `${carouselPrompt}\n\nCONTENT:\n${content}\n\nPILLAR: ${pillar}`;
+      const raw = await callClaude(userPrompt, systemPrompt ?? "", "generation");
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json({ error: "No JSON returned from AI" }, { status: 500 });
+      }
+      const data = JSON.parse(jsonMatch[0]);
+      if (!Array.isArray(data.slides)) data.slides = [];
       return NextResponse.json({ data });
     }
 
