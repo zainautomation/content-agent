@@ -49,7 +49,7 @@ export default function Sidebar() {
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium transition-all border",
+                "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-normal transition-all border",
                 active
                   ? "bg-[#fe710c]/15 border-[#fe710c]/30 text-white"
                   : "border-transparent text-white/45 hover:text-white/80 hover:bg-white/[0.08]"
@@ -57,7 +57,6 @@ export default function Sidebar() {
             >
               <Icon size={14} className={active ? "text-[#fe710c]" : "text-white/30"} />
               {label}
-              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#fe710c]" />}
             </Link>
           );
         })}
@@ -74,7 +73,6 @@ export default function Sidebar() {
           >
             <Shield size={14} className={pathname.startsWith("/admin") ? "text-[#fe710c]" : "text-white/20"} />
             Admin
-            {pathname.startsWith("/admin") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#fe710c]" />}
           </Link>
         )}
       </nav>

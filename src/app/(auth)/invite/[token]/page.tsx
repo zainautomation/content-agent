@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { Loader2, UserPlus, AlertCircle } from "lucide-react";
+import { Loader2, ArrowRight, AlertCircle } from "lucide-react";
 
 export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
@@ -61,8 +61,8 @@ export default function InvitePage() {
 
   if (checking) {
     return (
-      <div className="flex items-center gap-2 text-white/40">
-        <Loader2 size={16} className="animate-spin" /> Validating invite...
+      <div className="flex items-center gap-2 text-white/30 text-sm">
+        <Loader2 size={15} className="animate-spin" /> Validating invite...
       </div>
     );
   }
@@ -70,13 +70,11 @@ export default function InvitePage() {
   if (!valid) {
     return (
       <div className="w-full max-w-sm text-center">
-        <div className="flex justify-center mb-4">
-          <div className="bg-[#12305b] px-4 py-2 rounded-xl">
-            <Image src="/zutomate-logo.svg" alt="Zutomate" width={120} height={22} priority />
-          </div>
+        <div className="flex justify-center mb-8">
+          <Image src="/zutomate-logo.svg" alt="Zutomate" width={130} height={24} priority />
         </div>
-        <div className="flex items-center justify-center gap-2 text-red-400 mb-3">
-          <AlertCircle size={16} /> Invalid or expired invite link
+        <div className="flex items-center justify-center gap-2 text-red-400 mb-3 text-sm">
+          <AlertCircle size={15} /> Invalid or expired invite link
         </div>
         <p className="text-sm text-white/30">
           This invite link has already been used or has expired. Ask an admin for a new one.
@@ -87,19 +85,20 @@ export default function InvitePage() {
 
   return (
     <div className="w-full max-w-sm">
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-5">
-          <div className="bg-[#12305b] px-4 py-2 rounded-xl">
-            <Image src="/zutomate-logo.svg" alt="Zutomate" width={120} height={22} priority />
-          </div>
-        </div>
-        <h1 className="text-xl font-bold text-white">Create your account</h1>
-        <p className="text-sm text-white/30 mt-1">You&apos;ve been invited to Zutomate</p>
+      {/* Logo */}
+      <div className="flex justify-center mb-10">
+        <Image src="/zutomate-logo.svg" alt="Zutomate" width={130} height={24} priority />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Heading */}
+      <div className="mb-7">
+        <h1 className="text-[22px] font-medium text-white tracking-tight">Create your account</h1>
+        <p className="text-sm text-white/35 mt-1.5">You&apos;ve been invited to Zutomate</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-white/30 block mb-2">
             Full Name
           </label>
           <input
@@ -108,11 +107,11 @@ export default function InvitePage() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
             required
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/40 focus:ring-1 focus:ring-[#fe710c]/20"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/50 focus:bg-white/[0.06] transition-all"
           />
         </div>
         <div>
-          <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-white/30 block mb-2">
             Email
           </label>
           <input
@@ -122,11 +121,11 @@ export default function InvitePage() {
             placeholder="you@example.com"
             readOnly={!!prefillEmail}
             required
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/40 focus:ring-1 focus:ring-[#fe710c]/20 read-only:opacity-60"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/50 focus:bg-white/[0.06] transition-all read-only:opacity-50"
           />
         </div>
         <div>
-          <label className="text-[10px] font-semibold uppercase tracking-widest text-white/30 block mb-1.5">
+          <label className="text-[10px] font-medium uppercase tracking-widest text-white/30 block mb-2">
             Password
           </label>
           <input
@@ -136,12 +135,12 @@ export default function InvitePage() {
             placeholder="At least 8 characters"
             required
             minLength={8}
-            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/40 focus:ring-1 focus:ring-[#fe710c]/20"
+            className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/50 focus:bg-white/[0.06] transition-all"
           />
         </div>
 
         {error && (
-          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/15 px-3 py-2 rounded-lg">
+          <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/15 px-3 py-2.5 rounded-lg">
             {error}
           </p>
         )}
@@ -149,9 +148,9 @@ export default function InvitePage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#fe710c] text-black text-sm font-bold hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors mt-1"
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#fe710c] text-white text-sm font-medium hover:bg-[#ff8a2e] disabled:opacity-50 transition-colors mt-2"
         >
-          {loading ? <Loader2 size={14} className="animate-spin" /> : <UserPlus size={14} />}
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
           {loading ? "Creating account..." : "Create Account"}
         </button>
       </form>

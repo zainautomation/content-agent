@@ -98,8 +98,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!user?.workspaceId) return NextResponse.json({ error: "User has no workspace" }, { status: 404 });
 
   const permissions = await req.json();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (prisma.workspace.update as any)({
+  await prisma.workspace.update({
     where: { id: user.workspaceId },
     data: { permissions: JSON.stringify(permissions) },
   });

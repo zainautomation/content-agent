@@ -360,34 +360,29 @@ export default function CreatePage() {
     <div className="fixed inset-0 z-50 bg-[var(--bg-page)] flex flex-col overflow-hidden">
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-white text-sm tracking-tight">Zutomate</span>
-          <span className="text-white/20 text-sm">·</span>
-          <span className="text-white/40 text-xs font-medium tracking-wide">Content Studio</span>
+        <div className="flex items-center gap-3">
+          <span className="font-medium text-white text-sm tracking-tight">Zutomate</span>
+          <span className="text-white/20 text-xs font-medium tracking-wide">Content Studio</span>
         </div>
         <div className="flex items-center gap-3">
           {/* Theme toggle */}
           <div className="flex items-center gap-0.5 bg-white/[0.06] border border-white/[0.10] rounded-lg p-0.5">
             <button
               onClick={() => theme !== "dark" && toggle()}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${theme === "dark" ? "bg-[#fe710c] text-black" : "text-white/40 hover:text-white/70"}`}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium uppercase tracking-wider transition-all ${theme === "dark" ? "bg-[#fe710c] text-black" : "text-white/40 hover:text-white/70"}`}
             >
               <Moon size={10} /> Dark
             </button>
             <button
               onClick={() => theme !== "light" && toggle()}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all ${theme === "light" ? "bg-[#fe710c] text-black" : "text-white/40 hover:text-white/70"}`}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium uppercase tracking-wider transition-all ${theme === "light" ? "bg-[#fe710c] text-black" : "text-white/40 hover:text-white/70"}`}
             >
               <Sun size={10} /> Light
             </button>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            AI Ready
-          </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-white/30 hover:text-red-400 hover:bg-red-400/[0.08] border border-transparent hover:border-red-400/20 transition-all"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium uppercase tracking-wider text-white/30 hover:text-red-400 hover:bg-red-400/[0.08] border border-transparent hover:border-red-400/20 transition-all"
           >
             <LogOut size={11} /> Sign Out
           </button>

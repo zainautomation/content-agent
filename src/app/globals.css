@@ -3,12 +3,12 @@
 /* ─── Zutomate Design Tokens ─── */
 :root,
 [data-theme="dark"] {
-  --bg-page:     #00000e;
-  --bg-sidebar:  #070712;
-  --bg-panel:    #09091a;
-  --bg-surface:  #0e0e1c;
-  --bg-surface2: #111122;
-  --bg-surface3: #060614;
+  --bg-page:     #060d1c;
+  --bg-sidebar:  #040a16;
+  --bg-panel:    #07101f;
+  --bg-surface:  #0b1528;
+  --bg-surface2: #0e1a2e;
+  --bg-surface3: #050c18;
   --border:      rgba(255, 255, 255, 0.06);
   --border-md:   rgba(255, 255, 255, 0.10);
   --border-lg:   rgba(255, 255, 255, 0.18);
@@ -54,12 +54,13 @@ body {
 body {
   color: var(--text-1);
   font-family: var(--font-sans);
+  font-weight: 400;
 }
 
 /* Dark body: gradient */
 html:not([data-theme]) body,
 [data-theme="dark"] body {
-  background: linear-gradient(160deg, #12305b 0%, #040413 35%, #00000e 100%);
+  background: linear-gradient(160deg, #0d2244 0%, #060d1c 40%, #040a16 100%);
   background-attachment: fixed;
 }
 
