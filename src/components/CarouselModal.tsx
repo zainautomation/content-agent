@@ -10,7 +10,7 @@ import { useSettingsStore } from "@/store/settings.store";
 
 type Pillar = "educate" | "provoke" | "prove" | "connect";
 
-const BG_COLOR: Record<ImageTheme, string> = { dark: "#060d1c", light: "#ffffff" };
+const BG_COLOR: Record<ImageTheme, string> = { dark: "#0b1629", light: "#f8f9fc" };
 const PREVIEW_SCALE = 0.33;
 
 function makeId() { return Math.random().toString(36).slice(2, 10); }

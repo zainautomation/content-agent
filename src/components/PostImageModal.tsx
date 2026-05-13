@@ -46,8 +46,8 @@ const PILLAR_DEFAULTS: Record<Pillar, { tag: string; authorTitle: string; items:
 };
 
 const BG_COLOR: Record<ImageTheme, string> = {
-  dark:  "#060d1c",
-  light: "#ffffff",
+  dark:  "#0b1629",
+  light: "#f8f9fc",
 };
 
 function parseFallback(content: string, pillar: Pillar): ImageTemplateData {
@@ -253,7 +253,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
             <div className="flex-1 flex items-center justify-center w-full">
               {aiLoading ? (
                 <div
-                  className="rounded-xl border border-white/[0.08] flex flex-col items-center justify-center gap-3 bg-[#060d1c]"
+                  className="rounded-xl border border-white/[0.08] flex flex-col items-center justify-center gap-3 bg-[#0b1629]"
                   style={{ width: 1080 * PREVIEW_SCALE, height: 1080 * PREVIEW_SCALE }}
                 >
                   <div className="w-9 h-9 rounded-xl bg-[#fe710c]/10 border border-[#fe710c]/20 flex items-center justify-center">

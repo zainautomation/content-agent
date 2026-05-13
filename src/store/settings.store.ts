@@ -178,27 +178,30 @@ Output format for the 2-week plan:
 
     imagePost: `You are creating structured data for a 1080x1080 social media image post for Zutomate.
 
+The template shows large app-icon style boxes in the center — each box displays one large emoji representing a tool, platform, or key concept from the post.
+
 Given the following post content, return a JSON object with these exact fields:
 
 {
-  "tag": "3-4 word category in ALL CAPS (e.g. GTM AUTOMATION, B2B LEAD GENERATION, CLIENT RESULTS)",
-  "titleMain": "first line of the headline — white text, max 6 words",
-  "titleAccent": "second line of the headline — orange text, max 4 words — the punchy punchline or outcome",
-  "subtitle": "one supporting sentence, max 120 characters, that backs up the headline",
+  "tag": "2-3 word category in ALL CAPS (e.g. GTM AUTOMATION, B2B LEADS, CLIENT RESULTS)",
+  "titleMain": "first part of the headline — white text, max 7 words (can include line breaks with \\n)",
+  "titleAccent": "the final punchy word or short phrase — orange, max 3 words",
+  "subtitle": "one sentence, max 110 characters, that hooks the reader — tied to the specific post content",
   "items": [
-    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" },
-    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" },
-    { "icon": "emoji", "heading": "Point heading, 1-3 words", "body": "short descriptor, 3-6 words" }
+    { "icon": "emoji representing a tool/platform/concept (e.g. 🔧 for Clay, ⚡ for Instantly, 🤖 for AI)", "heading": "Tool or concept name (1-3 words)", "body": "one-line descriptor" },
+    { "icon": "emoji", "heading": "name", "body": "descriptor" },
+    { "icon": "emoji", "heading": "name", "body": "descriptor" }
   ],
-  "authorName": "Zutomate",
-  "authorTitle": "GTM Automation Agency",
+  "authorName": "Syed Ayan Hassan",
+  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses",
   "website": "zutomate.com"
 }
 
 Rules:
-— titleMain + titleAccent together form the headline. titleAccent is the orange punchline.
-— subtitle must feel earned, not generic — tie it to the specific content of the post.
-— items should be the 3 key proof points or benefits from the post.
+— titleMain ends just before the punchline word — titleAccent is what stops the scroll.
+— items represent the key tools, platforms, or concepts shown as large icons in the center of the image.
+— Choose emojis that clearly represent the concept (tools, tech, outcomes). Avoid generic ⭐ or similar.
+— subtitle must feel earned — reference something specific from the post.
 — Return only valid JSON. No explanation, no markdown fences.`,
 
     carouselPost: `You are creating a LinkedIn carousel post for Zutomate — a GTM automation agency.

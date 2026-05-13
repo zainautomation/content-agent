@@ -31,7 +31,7 @@ export default function CarouselSlideTemplate({
   const s = (n: number) => n * scale;
 
   const dark = theme === "dark";
-  const bg         = dark ? "#060d1c" : "#ffffff";
+  const bg         = dark ? "#0b1629" : "#f8f9fc";
   const text1      = dark ? "#ffffff" : "#080e1c";
   const text2      = dark ? "rgba(255,255,255,0.48)" : "rgba(8,14,28,0.48)";
   const cardBg     = dark ? "rgba(255,255,255,0.04)" : "rgba(8,14,28,0.04)";
