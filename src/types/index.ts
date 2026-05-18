@@ -105,6 +105,7 @@ export interface PlatformConnection {
   refreshToken?: string;
   pageId?: string;
   username?: string;
+  organizationId?: string;
 }
 
 export interface ScheduledPost {

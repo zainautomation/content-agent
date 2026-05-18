@@ -176,33 +176,67 @@ Output format for the 2-week plan:
 — Balance: 2 Educate, 2 Provoke, 2 Prove, 2 Connect
 — Flag which 2 posts have the highest DM-conversion potential`,
 
-    imagePost: `You are creating structured data for a 1080x1080 social media image post for Zutomate.
+    imagePost: `You are creating structured data for a 1080×1080 social media image post for Zutomate.
 
-The template shows large app-icon style boxes in the center — each box displays one large emoji representing a tool, platform, or key concept from the post.
+Choose the best template type based on the post content:
+- "list" → step-by-step posts, how-to, insights, frameworks
+- "stats" → results posts with specific numbers (meetings booked, emails sent, deals closed, etc.)
+- "tools" → posts about a tech stack, tool comparison, or specific software tools
 
-Given the following post content, return a JSON object with these exact fields:
+AVAILABLE TOOL LOGOS: {TOOL_NAMES}
+(Only include tools from this list in the output — others will show as text-only)
 
+Return JSON for the chosen type. No explanation, no markdown fences.
+
+=== FOR "list" ===
 {
-  "tag": "2-3 word category in ALL CAPS (e.g. GTM AUTOMATION, B2B LEADS, CLIENT RESULTS)",
-  "titleMain": "first part of the headline — white text, max 7 words (can include line breaks with \\n)",
-  "titleAccent": "the final punchy word or short phrase — orange, max 3 words",
-  "subtitle": "one sentence, max 110 characters, that hooks the reader — tied to the specific post content",
+  "type": "list",
+  "tag": "2-3 words ALL CAPS",
+  "titleMain": "headline start, white text, max 6 words",
+  "titleAccent": "orange punchline, max 3 words",
+  "subtitle": "1 compelling sentence, max 120 chars, specific to the post",
   "items": [
-    { "icon": "emoji representing a tool/platform/concept (e.g. 🔧 for Clay, ⚡ for Instantly, 🤖 for AI)", "heading": "Tool or concept name (1-3 words)", "body": "one-line descriptor" },
-    { "icon": "emoji", "heading": "name", "body": "descriptor" },
-    { "icon": "emoji", "heading": "name", "body": "descriptor" }
+    { "icon": "", "heading": "3-6 word specific heading", "body": "1-2 sentences of real substance" },
+    { "icon": "", "heading": "...", "body": "..." },
+    { "icon": "", "heading": "...", "body": "..." }
   ],
   "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses",
-  "website": "zutomate.com"
+  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+}
+
+=== FOR "stats" ===
+{
+  "type": "stats",
+  "tag": "Category — Time context (e.g. Cold Email Results — Last 30 Days)",
+  "headline": "IMPACT STATEMENT IN CAPS — max 8 words, the big number/result",
+  "subheadline": "CONTEXT IN CAPS — max 8 words (e.g. ONE PERSON. NO ADS. NO INBOUND.)",
+  "stats": [
+    { "value": "exact number from post", "label": "what it measures" }
+  ],
+  "stackLabel": "The Exact Stack",
+  "toolNames": ["only tools mentioned in post that have logos available"],
+  "authorName": "Syed Ayan Hassan",
+  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+}
+
+=== FOR "tools" ===
+{
+  "type": "tools",
+  "tag": "TOOLS ALL CAPS category",
+  "titleMain": "headline white part",
+  "headlineAccent": "orange accent part",
+  "toolList": [
+    { "name": "exact tool name matching available logos", "description": "what it does, max 8 words" }
+  ],
+  "authorName": "Syed Ayan Hassan",
+  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
 }
 
 Rules:
-— titleMain ends just before the punchline word — titleAccent is what stops the scroll.
-— items represent the key tools, platforms, or concepts shown as large icons in the center of the image.
-— Choose emojis that clearly represent the concept (tools, tech, outcomes). Avoid generic ⭐ or similar.
-— subtitle must feel earned — reference something specific from the post.
-— Return only valid JSON. No explanation, no markdown fences.`,
+— Only use numbers in stats that are explicitly in the post. Do not invent metrics.
+— For tools type, prefer tools that have logos available.
+— icon fields must always be empty string "".
+— Return only the JSON object.`,
 
     carouselPost: `You are creating a LinkedIn carousel post for Zutomate — a GTM automation agency.
 
@@ -281,7 +315,17 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   permissions: DEFAULT_PERMISSIONS,
 
   hydrate: (brand, connections, permissions) =>
-    set({ brand, connections, permissions: { ...DEFAULT_PERMISSIONS, ...permissions } }),
+    set({
+      brand: {
+        ...DEFAULT_BRAND,
+        ...brand,
+        prompts: { ...DEFAULT_BRAND.prompts, ...(brand.prompts ?? {}) },
+        brandColors: { ...DEFAULT_BRAND.brandColors, ...(brand.brandColors ?? {}) },
+        platformOverrides: { ...DEFAULT_BRAND.platformOverrides, ...(brand.platformOverrides ?? {}) },
+      },
+      connections,
+      permissions: { ...DEFAULT_PERMISSIONS, ...permissions },
+    }),
 
   updateBrand: async (updates) => {
     set((state) => ({ brand: { ...state.brand, ...updates } }));
@@ -342,3 +386,5 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   getConnection: (platform) =>
     get().connections.find((c) => c.platform === platform),
 }));
+
+export const DEFAULT_IMAGE_PROMPT = DEFAULT_BRAND.prompts.imagePost;

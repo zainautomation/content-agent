@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { useAppTheme } from "@/components/ThemeProvider";
 import {
   PenSquare, FileText, CalendarDays, Sparkles, PlugZap, Moon, Sun,
-  Shield, LogOut,
+  Shield, LogOut, FileImage,
 } from "lucide-react";
 
 const NAV = [
@@ -15,6 +15,7 @@ const NAV = [
   { href: "/posts",                 label: "My Posts",          icon: FileText     },
   { href: "/calendar",              label: "Calendar",          icon: CalendarDays },
   { href: "/settings/prompts",      label: "Brand & Prompts",   icon: Sparkles     },
+  { href: "/settings/assets",       label: "Brand Assets",      icon: FileImage    },
   { href: "/settings/integrations", label: "Integrations",      icon: PlugZap      },
 ];
 

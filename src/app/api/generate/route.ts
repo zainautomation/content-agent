@@ -77,14 +77,53 @@ export async function POST(req: NextRequest) {
       if (!content || !imagePrompt) {
         return NextResponse.json({ error: "content and imagePrompt are required" }, { status: 400 });
       }
-      const userPrompt = `${imagePrompt}\n\nPOST CONTENT:\n${content}\n\nPILLAR: ${pillar}`;
+
+      // Load available tool names for the AI to reference
+      const { readdirSync, existsSync } = await import("fs");
+      const { join, extname } = await import("path");
+      const toolsDir = join(process.cwd(), "public/tools");
+      let toolNames = "none uploaded yet";
+      if (existsSync(toolsDir)) {
+        const files = readdirSync(toolsDir);
+        const names = files
+          .filter((f: string) => [".png", ".jpg", ".jpeg", ".svg", ".webp"].includes(extname(f).toLowerCase()))
+          .map((f: string) => f.replace(/\.[^.]+$/, "").replace(/-/g, " "));
+        if (names.length > 0) toolNames = names.join(", ");
+      }
+
+      const resolvedPrompt = imagePrompt.replace("{TOOL_NAMES}", toolNames);
+      const userPrompt = `${resolvedPrompt}\n\nPOST CONTENT:\n${content}\n\nPILLAR: ${pillar}`;
       const raw = await callClaude(userPrompt, systemPrompt ?? "", "fast");
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         return NextResponse.json({ error: "No JSON returned from AI" }, { status: 500 });
       }
       const data = JSON.parse(jsonMatch[0]);
+      // normalize
+      if (!data.type) data.type = "list";
       if (!Array.isArray(data.items)) data.items = [];
+      return NextResponse.json({ data });
+    }
+
+    // ── Image data update (prompt-guided refinement) ───────────────────
+    if (mode === "image-data-update") {
+      const { currentData, updatePrompt, systemPrompt } = body;
+      if (!currentData || !updatePrompt) {
+        return NextResponse.json({ error: "currentData and updatePrompt are required" }, { status: 400 });
+      }
+      const userPrompt = `You are refining an existing image post card. Here is the current JSON:\n\n${JSON.stringify(currentData, null, 2)}\n\nApply this change: ${updatePrompt}\n\nReturn ONLY valid JSON with the same structure. Keep all fields unchanged unless the update requires modifying them.`;
+      const raw = await callClaude(userPrompt, systemPrompt ?? "", "fast");
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json({ error: `AI returned no JSON. Raw response: ${raw.slice(0, 200)}` }, { status: 500 });
+      }
+      let data: Record<string, unknown>;
+      try {
+        data = JSON.parse(jsonMatch[0]);
+      } catch {
+        return NextResponse.json({ error: "AI returned invalid JSON — try again" }, { status: 500 });
+      }
+      if (!data.type) data.type = "list";
       return NextResponse.json({ data });
     }
 

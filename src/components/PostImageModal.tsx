@@ -1,71 +1,10 @@
 "use client";
-import { useRef, useState, useEffect } from "react";
-import { X, Download, Loader2, ImageIcon, Sparkles, RefreshCw, Moon, Sun, Plus, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Download, Loader2, ImageIcon, Sparkles, RefreshCw, Moon, Sun, Plus, Trash2, AlertCircle, Copy, ExternalLink, Check, Send } from "lucide-react";
 import PostImageTemplate, { type ImageTemplateData, type ImageTheme } from "./PostImageTemplate";
-import { useSettingsStore } from "@/store/settings.store";
+import { useSettingsStore, DEFAULT_IMAGE_PROMPT } from "@/store/settings.store";
 
 type Pillar = "educate" | "provoke" | "prove" | "connect";
-
-const PILLAR_DEFAULTS: Record<Pillar, { tag: string; authorTitle: string; items: ImageTemplateData["items"] }> = {
-  educate: {
-    tag: "GTM AUTOMATION",
-    authorTitle: "GTM Automation Agency",
-    items: [
-      { icon: "⚡", heading: "Actionable", body: "Step-by-step insight" },
-      { icon: "🎯", heading: "Targeted",   body: "ICP-specific approach" },
-      { icon: "🔧", heading: "Practical",  body: "Apply it today"        },
-    ],
-  },
-  provoke: {
-    tag: "B2B LEAD GENERATION",
-    authorTitle: "GTM Automation Agency",
-    items: [
-      { icon: "💡", heading: "Bold Take",   body: "Challenge assumptions" },
-      { icon: "📊", heading: "Evidence",    body: "Backed by data"        },
-      { icon: "🔥", heading: "Provocative", body: "Start conversations"   },
-    ],
-  },
-  prove: {
-    tag: "CLIENT RESULTS",
-    authorTitle: "GTM Automation Agency",
-    items: [
-      { icon: "📈", heading: "10+ Leads",      body: "Month one results"   },
-      { icon: "💰", heading: "$500K+",          body: "In closed deals"     },
-      { icon: "✅", heading: "Proven System",   body: "Repeatable results"  },
-    ],
-  },
-  connect: {
-    tag: "FOUNDER PERSPECTIVE",
-    authorTitle: "GTM Automation Agency",
-    items: [
-      { icon: "🤝", heading: "Authentic",    body: "Real founder voice"   },
-      { icon: "🏗️", heading: "Behind Scenes", body: "Client work"          },
-      { icon: "📝", heading: "Honest",       body: "Industry insights"    },
-    ],
-  },
-};
-
-const BG_COLOR: Record<ImageTheme, string> = {
-  dark:  "#0b1629",
-  light: "#f8f9fc",
-};
-
-function parseFallback(content: string, pillar: Pillar): ImageTemplateData {
-  const lines = content.split("\n").map((l) => l.trim()).filter(Boolean);
-  const words  = (lines[0] ?? "").split(" ");
-  const split  = Math.min(4, Math.ceil(words.length / 2));
-  const def    = PILLAR_DEFAULTS[pillar];
-  return {
-    tag:         def.tag,
-    titleMain:   words.slice(0, split).join(" "),
-    titleAccent: words.slice(split, split + 2).join(" ") || "Results",
-    subtitle:    lines[1]?.slice(0, 120) ?? "Built for B2B growth teams who need real pipeline, not promises.",
-    items:       def.items,
-    authorName:  "Zutomate",
-    authorTitle: def.authorTitle,
-    website:     "zutomate.com",
-  };
-}
 
 interface Props {
   content: string;
@@ -75,98 +14,164 @@ interface Props {
 }
 
 export default function PostImageModal({ content, platform, pillar, onClose }: Props) {
-  const previewRef  = useRef<HTMLDivElement>(null!);
-  const downloadRef = useRef<HTMLDivElement>(null!);
-
   const brand       = useSettingsStore((s) => s.brand);
-  const imagePrompt = brand.prompts?.imagePost ?? "";
+  const imagePrompt = brand.prompts?.imagePost || DEFAULT_IMAGE_PROMPT;
 
-  const [theme,      setTheme]      = useState<ImageTheme>("dark");
-  const [capturing,  setCapturing]  = useState(false);
-  const [aiLoading,  setAiLoading]  = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [data,       setData]       = useState<ImageTemplateData>(() => parseFallback(content, pillar));
-  const [editData,   setEditData]   = useState<ImageTemplateData>(() => parseFallback(content, pillar));
+  const rawConnections = useSettingsStore((s) => s.connections);
+  const connections = Array.isArray(rawConnections) ? rawConnections : [];
+  const liConn = connections.find((c) => c.platform === "linkedin");
+  const liConnected = !!(liConn?.connected && liConn.accessToken);
+  const liHasOrgId = !!liConn?.organizationId;
+
+  const [theme,          setTheme]         = useState<ImageTheme>("dark");
+  const [copied,         setCopied]        = useState(false);
+  const [capturing,      setCapturing]     = useState(false);
+  const [aiLoading,      setAiLoading]     = useState(true);
+  const [aiError,        setAiError]       = useState<string | null>(null);
+  const [data,           setData]          = useState<ImageTemplateData | null>(null);
+  const [editData,       setEditData]      = useState<ImageTemplateData | null>(null);
+  const [authorPhotoUrl, setAuthorPhotoUrl] = useState<string | null>(null);
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
+  const [toolLogos,      setToolLogos]     = useState<Record<string, string>>({});
+  const [liPosting,      setLiPosting]     = useState(false);
+  const [liResult,       setLiResult]      = useState<{ ok: boolean; msg: string } | null>(null);
+  const [updatePrompt,   setUpdatePrompt]  = useState("");
+  const [updating,       setUpdating]      = useState(false);
+  const [updateError,    setUpdateError]   = useState<string | null>(null);
 
   const PREVIEW_SCALE = 0.39;
 
   useEffect(() => {
-    if (imagePrompt) generateWithAI();
-    else setTimeout(buildPreview, 150);
+    fetch("/api/image").then(r => r.json()).then(j => {
+      if (j.authorPhoto) setAuthorPhotoUrl(j.authorPhoto);
+      if (j.companyLogo) setCompanyLogoUrl(j.companyLogo);
+      const logos: Record<string, string> = {};
+      for (const tool of (j.tools || [])) {
+        logos[tool.name.replace(/-/g, " ")] = tool.path;
+      }
+      setToolLogos(logos);
+    }).catch(() => {});
+    generateWithAI();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setPreviewUrl(null);
-    setTimeout(buildPreview, 80);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme]);
-
   const generateWithAI = async () => {
     setAiLoading(true);
+    setAiError(null);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "image-data", content, pillar, imagePrompt, systemPrompt: brand.systemPrompt }),
+        body: JSON.stringify({
+          mode: "image-data",
+          content,
+          pillar,
+          imagePrompt,
+          systemPrompt: brand.systemPrompt,
+        }),
       });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data) { setData(json.data); setEditData(json.data); }
+      const json = await res.json();
+      if (res.ok && json.data) {
+        setData(json.data);
+        setEditData(json.data);
+      } else {
+        setAiError(json.error ?? "AI generation failed — check your API key or try again");
       }
-    } catch { /* fall through */ }
-    finally {
-      setAiLoading(false);
-      setTimeout(buildPreview, 150);
-    }
-  };
-
-  const buildPreview = async () => {
-    if (!previewRef.current) return;
-    try {
-      await document.fonts.ready;
-      const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(previewRef.current, {
-        useCORS: true, scale: 1,
-        backgroundColor: BG_COLOR[theme],
-        logging: false,
-      });
-      setPreviewUrl(canvas.toDataURL("image/png"));
     } catch (e) {
-      console.error("Preview failed", e);
+      setAiError(e instanceof Error ? e.message : "Request failed");
+    } finally {
+      setAiLoading(false);
     }
   };
 
-  const applyEdit = () => {
-    setData({ ...editData });
-    setPreviewUrl(null);
-    setTimeout(buildPreview, 80);
+  const applyEdit = () => editData && setData({ ...editData });
+
+  const handleOpenLinkedIn = async () => {
+    await navigator.clipboard.writeText(content).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+    window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
+  };
+
+  const handlePostToLinkedIn = async () => {
+    if (!data) return;
+    setLiPosting(true);
+    setLiResult(null);
+    try {
+      const res = await fetch("/api/linkedin/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content, imageData: data, theme }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setLiResult({ ok: true, msg: "Posted to LinkedIn!" });
+      } else {
+        setLiResult({ ok: false, msg: json.error ?? `Error ${res.status}` });
+      }
+    } catch (e) {
+      setLiResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed" });
+    } finally {
+      setLiPosting(false);
+    }
+  };
+
+  const handleUpdate = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!data || !updatePrompt.trim() || updating) return;
+    setUpdating(true);
+    setUpdateError(null);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "image-data-update",
+          currentData: data,
+          updatePrompt: updatePrompt.trim(),
+          systemPrompt: brand.systemPrompt ?? "",
+        }),
+      });
+      const json = await res.json();
+      if (res.ok && json.data) {
+        setData(json.data);
+        setEditData(json.data);
+        setUpdatePrompt("");
+      } else {
+        setUpdateError(json.error ?? "Update failed — try again");
+      }
+    } catch (err) {
+      setUpdateError(err instanceof Error ? err.message : "Request failed");
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const handleDownload = async () => {
+    if (!data) return;
     setCapturing(true);
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const el = downloadRef.current;
-      if (!el) return;
-      el.style.visibility = "visible";
-      el.style.pointerEvents = "none";
-      await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 60));
-      const canvas = await html2canvas(el, {
-        useCORS: true, scale: 1,
-        backgroundColor: BG_COLOR[theme],
-        logging: false, width: 1080, height: 1080,
+      const res = await fetch("/api/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data, theme }),
       });
-      el.style.visibility = "hidden";
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Server error ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.download = `zutomate-${platform}-${theme}-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png", 1.0);
+      link.href = url;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Download failed", e);
+      alert(e instanceof Error ? e.message : "Download failed");
     } finally {
       setCapturing(false);
     }
@@ -187,35 +192,20 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     <p className="text-[9px] font-bold uppercase tracking-widest text-white/15 mb-2 mt-1">{children}</p>
   );
 
-  const updateItem = (i: number, key: keyof ImageTemplateData["items"][number], val: string) =>
-    setEditData((prev) => ({
+  const updateItem = (i: number, key: keyof NonNullable<ImageTemplateData["items"]>[number], val: string) =>
+    setEditData((prev) => prev ? ({
       ...prev,
-      items: prev.items.map((it, idx) => idx === i ? { ...it, [key]: val } : it),
-    }));
+      items: (prev.items ?? []).map((it, idx) => idx === i ? { ...it, [key]: val } : it),
+    }) : prev);
 
   const addItem = () =>
-    setEditData((prev) => ({ ...prev, items: [...prev.items, { icon: "✨", heading: "New point", body: "Description" }] }));
+    setEditData((prev) => prev ? ({ ...prev, items: [...(prev.items ?? []), { icon: "", heading: "New point", body: "Description" }] }) : prev);
 
   const removeItem = (i: number) =>
-    setEditData((prev) => ({ ...prev, items: prev.items.filter((_, idx) => idx !== i) }));
+    setEditData((prev) => prev ? ({ ...prev, items: (prev.items ?? []).filter((_, idx) => idx !== i) }) : prev);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      {/* Full-size hidden template for download */}
-      <div ref={downloadRef} style={{
-        position: "fixed", top: 0, left: 0,
-        width: 1080, height: 1080,
-        visibility: "hidden", zIndex: -1, overflow: "hidden",
-      }}>
-        <PostImageTemplate
-          data={data}
-          theme={theme}
-          templateRef={{ current: null } as unknown as React.RefObject<HTMLDivElement>}
-          scale={1}
-        />
-      </div>
-
-      {/* Modal */}
       <div
         className="bg-[#0d1222] border border-white/[0.08] rounded-2xl flex flex-col overflow-hidden"
         style={{ width: "min(940px, 100vw - 32px)", height: "min(720px, 100vh - 32px)" }}
@@ -228,7 +218,6 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
             <span className="text-[10px] text-white/25 uppercase tracking-widest ml-1">{platform} · 1080×1080</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Theme toggle */}
             <div className="flex items-center gap-0.5 bg-white/[0.05] border border-white/[0.08] rounded-lg p-0.5">
               {(["dark", "light"] as ImageTheme[]).map((t) => (
                 <button key={t} onClick={() => setTheme(t)}
@@ -245,7 +234,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
           </div>
         </div>
 
-        {/* Two-column body */}
+        {/* Body */}
         <div className="flex flex-1 overflow-hidden">
 
           {/* Left — preview */}
@@ -253,152 +242,255 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
             <div className="flex-1 flex items-center justify-center w-full">
               {aiLoading ? (
                 <div
-                  className="rounded-xl border border-white/[0.08] flex flex-col items-center justify-center gap-3 bg-[#0b1629]"
+                  className="rounded-xl border border-white/[0.08] flex flex-col items-center justify-center gap-3 bg-[#090f1e]"
                   style={{ width: 1080 * PREVIEW_SCALE, height: 1080 * PREVIEW_SCALE }}
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#fe710c]/10 border border-[#fe710c]/20 flex items-center justify-center">
-                    <Sparkles size={14} className="text-[#fe710c] animate-pulse" />
+                  <div className="w-10 h-10 rounded-xl bg-[#fe710c]/10 border border-[#fe710c]/20 flex items-center justify-center">
+                    <Sparkles size={16} className="text-[#fe710c] animate-pulse" />
                   </div>
-                  <p className="text-xs text-white/30">Generating with AI...</p>
+                  <p className="text-xs text-white/30">Generating image from your post...</p>
                 </div>
-              ) : previewUrl ? (
-                <div className="rounded-xl overflow-hidden border border-white/[0.08] shadow-2xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={previewUrl} alt="Post preview"
-                    style={{ display: "block", width: 1080 * PREVIEW_SCALE, height: 1080 * PREVIEW_SCALE }}
-                  />
-                </div>
-              ) : (
-                <div className="rounded-xl overflow-hidden border border-white/[0.08] shadow-2xl"
+              ) : aiError ? (
+                <div
+                  className="rounded-xl border border-red-500/20 flex flex-col items-center justify-center gap-3 bg-[#090f1e] px-6 text-center"
                   style={{ width: 1080 * PREVIEW_SCALE, height: 1080 * PREVIEW_SCALE }}
                 >
-                  <PostImageTemplate data={data} theme={theme} templateRef={previewRef} scale={PREVIEW_SCALE} />
+                  <AlertCircle size={24} className="text-red-400/60" />
+                  <p className="text-xs text-red-400/70 leading-relaxed">{aiError}</p>
+                  <button
+                    onClick={generateWithAI}
+                    className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/50 hover:text-[#fe710c] hover:border-[#fe710c]/30 transition-colors"
+                  >
+                    <RefreshCw size={10} /> Try Again
+                  </button>
                 </div>
-              )}
-              {!previewUrl && (
-                <div style={{ position: "absolute", left: -9999, top: 0, pointerEvents: "none" }}>
-                  <PostImageTemplate data={data} theme={theme} templateRef={previewRef} scale={PREVIEW_SCALE} />
+              ) : data ? (
+                <div className="relative rounded-xl overflow-hidden border border-white/[0.08] shadow-2xl"
+                  style={{ width: 1080 * PREVIEW_SCALE, height: 1080 * PREVIEW_SCALE }}
+                >
+                  <PostImageTemplate
+                    data={data} theme={theme}
+                    templateRef={{ current: null } as unknown as React.RefObject<HTMLDivElement>}
+                    scale={PREVIEW_SCALE}
+                    authorPhotoUrl={authorPhotoUrl}
+                    companyLogoUrl={companyLogoUrl}
+                    toolLogos={toolLogos}
+                  />
+                  {updating && (
+                    <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                      <Loader2 size={22} className="text-[#fe710c] animate-spin" />
+                      <p className="text-[10px] text-white/50 font-semibold uppercase tracking-widest">Updating...</p>
+                    </div>
+                  )}
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Actions */}
             <div className="w-full flex flex-col gap-2">
               <div className="flex gap-2">
-                <button onClick={applyEdit}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/40 hover:text-[#fe710c] hover:border-[#fe710c]/30 transition-colors"
+                <button onClick={applyEdit} disabled={!data}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/40 hover:text-[#fe710c] hover:border-[#fe710c]/30 disabled:opacity-20 transition-colors"
                 >
                   <RefreshCw size={10} /> Apply & Preview
                 </button>
-                <button onClick={generateWithAI} disabled={aiLoading || !imagePrompt}
+                <button onClick={generateWithAI} disabled={aiLoading}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/40 hover:text-[#fe710c] hover:border-[#fe710c]/30 disabled:opacity-30 transition-colors"
                 >
                   <Sparkles size={10} /> Regenerate AI
                 </button>
               </div>
-              <button onClick={handleDownload} disabled={capturing || aiLoading}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#fe710c] text-black text-sm font-bold hover:brightness-110 disabled:opacity-50 transition-all"
+              <button
+                onClick={handleDownload}
+                disabled={capturing || aiLoading || !data}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#fe710c] text-black text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
               >
                 {capturing ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                 {capturing ? "Exporting..." : "Download PNG  ·  1080×1080"}
               </button>
+
+              {liConnected && liHasOrgId ? (
+                <>
+                  {liResult && (
+                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${liResult.ok ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border border-red-500/20 text-red-400"}`}>
+                      {liResult.ok ? <Check size={11} /> : <AlertCircle size={11} />}
+                      {liResult.msg}
+                    </div>
+                  )}
+                  <button
+                    onClick={handlePostToLinkedIn}
+                    disabled={liPosting || aiLoading || !data}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
+                  >
+                    {liPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                    {liPosting ? "Publishing..." : "Post to LinkedIn"}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleOpenLinkedIn}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 transition-all"
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                  {copied ? "Copied! Paste in LinkedIn →" : "Copy & Open LinkedIn"}
+                  {!copied && <ExternalLink size={12} className="opacity-60" />}
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Right — edit fields */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Edit All Fields</p>
-
-            {/* Tag */}
-            <div>
-              <ST>Tag Pill</ST>
-              <FL>Tag Label</FL>
-              <TI value={editData.tag} onChange={(v) => setEditData({ ...editData, tag: v })} placeholder="e.g. GTM AUTOMATION" />
-            </div>
-
-            {/* Title */}
-            <div>
-              <ST>Title</ST>
-              <div className="space-y-2">
-                <div>
-                  <FL>Main Title <span className="text-white/15 normal-case font-normal">(white text)</span></FL>
-                  <TI value={editData.titleMain} onChange={(v) => setEditData({ ...editData, titleMain: v })} placeholder="e.g. Campaigns, Warmup &" />
-                </div>
-                <div>
-                  <FL>Accent Line <span className="text-white/15 normal-case font-normal">(orange text)</span></FL>
-                  <TI value={editData.titleAccent} onChange={(v) => setEditData({ ...editData, titleAccent: v })} placeholder="e.g. Automated" />
-                </div>
-                <div>
-                  <FL>Subtitle</FL>
-                  <TI value={editData.subtitle} onChange={(v) => setEditData({ ...editData, subtitle: v })} placeholder="Supporting copy..." />
-                </div>
+          {/* Right — edit fields + prompt */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            {!data ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-xs text-white/20">Waiting for AI to generate...</p>
               </div>
-            </div>
+            ) : (
+              <>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Edit Fields</p>
 
-            {/* Feature items */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <ST>Feature Cards</ST>
-                {editData.items.length < 4 && (
-                  <button onClick={addItem} className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-widest text-[#fe710c]/60 hover:text-[#fe710c] transition-colors">
-                    <Plus size={9} /> Add
-                  </button>
-                )}
-              </div>
-              <div className="space-y-2">
-                {editData.items.map((item, i) => (
-                  <div key={i} className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Card {i + 1}</p>
-                      {editData.items.length > 1 && (
-                        <button onClick={() => removeItem(i)} className="text-white/15 hover:text-red-400 transition-colors">
-                          <Trash2 size={10} />
-                        </button>
-                      )}
+                {data.type === "stats" || data.type === "tools" ? (
+                  <div className="space-y-3">
+                    <div className="bg-[#fe710c]/5 border border-[#fe710c]/20 rounded-lg px-4 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#fe710c]/70 mb-1">
+                        {data.type === "stats" ? "Stats Layout" : "Tools Layout"} — AI Generated
+                      </p>
+                      <p className="text-[10px] text-white/35 leading-relaxed">
+                        Edit the JSON directly or use Regenerate AI for a different variation.
+                      </p>
                     </div>
-                    <div className="grid grid-cols-[40px_1fr_1fr] gap-2">
-                      <div>
-                        <FL>Icon</FL>
-                        <input value={item.icon} onChange={(e) => updateItem(i, "icon", e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-1 py-2 text-sm text-center focus:outline-none focus:border-[#fe710c]/30"
-                        />
-                      </div>
-                      <div>
-                        <FL>Heading</FL>
-                        <input value={item.heading} onChange={(e) => updateItem(i, "heading", e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
-                        />
-                      </div>
-                      <div>
-                        <FL>Body</FL>
-                        <input value={item.body} onChange={(e) => updateItem(i, "body", e.target.value)}
-                          className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
-                        />
+                    <div>
+                      <FL>Raw JSON</FL>
+                      <textarea
+                        value={JSON.stringify(editData, null, 2)}
+                        onChange={(e) => {
+                          try { setEditData(JSON.parse(e.target.value)); } catch { /* ignore while typing */ }
+                        }}
+                        className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[10px] text-white/60 font-mono focus:outline-none focus:border-[#fe710c]/30 transition-colors resize-none"
+                        rows={18}
+                      />
+                    </div>
+                    <div>
+                      <ST>Author Bar</ST>
+                      <div className="space-y-2">
+                        <div><FL>Name</FL>
+                          <TI value={editData?.authorName ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorName: v } : p)} placeholder="e.g. Syed Ayan Hassan" />
+                        </div>
+                        <div><FL>Title / Handle</FL>
+                          <TI value={editData?.authorTitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorTitle: v } : p)} placeholder="e.g. GTM Automation Agency" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                ) : (
+                  <>
+                    <div>
+                      <ST>Tag Pill</ST>
+                      <TI value={editData?.tag ?? ""} onChange={(v) => setEditData(p => p ? { ...p, tag: v } : p)} placeholder="e.g. GTM AUTOMATION" />
+                    </div>
+
+                    <div>
+                      <ST>Title</ST>
+                      <div className="space-y-2">
+                        <div><FL>Main <span className="text-white/15 normal-case font-normal">(white)</span></FL>
+                          <TI value={editData?.titleMain ?? ""} onChange={(v) => setEditData(p => p ? { ...p, titleMain: v } : p)} />
+                        </div>
+                        <div><FL>Accent <span className="text-white/15 normal-case font-normal">(orange)</span></FL>
+                          <TI value={editData?.titleAccent ?? ""} onChange={(v) => setEditData(p => p ? { ...p, titleAccent: v } : p)} />
+                        </div>
+                        <div><FL>Subtitle</FL>
+                          <TI value={editData?.subtitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, subtitle: v } : p)} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <ST>Cards</ST>
+                        {(editData?.items ?? []).length < 4 && (
+                          <button onClick={addItem} className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-widest text-[#fe710c]/60 hover:text-[#fe710c] transition-colors">
+                            <Plus size={9} /> Add
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {(editData?.items ?? []).map((item, i) => (
+                          <div key={i} className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Card {i + 1}</p>
+                              {(editData?.items ?? []).length > 1 && (
+                                <button onClick={() => removeItem(i)} className="text-white/15 hover:text-red-400 transition-colors">
+                                  <Trash2 size={10} />
+                                </button>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-[1fr_1fr] gap-2">
+                              <div><FL>Heading</FL>
+                                <input value={item.heading} onChange={(e) => updateItem(i, "heading", e.target.value)}
+                                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
+                                />
+                              </div>
+                              <div><FL>Body</FL>
+                                <input value={item.body} onChange={(e) => updateItem(i, "body", e.target.value)}
+                                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <ST>Author Bar</ST>
+                      <div className="space-y-2">
+                        <div><FL>Name</FL>
+                          <TI value={editData?.authorName ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorName: v } : p)} placeholder="e.g. Syed Ayan Hassan" />
+                        </div>
+                        <div><FL>Title / Handle</FL>
+                          <TI value={editData?.authorTitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorTitle: v } : p)} placeholder="e.g. GTM Automation Agency" />
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
             </div>
 
-            {/* Author */}
-            <div>
-              <ST>Author Bar</ST>
-              <div className="space-y-2">
-                <div>
-                  <FL>Name</FL>
-                  <TI value={editData.authorName ?? ""} onChange={(v) => setEditData({ ...editData, authorName: v })} placeholder="e.g. Zutomate" />
+            {/* Update prompt bar */}
+            <form
+              onSubmit={handleUpdate}
+              className="shrink-0 border-t border-white/[0.06] px-4 py-3 space-y-2"
+            >
+              <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Refine with AI</p>
+              {updateError && (
+                <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] leading-relaxed">
+                  <AlertCircle size={11} className="shrink-0 mt-0.5" />
+                  {updateError}
                 </div>
-                <div>
-                  <FL>Title / Handle</FL>
-                  <TI value={editData.authorTitle ?? ""} onChange={(v) => setEditData({ ...editData, authorTitle: v })} placeholder="e.g. GTM Automation Agency" />
-                </div>
-                <div>
-                  <FL>Website</FL>
-                  <TI value={editData.website ?? ""} onChange={(v) => setEditData({ ...editData, website: v })} placeholder="e.g. zutomate.com" />
-                </div>
+              )}
+              <div className="flex gap-2 items-end">
+                <textarea
+                  value={updatePrompt}
+                  onChange={(e) => { setUpdatePrompt(e.target.value); setUpdateError(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleUpdate(); } }}
+                  placeholder="e.g. Change the headline to focus on revenue growth, make the tag say CASE STUDY..."
+                  disabled={!data || updating}
+                  rows={2}
+                  className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/70 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30 focus:ring-1 focus:ring-[#fe710c]/10 transition-colors resize-none disabled:opacity-30"
+                />
+                <button
+                  type="submit"
+                  disabled={!data || !updatePrompt.trim() || updating}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#fe710c] text-black text-xs font-bold hover:bg-[#ff8a2e] disabled:opacity-30 transition-colors shrink-0 self-end"
+                >
+                  {updating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                  {updating ? "Updating..." : "Update"}
+                </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
