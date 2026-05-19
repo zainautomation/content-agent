@@ -8,7 +8,7 @@ function getClient(): Anthropic {
 }
 
 export const MODELS = {
-  generation: "claude-opus-4-6",
+  generation: "claude-sonnet-4-6",
   fast: "claude-haiku-4-5-20251001",
 } as const;
 
