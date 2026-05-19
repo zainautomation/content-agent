@@ -297,7 +297,8 @@ export default function CreatePage() {
           messages: promptMessages,
         }),
       });
-      const data = await res.json();
+      if (!res.ok && res.status === 504) throw new Error("Request timed out — try again");
+      const data = await res.json().catch(() => { throw new Error(`Server error (${res.status}) — try again`); });
       if (!res.ok) throw new Error(data.error ?? "Follow-up failed");
       setPromptMessages([...updatedMessages, { role: "assistant", content: data.output }]);
     } catch (err) {
