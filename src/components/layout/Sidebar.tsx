@@ -7,16 +7,15 @@ import { cn } from "@/lib/utils";
 import { useAppTheme } from "@/components/ThemeProvider";
 import {
   PenSquare, FileText, CalendarDays, Sparkles, PlugZap, Moon, Sun,
-  Shield, LogOut, FileImage,
+  Shield, LogOut,
 } from "lucide-react";
 
 const NAV = [
-  { href: "/create",                label: "Create Post",       icon: PenSquare    },
-  { href: "/posts",                 label: "My Posts",          icon: FileText     },
-  { href: "/calendar",              label: "Calendar",          icon: CalendarDays },
-  { href: "/settings/prompts",      label: "Brand & Prompts",   icon: Sparkles     },
-  { href: "/settings/assets",       label: "Brand Assets",      icon: FileImage    },
-  { href: "/settings/integrations", label: "Integrations",      icon: PlugZap      },
+  { href: "/create",                label: "Create Post",   icon: PenSquare    },
+  { href: "/posts",                 label: "My Posts",      icon: FileText     },
+  { href: "/calendar",              label: "Calendar",      icon: CalendarDays },
+  { href: "/settings/prompts",      label: "Brand & Assets", icon: Sparkles    },
+  { href: "/settings/integrations", label: "Integrations",  icon: PlugZap      },
 ];
 
 export default function Sidebar() {

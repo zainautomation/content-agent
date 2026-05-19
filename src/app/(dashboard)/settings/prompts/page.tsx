@@ -1,19 +1,20 @@
 "use client";
 import { useSettingsStore } from "@/store/settings.store";
-import { useState, useEffect } from "react";
-import { Save, Check, AlertCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Save, Check, AlertCircle, Upload, Trash2, User, Building2, Plus } from "lucide-react";
 import type { BrandSettings, Platform } from "@/types";
 
-type TabId = "master" | "linkedin" | "comments" | "outreach" | "pillars" | "image";
+type TabId = "master" | "linkedin" | "comments" | "outreach" | "pillars" | "image" | "assets";
 type PromptKey = keyof BrandSettings["prompts"];
 
 const TABS: { id: TabId; label: string; number: string }[] = [
-  { id: "master", label: "Master Brand Voice", number: "01" },
-  { id: "linkedin", label: "LinkedIn Posts", number: "02" },
-  { id: "comments", label: "Comments & Replies", number: "03" },
-  { id: "outreach", label: "Cold Outreach", number: "04" },
-  { id: "pillars", label: "Content Pillars", number: "05" },
-  { id: "image", label: "Image Post", number: "06" },
+  { id: "master",   label: "Master Brand Voice", number: "01" },
+  { id: "linkedin", label: "LinkedIn Posts",      number: "02" },
+  { id: "comments", label: "Comments & Replies",  number: "03" },
+  { id: "outreach", label: "Cold Outreach",       number: "04" },
+  { id: "pillars",  label: "Content Pillars",     number: "05" },
+  { id: "image",    label: "Image Post",          number: "06" },
+  { id: "assets",   label: "Brand Assets",        number: "07" },
 ];
 
 const PLATFORM_LABELS: Record<Platform, string> = {
@@ -23,6 +24,8 @@ const PLATFORM_LABELS: Record<Platform, string> = {
   twitter: "Twitter / X",
   blog: "Blog",
 };
+
+interface ToolLogo { name: string; path: string }
 
 function PromptField({
   label, description, tag, value, onChange, rows = 14,
@@ -84,7 +87,54 @@ export default function PromptsSettingsPage() {
 
   const [prompts, setPrompts] = useState({ ...brand.prompts });
 
-  // Sync local form when store hydrates from server — only overwrite with non-empty server values
+  // ── Brand Assets state ──
+  const [photoPath,  setPhotoPath]  = useState<string | null>(null);
+  const [logoPath,   setLogoPath]   = useState<string | null>(null);
+  const [tools,      setTools]      = useState<ToolLogo[]>([]);
+  const [toolName,   setToolName]   = useState("");
+  const [uploading,  setUploading]  = useState<string | null>(null);
+  const [assetSaved, setAssetSaved] = useState<string | null>(null);
+  const photoInput = useRef<HTMLInputElement>(null);
+  const logoInput  = useRef<HTMLInputElement>(null);
+  const toolInput  = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { loadAssets(); }, []);
+
+  const loadAssets = async () => {
+    const res = await fetch("/api/image");
+    if (!res.ok) return;
+    const json = await res.json();
+    setPhotoPath(json.authorPhoto ? `${json.authorPhoto}?t=${Date.now()}` : null);
+    setLogoPath(json.companyLogo  ? `${json.companyLogo}?t=${Date.now()}`  : null);
+    setTools(json.tools ?? []);
+  };
+
+  const uploadFile = async (file: File, type: string, name?: string) => {
+    setUploading(type);
+    const form = new FormData();
+    form.append("type", type);
+    form.append("file", file);
+    if (name) form.append("name", name);
+    const res = await fetch("/api/assets", { method: "POST", body: form });
+    setUploading(null);
+    if (res.ok) { flashAsset(type); await loadAssets(); }
+  };
+
+  const deleteAsset = async (type: string, name?: string) => {
+    const params = new URLSearchParams({ type });
+    if (name) params.set("name", name);
+    await fetch(`/api/assets?${params}`, { method: "DELETE" });
+    if (type === "author-photo") setPhotoPath(null);
+    if (type === "company-logo") setLogoPath(null);
+    loadAssets();
+  };
+
+  const flashAsset = (key: string) => {
+    setAssetSaved(key);
+    setTimeout(() => setAssetSaved(null), 2000);
+  };
+
+  // Sync local form when store hydrates
   useEffect(() => {
     setMasterForm((prev) => ({
       systemPrompt: brand.systemPrompt || prev.systemPrompt,
@@ -152,12 +202,32 @@ export default function PromptsSettingsPage() {
 
   const isSaving = saveState === "saving";
 
+  const AssetSection = ({ children }: { children: React.ReactNode }) => (
+    <h2 className="text-[11px] font-bold uppercase tracking-widest text-white/25 mb-4">{children}</h2>
+  );
+
+  const UploadBtn = ({ onClick, type, label }: { onClick: () => void; type: string; label: string }) => (
+    <button
+      onClick={onClick}
+      disabled={uploading === type}
+      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.06] border border-white/[0.10] text-xs text-white/60 hover:text-white hover:border-white/20 transition-all disabled:opacity-40"
+    >
+      {uploading === type ? (
+        <span className="animate-pulse text-white/40">Uploading...</span>
+      ) : assetSaved === type ? (
+        <><Check size={12} className="text-green-400" /><span className="text-green-400">Saved</span></>
+      ) : (
+        <><Upload size={12} />{label}</>
+      )}
+    </button>
+  );
+
   return (
     <div className="max-w-3xl">
       <div className="mb-7">
         <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-0.5">Settings</p>
-        <h1 className="text-xl font-bold text-white">Brand & Prompts</h1>
-        <p className="text-sm text-white/30 mt-1">All prompts that power Zutomate content generation. Edit any section and save.</p>
+        <h1 className="text-xl font-bold text-white">Brand & Assets</h1>
+        <p className="text-sm text-white/30 mt-1">Brand voice, prompts, and image assets for Zutomate content generation.</p>
       </div>
 
       {saveState === "error" && (
@@ -362,7 +432,7 @@ export default function PromptsSettingsPage() {
           <PromptField
             tag="Image Post Prompt"
             label="Image Post Generation"
-            description="This prompt is sent to Claude along with your generated post content. Claude returns a JSON object that populates the 1080×1080 image template — headline, orange highlight, subtitle, CTA, and 3 feature cards. Edit the rules here to change how images are structured."
+            description="This prompt is sent to Claude along with your generated post content. Claude returns a JSON object that populates the 1080×1080 image template."
             value={prompts.imagePost}
             onChange={(v) => setPrompts({ ...prompts, imagePost: v })}
             rows={22}
@@ -391,16 +461,148 @@ export default function PromptsSettingsPage() {
         </div>
       )}
 
-      {/* Save All */}
-      <div className="mt-8 pt-6 border-t border-white/[0.06]">
-        <button
-          onClick={handleSaveAll}
-          disabled={isSaving}
-          className="text-xs text-white/20 hover:text-[#fe710c] transition-colors underline underline-offset-2 disabled:opacity-40"
-        >
-          {isSaving ? "Saving..." : "Save all sections at once"}
-        </button>
-      </div>
+      {/* TAB: Brand Assets */}
+      {activeTab === "assets" && (
+        <div className="space-y-10">
+          {/* Author Photo */}
+          <section>
+            <AssetSection>Author Photo</AssetSection>
+            <div className="flex items-start gap-6">
+              <div
+                className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-white/[0.08] bg-white/[0.04] shrink-0 cursor-pointer group"
+                onClick={() => photoInput.current?.click()}
+              >
+                {photoPath ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={photoPath} alt="Author" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <User size={24} className="text-white/20" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload size={14} className="text-white" />
+                </div>
+              </div>
+              <div className="space-y-3 pt-1">
+                <p className="text-xs text-white/50">Square image works best. Shown as a circle in the post footer.</p>
+                <div className="flex gap-2">
+                  <UploadBtn onClick={() => photoInput.current?.click()} type="author-photo" label="Upload Photo" />
+                  {photoPath && (
+                    <button
+                      onClick={() => deleteAsset("author-photo")}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/25 hover:text-red-400 hover:border-red-400/20 transition-all"
+                    >
+                      <Trash2 size={11} /> Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPhotoPath(URL.createObjectURL(f)); uploadFile(f, "author-photo"); } e.target.value = ""; }}
+            />
+          </section>
+
+          {/* Company Logo */}
+          <section>
+            <AssetSection>Company Logo</AssetSection>
+            <div className="flex items-start gap-6">
+              <div
+                className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-white/[0.08] bg-white/[0.04] shrink-0 cursor-pointer group flex items-center justify-center"
+                onClick={() => logoInput.current?.click()}
+              >
+                {logoPath ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoPath} alt="Company logo" className="w-full h-full object-contain p-2" />
+                ) : (
+                  <Building2 size={24} className="text-white/20" />
+                )}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Upload size={14} className="text-white" />
+                </div>
+              </div>
+              <div className="space-y-3 pt-1">
+                <p className="text-xs text-white/50">PNG, SVG, or JPG. Shown in the bottom-right of every generated image.</p>
+                <div className="flex gap-2">
+                  <UploadBtn onClick={() => logoInput.current?.click()} type="company-logo" label="Upload Logo" />
+                  {logoPath && (
+                    <button
+                      onClick={() => deleteAsset("company-logo")}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-xs text-white/25 hover:text-red-400 hover:border-red-400/20 transition-all"
+                    >
+                      <Trash2 size={11} /> Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            <input ref={logoInput} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) { setLogoPath(URL.createObjectURL(f)); uploadFile(f, "company-logo"); } e.target.value = ""; }}
+            />
+          </section>
+
+          {/* Tool Logos */}
+          <section>
+            <AssetSection>Tool Logos</AssetSection>
+            <p className="text-xs text-white/35 mb-4">
+              Upload logos for tools you reference in posts — Clay, Instantly, HubSpot, etc.
+            </p>
+            {tools.length > 0 && (
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {tools.map((tool) => (
+                  <div key={tool.path} className="group flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.07] hover:border-white/[0.12] transition-all">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={tool.path} alt={tool.name} className="w-8 h-8 rounded object-contain shrink-0" />
+                    <p className="text-xs text-white/65 truncate flex-1 capitalize">{tool.name}</p>
+                    <button
+                      onClick={() => deleteAsset("tool-logo", tool.path.split("/").pop()?.split(".")[0])}
+                      className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all shrink-0"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={toolName}
+                onChange={(e) => setToolName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && toolName.trim() && toolInput.current?.click()}
+                placeholder="Tool name (e.g. Clay)"
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30 transition-colors"
+              />
+              <button
+                onClick={() => toolInput.current?.click()}
+                disabled={!toolName.trim() || uploading === "tool-logo"}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#fe710c]/10 border border-[#fe710c]/20 text-xs font-semibold text-[#fe710c] hover:bg-[#fe710c]/20 disabled:opacity-30 transition-all whitespace-nowrap"
+              >
+                {uploading === "tool-logo" ? <span className="animate-pulse">Uploading...</span>
+                  : assetSaved === "tool-logo" ? <><Check size={12} /> Saved</>
+                  : <><Plus size={12} /> Upload Logo</>}
+              </button>
+            </div>
+            <input ref={toolInput} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f && toolName.trim()) { uploadFile(f, "tool-logo", toolName.trim()); setToolName(""); } e.target.value = ""; }}
+            />
+          </section>
+        </div>
+      )}
+
+      {/* Save All (not shown on assets tab) */}
+      {activeTab !== "assets" && (
+        <div className="mt-8 pt-6 border-t border-white/[0.06]">
+          <button
+            onClick={handleSaveAll}
+            disabled={isSaving}
+            className="text-xs text-white/20 hover:text-[#fe710c] transition-colors underline underline-offset-2 disabled:opacity-40"
+          >
+            {isSaving ? "Saving..." : "Save all sections at once"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
