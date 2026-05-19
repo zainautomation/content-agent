@@ -322,9 +322,14 @@ export default function CreatePage() {
       if (!res.ok && res.status === 504) throw new Error("Request timed out — try again");
       const data = await res.json().catch(() => { throw new Error(`Server error (${res.status}) — try again`); });
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
-      const id = await addPost({ title: data.brief.summary.slice(0, 60) + "...", originalInput: rawIdea, inputType: inputMode, brief: data.brief, platformPosts: data.platformPosts, status: "draft" });
-      setSavedPostId(id);
+      // Show generated content immediately — save to DB separately so a DB error never blocks the output
       setOutput((data.platformPosts as { platform: Platform; content: string }[]).map((p) => ({ content: p.content, platform: p.platform })));
+      try {
+        const id = await addPost({ title: data.brief.summary.slice(0, 60) + "...", originalInput: rawIdea, inputType: inputMode, brief: data.brief, platformPosts: data.platformPosts, status: "draft" });
+        setSavedPostId(id);
+      } catch {
+        // DB save failed — post is displayed but not persisted
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally { setLoading(false); }

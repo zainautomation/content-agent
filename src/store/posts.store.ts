@@ -24,7 +24,7 @@ export const usePostsStore = create<PostsState>()((set, get) => ({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => { throw new Error(`Failed to save post (${res.status})`); });
     if (!res.ok) throw new Error(data.error ?? "Failed to save post");
     const newPost: Post = data.post;
     set((state) => ({ posts: [newPost, ...state.posts] }));
