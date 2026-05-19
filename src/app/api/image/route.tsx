@@ -3,11 +3,13 @@ import satori from "satori";
 
 export const maxDuration = 60;
 import { Resvg } from "@resvg/resvg-js";
-import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, extname } from "path";
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+// font loading still uses local fs (node_modules are bundled at build time)
 import React from "react";
 import { getAuthInfo } from "@/lib/api-auth";
 import type { ImageTemplateData, ImageTheme } from "@/components/PostImageTemplate";
+import { listFolder, fetchAsDataUri } from "@/lib/supabase-storage";
 
 function loadFont(weight: number): Buffer | null {
   // Satori supports woff but not woff2 — use woff only
@@ -19,62 +21,44 @@ function loadFont(weight: number): Buffer | null {
   return null;
 }
 
-function toDataUri(filePath: string, mime: string): string | null {
-  if (!existsSync(filePath)) return null;
-  return `data:${mime};base64,${readFileSync(filePath).toString("base64")}`;
+async function findAuthorPhoto(): Promise<string | null> {
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("author-photo.") && !f.name.endsWith(".svg"));
+  return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-function findAuthorPhoto(): string | null {
-  for (const ext of ["jpg", "jpeg", "png", "webp"]) {
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
-    const uri = toDataUri(join(process.cwd(), `public/brand/author-photo.${ext}`), mime);
-    if (uri) return uri;
-  }
-  return null;
-}
-
-function findCompanyLogo(): string | null {
+async function findCompanyLogo(): Promise<string | null> {
   // Satori cannot render SVG <img> — raster only
-  for (const ext of ["png", "jpg", "jpeg", "webp"]) {
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
-    const uri = toDataUri(join(process.cwd(), `public/brand/company-logo.${ext}`), mime);
-    if (uri) return uri;
-  }
-  return null;
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("company-logo.") && !f.name.endsWith(".svg"));
+  return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-function findAuthorPhotoPath(): string | null {
-  for (const ext of ["jpg", "jpeg", "png", "webp"]) {
-    const p = join(process.cwd(), `public/brand/author-photo.${ext}`);
-    if (existsSync(p)) return `/brand/author-photo.${ext}`;
-  }
-  return null;
+async function findAuthorPhotoPath(): Promise<string | null> {
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("author-photo."));
+  return match ? match.publicUrl : null;
 }
 
-function findCompanyLogoPath(): string | null {
-  for (const ext of ["svg", "png", "jpg", "jpeg", "webp"]) {
-    const p = join(process.cwd(), `public/brand/company-logo.${ext}`);
-    if (existsSync(p)) return `/brand/company-logo.${ext}`;
-  }
-  return null;
+async function findCompanyLogoPath(): Promise<string | null> {
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("company-logo."));
+  return match ? match.publicUrl : null;
 }
 
-function loadToolLogos(names: string[]): Record<string, string> {
-  const dir = join(process.cwd(), "public/tools");
+async function loadToolLogos(names: string[]): Promise<Record<string, string>> {
+  if (!names.length) return {};
+  const files = await listFolder("tools");
   const result: Record<string, string> = {};
-  if (!existsSync(dir)) return result;
-  const files = readdirSync(dir);
   for (const name of names) {
     const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const match = files.find((f) => {
-      const base = f.replace(/\.[^.]+$/, "").toLowerCase();
+      if (f.name.endsWith(".svg")) return false; // Satori cannot render SVG <img>
+      const base = f.name.replace(/\.[^.]+$/, "").toLowerCase();
       return base === safe || base === name.toLowerCase().replace(/\s+/g, "-");
     });
     if (match) {
-      const ext = extname(match).toLowerCase();
-      if (ext === ".svg") continue; // Satori cannot render SVG <img>
-      const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
-      const uri = toDataUri(join(dir, match), mime);
+      const uri = await fetchAsDataUri(match.publicUrl);
       if (uri) result[name] = uri;
     }
   }
@@ -743,10 +727,6 @@ export async function POST(req: NextRequest) {
   }
 
   // Load assets
-  const logoUri = findCompanyLogo();
-  const photoUri = findAuthorPhoto();
-
-  // Collect tool names based on template type
   const toolNamesToLoad: string[] = [];
   if (data.type === "stats" && Array.isArray(data.toolNames)) {
     toolNamesToLoad.push(...data.toolNames);
@@ -754,7 +734,11 @@ export async function POST(req: NextRequest) {
   if (data.type === "tools" && Array.isArray(data.toolList)) {
     toolNamesToLoad.push(...data.toolList.map((t: { name: string }) => t.name));
   }
-  const toolLogos = loadToolLogos(toolNamesToLoad);
+  const [logoUri, photoUri, toolLogos] = await Promise.all([
+    findCompanyLogo(),
+    findAuthorPhoto(),
+    loadToolLogos(toolNamesToLoad),
+  ]);
 
   let svg: string;
   try {
@@ -782,21 +766,21 @@ export async function GET(req: NextRequest) {
   const auth = await getAuthInfo(req);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const toolsDir = join(process.cwd(), "public/tools");
-  const tools: { name: string; path: string }[] = [];
-  if (existsSync(toolsDir)) {
-    for (const file of readdirSync(toolsDir)) {
-      const ext = extname(file).toLowerCase();
-      if ([".png", ".jpg", ".jpeg", ".svg", ".webp"].includes(ext)) {
-        const name = file.replace(ext, "").replace(/-/g, " ");
-        tools.push({ name, path: `/tools/${file}` });
-      }
-    }
-  }
+  const [toolFiles, authorPhoto, companyLogo] = await Promise.all([
+    listFolder("tools"),
+    findAuthorPhotoPath(),
+    findCompanyLogoPath(),
+  ]);
+
+  const tools = toolFiles.map((f) => {
+    const ext = f.name.replace(/^[^.]+/, "");
+    const name = f.name.replace(ext, "").replace(/-/g, " ");
+    return { name, path: f.publicUrl };
+  });
 
   return NextResponse.json({
-    authorPhoto: findAuthorPhotoPath(),
-    companyLogo: findCompanyLogoPath(),
+    authorPhoto,
+    companyLogo,
     tools,
     toolNames: tools.map((t) => t.name),
   });

@@ -6,10 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { uploadImageToLinkedIn, publishToLinkedIn } from "@/lib/integrations/linkedin";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
-import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, extname } from "path";
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
 import React from "react";
 import type { ImageTemplateData, ImageTheme } from "@/components/PostImageTemplate";
+import { listFolder, fetchAsDataUri } from "@/lib/supabase-storage";
 
 function loadFont(weight: number): Buffer | null {
   const p = join(
@@ -19,45 +20,31 @@ function loadFont(weight: number): Buffer | null {
   return existsSync(p) ? readFileSync(p) : null;
 }
 
-function toDataUri(filePath: string, mime: string): string | null {
-  if (!existsSync(filePath)) return null;
-  return `data:${mime};base64,${readFileSync(filePath).toString("base64")}`;
+async function findCompanyLogo(): Promise<string | null> {
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("company-logo.") && !f.name.endsWith(".svg"));
+  return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-function findCompanyLogo(): string | null {
-  for (const ext of ["png", "jpg", "jpeg", "webp"]) {
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
-    const uri = toDataUri(join(process.cwd(), `public/brand/company-logo.${ext}`), mime);
-    if (uri) return uri;
-  }
-  return null;
+async function findAuthorPhoto(): Promise<string | null> {
+  const files = await listFolder("brand");
+  const match = files.find((f) => f.name.startsWith("author-photo.") && !f.name.endsWith(".svg"));
+  return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-function findAuthorPhoto(): string | null {
-  for (const ext of ["jpg", "jpeg", "png", "webp"]) {
-    const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
-    const uri = toDataUri(join(process.cwd(), `public/brand/author-photo.${ext}`), mime);
-    if (uri) return uri;
-  }
-  return null;
-}
-
-function loadToolLogos(names: string[]): Record<string, string> {
-  const dir = join(process.cwd(), "public/tools");
+async function loadToolLogos(names: string[]): Promise<Record<string, string>> {
+  if (!names.length) return {};
+  const files = await listFolder("tools");
   const result: Record<string, string> = {};
-  if (!existsSync(dir)) return result;
-  const files = readdirSync(dir);
   for (const name of names) {
     const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const match = files.find((f) => {
-      const base = f.replace(/\.[^.]+$/, "").toLowerCase();
+      if (f.name.endsWith(".svg")) return false;
+      const base = f.name.replace(/\.[^.]+$/, "").toLowerCase();
       return base === safe || base === name.toLowerCase().replace(/\s+/g, "-");
     });
     if (match) {
-      const ext = extname(match).toLowerCase();
-      if (ext === ".svg") continue;
-      const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
-      const uri = toDataUri(join(dir, match), mime);
+      const uri = await fetchAsDataUri(match.publicUrl);
       if (uri) result[name] = uri;
     }
   }
@@ -120,14 +107,20 @@ export async function POST(req: NextRequest) {
       if (imageData.type === "tools" && Array.isArray(imageData.toolList))
         toolNamesToLoad.push(...imageData.toolList.map((t: { name: string }) => t.name));
 
-      const { default: ImagePost } = await import("@/app/api/image/ImagePost");
+      const [logoUri, photoUri, toolLogos, { default: ImagePost }] = await Promise.all([
+        findCompanyLogo(),
+        findAuthorPhoto(),
+        loadToolLogos(toolNamesToLoad),
+        import("@/app/api/image/ImagePost"),
+      ]);
+
       const svg = await satori(
         React.createElement(ImagePost, {
           data: imageData,
           theme: theme as ImageTheme,
-          logoUri: findCompanyLogo(),
-          photoUri: findAuthorPhoto(),
-          toolLogos: loadToolLogos(toolNamesToLoad),
+          logoUri,
+          photoUri,
+          toolLogos,
         }),
         { width: 1080, height: 1080, fonts }
       );
