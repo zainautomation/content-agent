@@ -106,7 +106,7 @@ export default function PostImageTemplate({
         src={companyLogoUrl || "/zutomate-logo.svg"}
         alt="Logo"
         style={{
-          height: s(80), width: "auto", display: "block",
+          height: s(120), maxWidth: s(360), width: "auto", display: "block",
           mixBlendMode: dark ? "screen" : "multiply",
         }}
       />
