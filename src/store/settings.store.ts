@@ -178,67 +178,47 @@ Output format for the 2-week plan:
 — Balance: 2 Educate, 2 Provoke, 2 Prove, 2 Connect
 — Flag which 2 posts have the highest DM-conversion potential`,
 
-    imagePost: `You are creating structured data for a 1080×1080 social media image post for Zutomate.
-
-Choose the best template type based on the post content:
-- "list" → step-by-step posts, how-to, insights, frameworks
-- "stats" → results posts with specific numbers (meetings booked, emails sent, deals closed, etc.)
-- "tools" → posts about a tech stack, tool comparison, or specific software tools
+    imagePost: `You create a structured JSON for a 1080×1080 social image card. Assemble 2–3 sections from the types below — no fixed template. Every combination is valid as long as it serves the content.
 
 AVAILABLE TOOL LOGOS: {TOOL_NAMES}
-(Only include tools from this list in the output — others will show as text-only)
 
-Return JSON for the chosen type. No explanation, no markdown fences.
+Return ONLY a JSON object. No markdown, no explanation.
 
-=== FOR "list" ===
+FORMAT:
 {
-  "type": "list",
-  "tag": "2-3 words ALL CAPS",
-  "titleMain": "headline start, white text, max 6 words",
-  "titleAccent": "orange punchline, max 3 words",
-  "subtitle": "1 compelling sentence, max 120 chars, specific to the post",
-  "items": [
-    { "icon": "", "heading": "3-6 word specific heading", "body": "1-2 sentences of real substance" },
-    { "icon": "", "heading": "...", "body": "..." },
-    { "icon": "", "heading": "...", "body": "..." }
-  ],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+  "tag": "2–4 word ALL CAPS label (e.g. COLD OUTREACH, CASE STUDY, GTM SYSTEM)",
+  "sections": [ ...2–3 section objects... ],
+  "authorName": "...",
+  "authorTitle": "..."
 }
 
-=== FOR "stats" ===
-{
-  "type": "stats",
-  "tag": "Category — Time context (e.g. Cold Email Results — Last 30 Days)",
-  "headline": "IMPACT STATEMENT IN CAPS — max 8 words, the big number/result",
-  "subheadline": "CONTEXT IN CAPS — max 8 words (e.g. ONE PERSON. NO ADS. NO INBOUND.)",
-  "stats": [
-    { "value": "exact number from post", "label": "what it measures" }
-  ],
-  "stackLabel": "The Exact Stack",
-  "toolNames": ["only tools mentioned in post that have logos available"],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
-}
+SECTION TYPES:
 
-=== FOR "tools" ===
-{
-  "type": "tools",
-  "tag": "TOOLS ALL CAPS category",
-  "titleMain": "headline white part",
-  "headlineAccent": "orange accent part",
-  "toolList": [
-    { "name": "exact tool name matching available logos", "description": "what it does, max 8 words" }
-  ],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
-}
+1. "heading" — Always use as the FIRST section.
+{ "type": "heading", "title": "Full title text", "titleAccent": "exact phrase within title to highlight orange", "subtitle": "optional 1–2 sentence hook" }
 
-Rules:
-— Only use numbers in stats that are explicitly in the post. Do not invent metrics.
-— For tools type, prefer tools that have logos available.
-— icon fields must always be empty string "".
-— Return only the JSON object.`,
+2. "bullets" — Icon + heading + body list (2–4 items)
+{ "type": "bullets", "items": [ { "icon": "🎯", "heading": "Short bold heading", "body": "1–2 sentence explanation" } ] }
+
+3. "stats" — 2–3 big number cards
+{ "type": "stats", "stats": [ { "value": "42", "label": "Leads Generated" } ], "toolNames": ["Clay", "Instantly"], "stackLabel": "Built with" }
+
+4. "quote" — Pull quote for bold claims or thought leadership
+{ "type": "quote", "quote": "The most provocative or memorable line from the post" }
+
+5. "steps" — Numbered process (2–4 steps)
+{ "type": "steps", "steps": [ { "heading": "Step heading", "body": "Optional 1 sentence detail" } ] }
+
+6. "tools" — Tool showcase (2–4 tools)
+{ "type": "tools", "toolList": [ { "name": "Clay", "description": "Builds enriched prospect lists" } ] }
+
+COMPOSITION RULES:
+— Always start with "heading"
+— Use 2–3 sections total (4 only if steps/bullets each have 2 items)
+— Match to content: results → stats, how-to → steps, tools post → tools, bold claim → quote + bullets
+— toolNames in stats MUST exactly match available logos: {TOOL_NAMES}
+— Only use numbers from the post — never invent metrics
+— Return only the JSON object`,
 
     carouselPost: `You are creating a LinkedIn carousel post for Zutomate — a GTM automation agency.
 
