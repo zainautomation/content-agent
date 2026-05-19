@@ -1,6 +1,6 @@
 "use client";
 import { useSettingsStore } from "@/store/settings.store";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Check, Save, Zap, ZapOff, ExternalLink } from "lucide-react";
 
@@ -59,7 +59,7 @@ const INTEGRATIONS: Integration[] = [
   },
 ];
 
-export default function IntegrationsPage() {
+function IntegrationsInner() {
   const { getConnection, updateConnection } = useSettingsStore();
   const [savedId, setSavedId] = useState<string | null>(null);
   const [forms, setForms] = useState<Record<string, Record<string, string>>>({});
@@ -285,5 +285,13 @@ export default function IntegrationsPage() {
         })}
       </div>
     </div>
+  );
+}
+
+export default function IntegrationsPage() {
+  return (
+    <Suspense>
+      <IntegrationsInner />
+    </Suspense>
   );
 }
