@@ -72,8 +72,13 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       });
       const json = await res.json();
       if (res.ok && json.data) {
-        setData(json.data);
-        setEditData(json.data);
+        const merged = {
+          ...json.data,
+          ...(brand.authorName  ? { authorName:  brand.authorName  } : {}),
+          ...(brand.authorTitle ? { authorTitle: brand.authorTitle } : {}),
+        };
+        setData(merged);
+        setEditData(merged);
       } else {
         setAiError(json.error ?? "AI generation failed — check your API key or try again");
       }

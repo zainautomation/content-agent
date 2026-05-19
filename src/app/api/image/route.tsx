@@ -143,20 +143,7 @@ function ImagePost({
       </div>
 
       {logoUri ? (
-        <div
-          style={
-            !dark
-              ? {
-                  display: "flex",
-                  background: "#09152a",
-                  borderRadius: 10,
-                  padding: "8px 18px",
-                }
-              : { display: "flex" }
-          }
-        >
-          <img src={logoUri} style={{ height: 80, width: 240, objectFit: "contain" }} />
-        </div>
+        <img src={logoUri} style={{ height: 80, width: 240, objectFit: "contain" }} />
       ) : (
         <span
           style={{

@@ -101,17 +101,12 @@ export default function PostImageTemplate({
       </div>
 
       {/* Company logo */}
-      <div style={!dark ? {
-        background: "#09152a", borderRadius: s(10),
-        padding: `${s(8)}px ${s(18)}px`, display: "inline-flex",
-      } : { display: "inline-flex" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={companyLogoUrl || "/zutomate-logo.svg"}
-          alt="Logo"
-          style={{ height: s(80), width: "auto", display: "block" }}
-        />
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={companyLogoUrl || "/zutomate-logo.svg"}
+        alt="Logo"
+        style={{ height: s(80), width: "auto", display: "block" }}
+      />
     </div>
   );
 

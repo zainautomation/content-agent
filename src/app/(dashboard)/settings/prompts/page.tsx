@@ -88,6 +88,8 @@ export default function PromptsSettingsPage() {
   const [prompts, setPrompts] = useState({ ...brand.prompts });
 
   // ── Brand Assets state ──
+  const [authorNameVal,  setAuthorNameVal]  = useState(brand.authorName ?? "");
+  const [authorTitleVal, setAuthorTitleVal] = useState(brand.authorTitle ?? "");
   const [photoPath,  setPhotoPath]  = useState<string | null>(null);
   const [logoPath,   setLogoPath]   = useState<string | null>(null);
   const [tools,      setTools]      = useState<ToolLogo[]>([]);
@@ -133,6 +135,12 @@ export default function PromptsSettingsPage() {
     setAssetSaved(key);
     setTimeout(() => setAssetSaved(null), 2000);
   };
+
+  // Sync author name/title when store hydrates
+  useEffect(() => {
+    if (brand.authorName) setAuthorNameVal(brand.authorName);
+    if (brand.authorTitle) setAuthorTitleVal(brand.authorTitle);
+  }, [brand.authorName, brand.authorTitle]);
 
   // Sync local form when store hydrates
   useEffect(() => {
@@ -464,6 +472,38 @@ export default function PromptsSettingsPage() {
       {/* TAB: Brand Assets */}
       {activeTab === "assets" && (
         <div className="space-y-10">
+          {/* Author Info */}
+          <section>
+            <AssetSection>Author Info</AssetSection>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-1.5">Name</label>
+                <input
+                  type="text"
+                  value={authorNameVal}
+                  onChange={(e) => setAuthorNameVal(e.target.value)}
+                  placeholder="e.g. Syed Ayan Hassan"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-1.5">Tagline / Title</label>
+                <input
+                  type="text"
+                  value={authorTitleVal}
+                  onChange={(e) => setAuthorTitleVal(e.target.value)}
+                  placeholder="e.g. We Build Predictable Growth Systems for B2B Businesses"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/80 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30 transition-colors"
+                />
+              </div>
+              <SaveButton
+                onClick={() => withSaveState(() => updateBrand({ authorName: authorNameVal, authorTitle: authorTitleVal }))}
+                saveState={saveState}
+                label="Save Author Info"
+              />
+            </div>
+          </section>
+
           {/* Author Photo */}
           <section>
             <AssetSection>Author Photo</AssetSection>

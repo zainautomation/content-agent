@@ -35,6 +35,8 @@ Proof points to use when relevant:
 — We work across SaaS, enterprise sales, staffing, and professional services`,
 
   brandVoice: "professional",
+  authorName: "",
+  authorTitle: "",
   brandColors: {
     primary: "#6366f1",
     secondary: "#8b5cf6",

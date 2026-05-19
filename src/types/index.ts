@@ -79,6 +79,8 @@ export interface ContentBrief {
 export interface BrandSettings {
   systemPrompt: string;
   brandVoice: string;
+  authorName?: string;
+  authorTitle?: string;
   brandColors: {
     primary: string;
     secondary: string;

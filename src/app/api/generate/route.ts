@@ -81,17 +81,11 @@ export async function POST(req: NextRequest) {
       }
 
       // Load available tool names for the AI to reference
-      const { readdirSync, existsSync } = await import("fs");
-      const { join, extname } = await import("path");
-      const toolsDir = join(process.cwd(), "public/tools");
-      let toolNames = "none uploaded yet";
-      if (existsSync(toolsDir)) {
-        const files = readdirSync(toolsDir);
-        const names = files
-          .filter((f: string) => [".png", ".jpg", ".jpeg", ".svg", ".webp"].includes(extname(f).toLowerCase()))
-          .map((f: string) => f.replace(/\.[^.]+$/, "").replace(/-/g, " "));
-        if (names.length > 0) toolNames = names.join(", ");
-      }
+      const { listFolder } = await import("@/lib/supabase-storage");
+      const toolFiles = await listFolder("tools");
+      const toolNames = toolFiles.length
+        ? toolFiles.map((f) => f.name.replace(/\.[^.]+$/, "").replace(/-/g, " ")).join(", ")
+        : "none uploaded yet";
 
       const resolvedPrompt = imagePrompt.replace("{TOOL_NAMES}", toolNames);
       const userPrompt = `${resolvedPrompt}\n\nPOST CONTENT:\n${content}\n\nPILLAR: ${pillar}`;
