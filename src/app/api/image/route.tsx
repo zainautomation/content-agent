@@ -143,7 +143,7 @@ function ImagePost({
       </div>
 
       {logoUri ? (
-        <img src={logoUri} style={{ height: 80, width: 240, objectFit: "contain" }} />
+        <img src={logoUri} style={{ height: 80, width: 240, objectFit: "contain", mixBlendMode: dark ? "screen" : "multiply" }} />
       ) : (
         <span
           style={{
