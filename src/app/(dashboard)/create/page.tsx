@@ -257,7 +257,8 @@ export default function CreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: "prompt", promptKey: ct.promptKey, userInput: rawIdea, brand }),
       });
-      const data = await res.json();
+      if (!res.ok && res.status === 504) throw new Error("Request timed out — try again");
+      const data = await res.json().catch(() => { throw new Error(`Server error (${res.status}) — try again`); });
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
       // Store conversation: first user message + assistant response
       const ct2 = CONTENT_TYPES.find((c) => c.id === contentType)!;
@@ -317,7 +318,8 @@ export default function CreatePage() {
     setError(""); setLoading(true); setOutput([]); setPromptMessages([]); setFollowUp(""); setSavedPostId(null); setActiveTab("create");
     try {
       const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ input: buildInput(), inputType: inputMode, platforms, brand }) });
-      const data = await res.json();
+      if (!res.ok && res.status === 504) throw new Error("Request timed out — try again");
+      const data = await res.json().catch(() => { throw new Error(`Server error (${res.status}) — try again`); });
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
       const id = await addPost({ title: data.brief.summary.slice(0, 60) + "...", originalInput: rawIdea, inputType: inputMode, brief: data.brief, platformPosts: data.platformPosts, status: "draft" });
       setSavedPostId(id);

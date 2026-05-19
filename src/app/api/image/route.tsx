@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import satori from "satori";
+
+export const maxDuration = 60;
 import { Resvg } from "@resvg/resvg-js";
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { join, extname } from "path";

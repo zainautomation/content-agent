@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+
+export const maxDuration = 120;
 import { getAuthInfo } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 import { uploadImageToLinkedIn, publishToLinkedIn } from "@/lib/integrations/linkedin";

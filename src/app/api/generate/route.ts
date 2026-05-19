@@ -5,6 +5,8 @@ import { generateAllPlatformPosts } from "@/lib/ai/generator";
 import { callClaude } from "@/lib/ai/client";
 import type { Platform, BrandSettings } from "@/types";
 
+export const maxDuration = 120;
+
 function getClient() {
   if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not set");
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
