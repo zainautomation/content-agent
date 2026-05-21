@@ -84,7 +84,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
 
   const applyEdit = () => editData && setData({ ...editData });
 
-  const handlePostToLinkedIn = async () => {
+  const handlePostToLinkedIn = async (withImage = true) => {
     if (!data) return;
     setLiPosting(true);
     setLiResult(null);
@@ -92,7 +92,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       const res = await fetch("/api/linkedin/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, imageData: data, theme }),
+        body: JSON.stringify({ content, ...(withImage ? { imageData: data, theme } : {}) }),
       });
       const json = await res.json();
       if (res.ok) {
@@ -307,12 +307,20 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
                 </div>
               )}
               <button
-                onClick={handlePostToLinkedIn}
+                onClick={() => handlePostToLinkedIn(true)}
                 disabled={liPosting || aiLoading || !data}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
               >
                 {liPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 {liPosting ? "Publishing..." : "Publish on LinkedIn"}
+              </button>
+              <button
+                onClick={() => handlePostToLinkedIn(false)}
+                disabled={liPosting}
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/40 text-xs font-semibold hover:text-white/70 disabled:opacity-30 transition-all"
+              >
+                {liPosting ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                Post text only (no image)
               </button>
             </div>
           </div>
