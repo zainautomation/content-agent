@@ -202,8 +202,8 @@ Return JSON for the chosen type. No explanation, no markdown fences.
     { "icon": "", "heading": "...", "body": "..." },
     { "icon": "", "heading": "...", "body": "..." }
   ],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+  "authorName": "",
+  "authorTitle": ""
 }
 
 === FOR "stats" ===
@@ -217,8 +217,8 @@ Return JSON for the chosen type. No explanation, no markdown fences.
   ],
   "stackLabel": "The Exact Stack",
   "toolNames": ["only tools mentioned in post that have logos available"],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+  "authorName": "",
+  "authorTitle": ""
 }
 
 === FOR "tools" ===
@@ -230,8 +230,8 @@ Return JSON for the chosen type. No explanation, no markdown fences.
   "toolList": [
     { "name": "exact tool name matching available logos", "description": "what it does, max 8 words" }
   ],
-  "authorName": "Syed Ayan Hassan",
-  "authorTitle": "We Build Predictable Growth Systems for B2B Businesses"
+  "authorName": "",
+  "authorTitle": ""
 }
 
 Rules:

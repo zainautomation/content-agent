@@ -67,8 +67,8 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       if (res.ok && json.data) {
         const merged = {
           ...json.data,
-          ...(brand.authorName  ? { authorName:  brand.authorName  } : {}),
-          ...(brand.authorTitle ? { authorTitle: brand.authorTitle } : {}),
+          authorName:  brand.authorName  ?? "",
+          authorTitle: brand.authorTitle ?? "",
         };
         setData(merged);
         setEditData(merged);
