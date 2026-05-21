@@ -36,32 +36,21 @@ export default function ImagePost({
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
         {photoUri ? (
           <img src={photoUri} style={{ width: 50, height: 50, borderRadius: "50%" }} />
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 50,
-              height: 50,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(254,113,12,0.30) 0%, rgba(254,113,12,0.08) 100%)",
-              border: "1.5px solid rgba(254,113,12,0.25)",
-            }}
-          >
-            <span style={{ color: "#fe710c", fontSize: 22, fontWeight: 600 }}>
-              {(data.authorName ?? "Z").charAt(0).toUpperCase()}
-            </span>
+        ) : null}
+        {(data.authorName || data.authorTitle) ? (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {data.authorName ? (
+              <span style={{ color: text1, fontSize: 14, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                {data.authorName}
+              </span>
+            ) : null}
+            {data.authorTitle ? (
+              <span style={{ color: text2, fontSize: 13, fontWeight: 400, marginTop: 3 }}>
+                {data.authorTitle}
+              </span>
+            ) : null}
           </div>
-        )}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ color: text1, fontSize: 14, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-            {data.authorName ?? "SYED AYAN HASSAN"}
-          </span>
-          <span style={{ color: text2, fontSize: 13, fontWeight: 400, marginTop: 3 }}>
-            {data.authorTitle ?? "We Build Predictable Growth Systems for B2B Businesses"}
-          </span>
-        </div>
+        ) : null}
       </div>
 
       {logoUri ? (
