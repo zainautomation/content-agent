@@ -19,11 +19,15 @@ npx prisma generate  # Regenerate Prisma client after schema changes
 
 Required in `.env.local`:
 ```
-DATABASE_URL=          # PostgreSQL connection string (pooled)
-DIRECT_URL=            # PostgreSQL direct connection (for Prisma migrations)
-NEXTAUTH_SECRET=       # Random secret for JWT signing
-NEXTAUTH_URL=          # Base URL e.g. http://localhost:3000
-ANTHROPIC_API_KEY=     # Claude API key
+DATABASE_URL=                  # PostgreSQL connection string (pooled)
+DIRECT_URL=                    # PostgreSQL direct connection (for Prisma migrations)
+NEXTAUTH_SECRET=               # Random secret for JWT signing
+NEXTAUTH_URL=                  # Base URL e.g. http://localhost:3000
+ANTHROPIC_API_KEY=             # Claude API key
+SUPABASE_URL=                  # Supabase project URL (brand asset storage)
+SUPABASE_SERVICE_ROLE_KEY=     # Supabase service role key (brand asset storage)
+LINKEDIN_CLIENT_ID=            # LinkedIn OAuth app client ID
+LINKEDIN_CLIENT_SECRET=        # LinkedIn OAuth app client secret
 ```
 
 ---
@@ -42,6 +46,7 @@ ANTHROPIC_API_KEY=     # Claude API key
 | `/calendar` | [src/app/(dashboard)/calendar/page.tsx](src/app/(dashboard)/calendar/page.tsx) | Scheduled posts view — sorted list of upcoming scheduled items |
 | `/settings/prompts` | [src/app/(dashboard)/settings/prompts/page.tsx](src/app/(dashboard)/settings/prompts/page.tsx) | Brand voice + per-prompt editor (Master Brand, LinkedIn Posts, Comments, Cold Outreach, Content Pillars, Image Post) |
 | `/settings/integrations` | [src/app/(dashboard)/settings/integrations/page.tsx](src/app/(dashboard)/settings/integrations/page.tsx) | Platform connection settings (LinkedIn, Facebook, Instagram, WordPress, Canva) |
+| `/settings/assets` | [src/app/(dashboard)/settings/assets/page.tsx](src/app/(dashboard)/settings/assets/page.tsx) | Brand asset management — upload/delete author photo, company logo, and tool logos stored in Supabase |
 | `/admin` | [src/app/admin/page.tsx](src/app/admin/page.tsx) | Admin panel — user management, invite generation, permissions toggles, password reset |
 
 ### Layouts
@@ -80,6 +85,16 @@ ANTHROPIC_API_KEY=     # Claude API key
 | `/api/generate` (mode: `image-data`) | POST | same | Extract structured JSON for the image card template |
 | `/api/review` | POST | [src/app/api/review/route.ts](src/app/api/review/route.ts) | Regenerate a single platform post with reviewer feedback |
 
+### Image Generation
+
+| Endpoint | Method | File | What it does |
+|----------|--------|------|--------------|
+| `/api/image` | POST | [src/app/api/image/route.tsx](src/app/api/image/route.tsx) | Server-side: Satori + resvg renders React → SVG → 1080×1080 PNG; used by LinkedIn direct publish |
+| `/api/image` | GET | same | Returns paths for author photo, company logo, and tool logo names from Supabase |
+| `/api/assets` | POST | [src/app/api/assets/route.ts](src/app/api/assets/route.ts) | Upload brand asset (author-photo, company-logo, tool-logo) to Supabase Storage |
+| `/api/assets` | DELETE | same | Delete a brand asset from Supabase Storage |
+| `/api/linkedin/publish` | POST | [src/app/api/linkedin/publish/route.ts](src/app/api/linkedin/publish/route.ts) | Generate image server-side + upload to LinkedIn CDN + publish post |
+
 ### Workspace
 
 | Endpoint | Method | File | What it does |
@@ -108,6 +123,8 @@ ANTHROPIC_API_KEY=     # Claude API key
 | Endpoint | Method | File | What it does |
 |----------|--------|------|--------------|
 | `/api/auth/[...nextauth]` | GET/POST | [src/app/api/auth/[...nextauth]/route.ts](src/app/api/auth/[...nextauth]/route.ts) | NextAuth handler |
+| `/api/auth/linkedin` | GET | [src/app/api/auth/linkedin/route.ts](src/app/api/auth/linkedin/route.ts) | Start LinkedIn OAuth — redirects to LinkedIn with `workspaceId` as state |
+| `/api/auth/linkedin/callback` | GET | [src/app/api/auth/linkedin/callback/route.ts](src/app/api/auth/linkedin/callback/route.ts) | LinkedIn OAuth callback — exchanges code for token, saves to workspace connections |
 | `/api/setup` | GET | [src/app/api/setup/route.ts](src/app/api/setup/route.ts) | Returns `{ hasUsers }` — used by `/setup` page to self-redirect |
 | `/api/setup` | POST | same | Creates first ADMIN user + workspace (blocked if users exist) |
 | `/api/invite/[token]` | GET | [src/app/api/invite/[token]/route.ts](src/app/api/invite/[token]/route.ts) | Validate invite token |
@@ -124,18 +141,21 @@ ANTHROPIC_API_KEY=     # Claude API key
 | [src/lib/auth.ts](src/lib/auth.ts) | NextAuth config — JWT strategy, credentials provider, session callbacks |
 | [src/lib/api-auth.ts](src/lib/api-auth.ts) | `getAuthInfo()` — extracts `userId`, `workspaceId`, `role` from JWT for every API route |
 | [src/lib/prisma.ts](src/lib/prisma.ts) | Prisma client singleton |
-| [src/lib/ai/client.ts](src/lib/ai/client.ts) | `callClaude()` wrapper — model constants (`generation` = Opus 4.6, `fast` = Haiku 4.5) |
+| [src/lib/ai/client.ts](src/lib/ai/client.ts) | `callClaude()` wrapper — model constants (`generation` = Sonnet 4.6, `fast` = Haiku 4.5) |
 | [src/lib/ai/optimizer.ts](src/lib/ai/optimizer.ts) | Converts raw input/URL → `ContentBrief` |
 | [src/lib/ai/generator.ts](src/lib/ai/generator.ts) | `generatePlatformPost()` — turns a `ContentBrief` into a `PlatformPost` per platform |
 | [src/lib/ai/reviewer.ts](src/lib/ai/reviewer.ts) | `regenerateWithFeedback()` — revises a platform post given reviewer feedback |
 | [src/lib/prompts/platforms/index.ts](src/lib/prompts/platforms/index.ts) | Per-platform prompt strings used in generation |
+| [src/lib/supabase-storage.ts](src/lib/supabase-storage.ts) | Supabase Storage client — upload/delete/list assets in the `brand-assets` bucket |
 | [src/store/posts.store.ts](src/store/posts.store.ts) | Zustand store — post list, optimistic CRUD, syncs to `/api/posts` |
 | [src/store/settings.store.ts](src/store/settings.store.ts) | Zustand store — brand settings, connections, permissions; holds default Zutomate brand voice |
 | [src/store/schedule.store.ts](src/store/schedule.store.ts) | Zustand store — scheduled post records |
 | [src/components/WorkspaceLoader.tsx](src/components/WorkspaceLoader.tsx) | Invisible component in dashboard layout — bootstraps all three stores on mount |
 | [src/components/layout/Sidebar.tsx](src/components/layout/Sidebar.tsx) | Left nav: Create Post, My Posts, Calendar, Brand & Prompts, Integrations; shows Admin link for ADMIN role |
-| [src/components/PostImageModal.tsx](src/components/PostImageModal.tsx) | Modal for generating + downloading the 1080×1080 social image card |
-| [src/components/PostImageTemplate.tsx](src/components/PostImageTemplate.tsx) | The visual template rendered by `html2canvas` for social cards |
+| [src/components/PostImageModal.tsx](src/components/PostImageModal.tsx) | Modal for browser-side image generation — uses `html2canvas` to rasterise `PostImageTemplate` |
+| [src/components/PostImageTemplate.tsx](src/components/PostImageTemplate.tsx) | React DOM template rendered by `html2canvas` (browser path); also defines `ImageTemplateData` / `ImageTheme` types consumed by the server-side Satori path |
+| [src/components/CarouselModal.tsx](src/components/CarouselModal.tsx) | Modal for generating multi-slide carousel posts |
+| [src/components/CarouselSlideTemplate.tsx](src/components/CarouselSlideTemplate.tsx) | Individual slide template for carousel posts |
 | [src/lib/integrations/canva.ts](src/lib/integrations/canva.ts) | Canva OAuth + design creation |
 | [src/lib/integrations/linkedin.ts](src/lib/integrations/linkedin.ts) | LinkedIn publishing |
 | [src/lib/integrations/facebook.ts](src/lib/integrations/facebook.ts) | Facebook publishing |
@@ -158,7 +178,29 @@ Content generation is a two-step pipeline in `src/lib/ai/`:
 1. `optimizer.ts` — converts raw input (idea or URL) into a structured `ContentBrief`
 2. `generator.ts` — calls `generatePlatformPost` per platform, combining brand settings + platform prompt
 
-Both steps go through `callClaude()` in `client.ts`. Heavy generation uses `claude-opus-4-6`; fast/cheap calls (image data extraction) use `claude-haiku-4-5-20251001`.
+Both steps go through `callClaude()` in `client.ts`. Heavy generation uses `claude-sonnet-4-6`; fast/cheap calls (image data extraction) use `claude-haiku-4-5-20251001`.
+
+### Image Generation (Two Paths)
+There are two separate image-generation paths for the 1080×1080 social card:
+
+- **Browser path** (`PostImageModal` + `PostImageTemplate`): renders a React DOM component and uses `html2canvas` to capture it as a PNG download. Used for all platforms except direct LinkedIn publish.
+- **Server path** (`/api/image`): renders a React component (`src/app/api/image/route.tsx`) with **Satori** (JSX → SVG) then **resvg** (SVG → PNG). Used when publishing directly to LinkedIn so the image can be uploaded to the LinkedIn CDN. Satori has constraints: no SVG `<img>` sources (use raster only), no React hooks in the render tree.
+
+Brand assets (company logo, author photo, tool logos) are fetched from Supabase Storage and embedded as base64 data URIs for both paths.
+
+### Brand Asset Storage
+Brand assets live in the Supabase Storage bucket `brand-assets` with two sub-folders:
+- `brand/` — `author-photo.<ext>` and `company-logo.<ext>` (one file each; uploading a new one replaces all extension variants)
+- `tools/` — one file per tool, named `<kebab-case-tool-name>.<ext>`
+
+`src/lib/supabase-storage.ts` provides `uploadAsset`, `deleteAssets`, `listFolder`, and `fetchAsDataUri`. The `/api/assets` route handles uploads/deletes; `/api/image` (GET) returns the current asset paths.
+
+### LinkedIn OAuth
+LinkedIn uses a **custom OAuth flow** separate from NextAuth (NextAuth handles only email/password):
+1. `/api/auth/linkedin` redirects to LinkedIn with the `workspaceId` base64-encoded as `state`
+2. `/api/auth/linkedin/callback` exchanges the code, stores the access token in `Workspace.connections`
+
+Required env vars: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`. The LinkedIn OAuth scope is `openid profile w_organization_social r_organization_social`.
 
 ### Client State Bootstrapping
 `WorkspaceLoader` (in dashboard layout) fetches `/api/posts`, `/api/workspace/settings`, and `/api/workspace/connections` in parallel on first mount, then calls `hydrate()` on all three Zustand stores. Stores use optimistic updates — UI updates immediately, then fire-and-forget API calls to persist.
