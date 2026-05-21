@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { X, Download, Loader2, ImageIcon, Sparkles, RefreshCw, Moon, Sun, Plus, Trash2, AlertCircle, Copy, ExternalLink, Check, Send } from "lucide-react";
+import { X, Download, Loader2, ImageIcon, Sparkles, RefreshCw, Moon, Sun, Plus, Trash2, AlertCircle, Check, Send } from "lucide-react";
 import PostImageTemplate, { type ImageTemplateData, type ImageTheme } from "./PostImageTemplate";
 import { useSettingsStore, DEFAULT_IMAGE_PROMPT } from "@/store/settings.store";
 
@@ -17,14 +17,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   const brand       = useSettingsStore((s) => s.brand);
   const imagePrompt = brand.prompts?.imagePost || DEFAULT_IMAGE_PROMPT;
 
-  const rawConnections = useSettingsStore((s) => s.connections);
-  const connections = Array.isArray(rawConnections) ? rawConnections : [];
-  const liConn = connections.find((c) => c.platform === "linkedin");
-  const liConnected = !!(liConn?.connected && liConn.accessToken);
-  const liHasOrgId = !!liConn?.organizationId;
-
   const [theme,          setTheme]         = useState<ImageTheme>("dark");
-  const [copied,         setCopied]        = useState(false);
   const [capturing,      setCapturing]     = useState(false);
   const [aiLoading,      setAiLoading]     = useState(true);
   const [aiError,        setAiError]       = useState<string | null>(null);
@@ -90,13 +83,6 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   };
 
   const applyEdit = () => editData && setData({ ...editData });
-
-  const handleOpenLinkedIn = async () => {
-    await navigator.clipboard.writeText(content).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-    window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
-  };
 
   const handlePostToLinkedIn = async () => {
     if (!data) return;
@@ -314,33 +300,20 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
                 {capturing ? "Exporting..." : "Download PNG  ·  1080×1080"}
               </button>
 
-              {liConnected && liHasOrgId ? (
-                <>
-                  {liResult && (
-                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${liResult.ok ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border border-red-500/20 text-red-400"}`}>
-                      {liResult.ok ? <Check size={11} /> : <AlertCircle size={11} />}
-                      {liResult.msg}
-                    </div>
-                  )}
-                  <button
-                    onClick={handlePostToLinkedIn}
-                    disabled={liPosting || aiLoading || !data}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
-                  >
-                    {liPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                    {liPosting ? "Publishing..." : "Post to LinkedIn"}
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={handleOpenLinkedIn}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 transition-all"
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? "Copied! Paste in LinkedIn →" : "Copy & Open LinkedIn"}
-                  {!copied && <ExternalLink size={12} className="opacity-60" />}
-                </button>
+              {liResult && (
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${liResult.ok ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border border-red-500/20 text-red-400"}`}>
+                  {liResult.ok ? <Check size={11} /> : <AlertCircle size={11} />}
+                  {liResult.msg}
+                </div>
               )}
+              <button
+                onClick={handlePostToLinkedIn}
+                disabled={liPosting || aiLoading || !data}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
+              >
+                {liPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                {liPosting ? "Publishing..." : "Publish on LinkedIn"}
+              </button>
             </div>
           </div>
 
