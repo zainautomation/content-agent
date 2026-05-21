@@ -72,32 +72,24 @@ export default function PostImageTemplate({
           <img src={authorPhotoUrl} alt="Author"
             style={{ width: s(50), height: s(50), borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
           />
-        ) : (
-          <div style={{
-            width: s(50), height: s(50), borderRadius: "50%",
-            background: dark
-              ? "linear-gradient(135deg, rgba(254,113,12,0.30) 0%, rgba(254,113,12,0.08) 100%)"
-              : "linear-gradient(135deg, rgba(254,113,12,0.18) 0%, rgba(254,113,12,0.06) 100%)",
-            border: `${s(1.5)}px solid rgba(254,113,12,0.25)`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0,
-          }}>
-            <span style={{ color: "#fe710c", fontSize: s(22), fontWeight: 600, lineHeight: 1 }}>
-              {(data.authorName ?? "Z").charAt(0).toUpperCase()}
-            </span>
+        ) : null}
+        {(data.authorName || data.authorTitle) ? (
+          <div>
+            {data.authorName ? (
+              <div style={{
+                color: text1, fontSize: s(14), fontWeight: 600,
+                letterSpacing: "0.06em", textTransform: "uppercase",
+              }}>
+                {data.authorName}
+              </div>
+            ) : null}
+            {data.authorTitle ? (
+              <div style={{ color: text2, fontSize: s(13), fontWeight: 400, marginTop: s(3) }}>
+                {data.authorTitle}
+              </div>
+            ) : null}
           </div>
-        )}
-        <div>
-          <div style={{
-            color: text1, fontSize: s(14), fontWeight: 600,
-            letterSpacing: "0.06em", textTransform: "uppercase",
-          }}>
-            {data.authorName ?? "SYED AYAN HASSAN"}
-          </div>
-          <div style={{ color: text2, fontSize: s(13), fontWeight: 400, marginTop: s(3) }}>
-            {data.authorTitle ?? "We Build Predictable Growth Systems for B2B Businesses"}
-          </div>
-        </div>
+        ) : null}
       </div>
 
       {/* Company logo */}
