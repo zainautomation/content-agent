@@ -89,29 +89,39 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     setLiPosting(true);
     setLiResult(null);
     try {
-      // Render image server-side to get a PNG blob
-      const imgRes = await fetch("/api/image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data, theme }),
-      });
+      // Step 1 — render image server-side
+      let imgRes: Response;
+      try {
+        imgRes = await fetch("/api/image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ data, theme }),
+        });
+      } catch (e) {
+        throw new Error(`Image render failed: ${e instanceof Error ? e.message : "network error"}`);
+      }
       if (!imgRes.ok) {
         const err = await imgRes.json().catch(() => ({}));
-        throw new Error(err.error ?? `Image render failed (${imgRes.status})`);
+        throw new Error(`Image render failed (${imgRes.status}): ${(err as { error?: string }).error ?? ""}`);
       }
       const imageBlob = await imgRes.blob();
 
-      // Post to n8n webhook as multipart/form-data
+      // Step 2 — post to n8n via proxy
       const form = new FormData();
       form.append("data", imageBlob, "post-image.png");
       form.append("text", content);
 
-      const res = await fetch("/api/linkedin/webhook", { method: "POST", body: form });
+      let res: Response;
+      try {
+        res = await fetch("/api/linkedin/webhook", { method: "POST", body: form });
+      } catch (e) {
+        throw new Error(`Webhook call failed: ${e instanceof Error ? e.message : "network error"}`);
+      }
       const json = await res.json().catch(() => ({}));
       if (res.ok) {
         setLiResult({ ok: true, msg: "Sent to LinkedIn via n8n!" });
       } else {
-        setLiResult({ ok: false, msg: (json as { error?: string }).error ?? `Error ${res.status}` });
+        setLiResult({ ok: false, msg: (json as { error?: string }).error ?? `Webhook error ${res.status}` });
       }
     } catch (e) {
       setLiResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed" });
