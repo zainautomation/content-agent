@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
+      console.error("[webhook proxy] n8n responded", res.status, body);
       return NextResponse.json(
         { error: `Webhook returned ${res.status}`, detail: body },
         { status: res.status }

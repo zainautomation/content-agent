@@ -117,11 +117,12 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       } catch (e) {
         throw new Error(`Webhook call failed: ${e instanceof Error ? e.message : "network error"}`);
       }
-      const json = await res.json().catch(() => ({}));
+      const json = await res.json().catch(() => ({})) as { error?: string; detail?: string };
       if (res.ok) {
         setLiResult({ ok: true, msg: "Sent to LinkedIn via n8n!" });
       } else {
-        setLiResult({ ok: false, msg: (json as { error?: string }).error ?? `Webhook error ${res.status}` });
+        const detail = json.detail ? ` — ${json.detail}` : "";
+        setLiResult({ ok: false, msg: `${json.error ?? `Webhook error ${res.status}`}${detail}` });
       }
     } catch (e) {
       setLiResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed" });
