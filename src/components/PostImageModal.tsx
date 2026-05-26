@@ -84,21 +84,36 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
 
   const applyEdit = () => editData && setData({ ...editData });
 
-  const handlePostToLinkedIn = async (withImage = true) => {
+  const handlePostToLinkedIn = async () => {
     if (!data) return;
     setLiPosting(true);
     setLiResult(null);
     try {
-      const res = await fetch("/api/linkedin/publish", {
+      // Render image server-side to get a PNG blob
+      const imgRes = await fetch("/api/image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, ...(withImage ? { imageData: data, theme } : {}) }),
+        body: JSON.stringify({ data, theme }),
       });
-      const json = await res.json();
+      if (!imgRes.ok) {
+        const err = await imgRes.json().catch(() => ({}));
+        throw new Error(err.error ?? `Image render failed (${imgRes.status})`);
+      }
+      const imageBlob = await imgRes.blob();
+
+      // Post to n8n webhook as multipart/form-data
+      const form = new FormData();
+      form.append("data", imageBlob, "post-image.png");
+      form.append("text", content);
+
+      const res = await fetch(
+        "https://n8n.srv1426253.hstgr.cloud/webhook/c51d9bb0-50d4-4fe9-996b-c6f4f6ecdaa9",
+        { method: "POST", body: form }
+      );
       if (res.ok) {
-        setLiResult({ ok: true, msg: "Posted to LinkedIn!" });
+        setLiResult({ ok: true, msg: "Sent to LinkedIn via n8n!" });
       } else {
-        setLiResult({ ok: false, msg: json.error ?? `Error ${res.status}` });
+        setLiResult({ ok: false, msg: `Webhook error ${res.status}` });
       }
     } catch (e) {
       setLiResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed" });
@@ -307,20 +322,12 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
                 </div>
               )}
               <button
-                onClick={() => handlePostToLinkedIn(true)}
+                onClick={handlePostToLinkedIn}
                 disabled={liPosting || aiLoading || !data}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0a66c2] text-white text-sm font-bold hover:brightness-110 disabled:opacity-40 transition-all"
               >
                 {liPosting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                {liPosting ? "Publishing..." : "Publish on LinkedIn"}
-              </button>
-              <button
-                onClick={() => handlePostToLinkedIn(false)}
-                disabled={liPosting}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white/40 text-xs font-semibold hover:text-white/70 disabled:opacity-30 transition-all"
-              >
-                {liPosting ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
-                Post text only (no image)
+                {liPosting ? "Posting..." : "Post on LinkedIn"}
               </button>
             </div>
           </div>
