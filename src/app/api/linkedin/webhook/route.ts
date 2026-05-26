@@ -1,0 +1,39 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const N8N_WEBHOOK =
+  "https://n8n.srv1426253.hstgr.cloud/webhook/c51d9bb0-50d4-4fe9-996b-c6f4f6ecdaa9";
+
+export async function POST(req: NextRequest) {
+  try {
+    const form = await req.formData();
+
+    // Forward the same multipart body to n8n
+    const forward = new FormData();
+    const imageFile = form.get("data");
+    const text = form.get("text");
+
+    if (!imageFile || !text) {
+      return NextResponse.json({ error: "Missing data or text field" }, { status: 400 });
+    }
+
+    forward.append("data", imageFile as Blob, "post-image.png");
+    forward.append("text", text as string);
+
+    const res = await fetch(N8N_WEBHOOK, { method: "POST", body: forward });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      return NextResponse.json(
+        { error: `Webhook returned ${res.status}`, detail: body },
+        { status: res.status }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Proxy request failed" },
+      { status: 500 }
+    );
+  }
+}

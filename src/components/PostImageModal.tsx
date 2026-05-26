@@ -106,14 +106,12 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       form.append("data", imageBlob, "post-image.png");
       form.append("text", content);
 
-      const res = await fetch(
-        "https://n8n.srv1426253.hstgr.cloud/webhook/c51d9bb0-50d4-4fe9-996b-c6f4f6ecdaa9",
-        { method: "POST", body: form }
-      );
+      const res = await fetch("/api/linkedin/webhook", { method: "POST", body: form });
+      const json = await res.json().catch(() => ({}));
       if (res.ok) {
         setLiResult({ ok: true, msg: "Sent to LinkedIn via n8n!" });
       } else {
-        setLiResult({ ok: false, msg: `Webhook error ${res.status}` });
+        setLiResult({ ok: false, msg: (json as { error?: string }).error ?? `Error ${res.status}` });
       }
     } catch (e) {
       setLiResult({ ok: false, msg: e instanceof Error ? e.message : "Request failed" });
