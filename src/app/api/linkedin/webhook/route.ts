@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const N8N_WEBHOOK =
-  "https://n8n.srv1426253.hstgr.cloud/webhook/927b9ca7-0018-4789-ac35-d57d34b3358d";
+  "https://n8n.srv1426253.hstgr.cloud/webhook-test/927b9ca7-0018-4789-ac35-d57d34b3358d";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     forward.append("data", imageFile as Blob, "post-image.png");
-    forward.append("text", text as string);
+    forward.append("caption", text as string);
 
     const res = await fetch(N8N_WEBHOOK, { method: "POST", body: forward });
 

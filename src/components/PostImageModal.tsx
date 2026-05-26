@@ -109,7 +109,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       // Step 2 — post to n8n via proxy
       const form = new FormData();
       form.append("data", imageBlob, "post-image.png");
-      form.append("text", content);
+      form.append("caption", content);
 
       let res: Response;
       try {
