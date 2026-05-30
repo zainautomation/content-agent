@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const N8N_WEBHOOK =
-  "https://n8n.srv1716887.hstgr.cloud/webhook/0c35f1af-a3d3-4f95-b8a1-9c7b9c194b93";
+  "https://n8n.srv1716887.hstgr.cloud/webhook-test/0c35f1af-a3d3-4f95-b8a1-9c7b9c194b93";
 
 export async function POST(req: NextRequest) {
   try {
