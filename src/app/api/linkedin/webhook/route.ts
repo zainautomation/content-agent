@@ -10,14 +10,14 @@ export async function POST(req: NextRequest) {
     // Forward the same multipart body to n8n
     const forward = new FormData();
     const imageFile = form.get("data");
-    const text = form.get("text");
+    const caption = form.get("caption");
 
-    if (!imageFile || !text) {
-      return NextResponse.json({ error: "Missing data or text field" }, { status: 400 });
+    if (!imageFile || !caption) {
+      return NextResponse.json({ error: "Missing data or caption field" }, { status: 400 });
     }
 
     forward.append("data", imageFile as Blob, "post-image.png");
-    forward.append("caption", text as string);
+    forward.append("caption", caption as string);
 
     const res = await fetch(N8N_WEBHOOK, { method: "POST", body: forward });
 
