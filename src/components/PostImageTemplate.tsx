@@ -78,7 +78,7 @@ export default function PostImageTemplate({
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(72), maxWidth: s(320), width: "auto", objectFit: "contain" }}
+      style={{ height: s(90), maxWidth: s(380), width: "auto", objectFit: "contain" }}
     />
   );
 
@@ -185,7 +185,7 @@ export default function PostImageTemplate({
             </div>
           )}
           {data.titleOrange && (
-            <div style={{ color: ORANGE, fontSize: s(70), fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
+            <div style={{ color: ORANGE, fontSize: s(70), fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
               {data.titleOrange}
             </div>
           )}
@@ -218,11 +218,10 @@ export default function PostImageTemplate({
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "row", gap: s(12), alignItems: "flex-start", flex: 1 }}>
               <div style={{
-                width: s(40), height: s(40), borderRadius: "50%",
-                background: ORANGE, display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, marginTop: s(4),
+                width: s(32), display: "flex", alignItems: "flex-start",
+                justifyContent: "center", flexShrink: 0, paddingTop: s(18),
               }}>
-                <span style={{ color: WHITE, fontSize: s(18), fontWeight: 700 }}>{i + 1}</span>
+                <span style={{ color: ORANGE, fontSize: s(20), fontWeight: 700 }}>{i + 1}</span>
               </div>
               <div style={{
                 flex: 1, background: CARD_DARK,

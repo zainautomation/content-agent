@@ -28,9 +28,9 @@ export default function ImagePost({
 
   const LogoImg = () =>
     logoUri ? (
-      <img src={logoUri} style={{ height: 72, maxWidth: 320, objectFit: "contain" }} />
+      <img src={logoUri} style={{ height: 90, maxWidth: 380, objectFit: "contain" }} />
     ) : (
-      <span style={{ color: WHITE, fontSize: 42, fontWeight: 800, letterSpacing: "-0.02em" }}>Zutomate</span>
+      <span style={{ color: WHITE, fontSize: 48, fontWeight: 800, letterSpacing: "-0.02em" }}>Zutomate</span>
     );
 
   const Footer = ({ tagline }: { tagline?: string }) => (
@@ -127,7 +127,7 @@ export default function ImagePost({
             </div>
           )}
           {data.titleOrange && (
-            <div style={{ color: ORANGE, fontSize: 70, fontWeight: 800, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
+            <div style={{ color: ORANGE, fontSize: 70, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
               {data.titleOrange}
             </div>
           )}
@@ -157,11 +157,10 @@ export default function ImagePost({
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "row", gap: 12, alignItems: "flex-start", flex: 1 }}>
               <div style={{
-                width: 40, height: 40, borderRadius: "50%",
-                background: ORANGE, display: "flex", alignItems: "center", justifyContent: "center",
-                marginTop: 4,
+                width: 32, display: "flex", alignItems: "flex-start",
+                justifyContent: "center", paddingTop: 18,
               }}>
-                <span style={{ color: WHITE, fontSize: 18, fontWeight: 700 }}>{i + 1}</span>
+                <span style={{ color: ORANGE, fontSize: 20, fontWeight: 700 }}>{i + 1}</span>
               </div>
               <div style={{
                 flex: 1, background: CARD_DARK,
