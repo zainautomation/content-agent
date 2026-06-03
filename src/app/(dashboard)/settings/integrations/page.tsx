@@ -21,13 +21,6 @@ type Integration = {
 
 const INTEGRATIONS: Integration[] = [
   {
-    id: "canva",
-    name: "Canva",
-    icon: "🎨",
-    description: "Auto-generate branded designs for each platform post.",
-    fields: [{ key: "accessToken", label: "Access Token", placeholder: "Canva access token", type: "password" }],
-  },
-  {
     id: "facebook",
     name: "Facebook",
     icon: "📘",

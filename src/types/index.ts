@@ -49,8 +49,6 @@ export interface PlatformPost {
   platform: Platform;
   content: string;
   hashtags: string[];
-  canvaDesignId?: string;
-  canvaDesignUrl?: string;
 }
 
 export interface Post {
@@ -101,7 +99,7 @@ export interface BrandSettings {
 }
 
 export interface PlatformConnection {
-  platform: Platform | "canva" | "wordpress";
+  platform: Platform | "wordpress";
   connected: boolean;
   accessToken?: string;
   refreshToken?: string;

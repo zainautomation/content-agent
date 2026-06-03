@@ -8,7 +8,7 @@ import { PLATFORM_LABELS, formatDate } from "@/lib/utils";
 import type { Platform, PlatformPost, PostStatus } from "@/types";
 import {
   Loader2, Send, RotateCcw, CheckCircle, XCircle,
-  CalendarDays, ExternalLink, Palette, ArrowLeft, ImageIcon
+  CalendarDays, ArrowLeft, ImageIcon
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -60,7 +60,6 @@ export default function PostDetailPage() {
   const [selectedPlatformsForPublish, setSelectedPlatformsForPublish] = useState<Platform[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [canvaLoading, setCanvaLoading] = useState<Platform | null>(null);
   const [imageModal, setImageModal] = useState<{ content: string; platform: Platform } | null>(null);
 
   if (!post) {
@@ -107,28 +106,6 @@ export default function PostDetailPage() {
       setError(err instanceof Error ? err.message : "Revision failed");
     } finally {
       setLoading(null);
-    }
-  };
-
-  const handleCreateCanvaDesign = async (platformPost: PlatformPost) => {
-    setCanvaLoading(platformPost.platform as Platform);
-    setError("");
-    try {
-      const res = await fetch("/api/canva", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: post.title, content: platformPost.content, platform: platformPost.platform, brand }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      updatePlatformPost(id, platformPost.platform, {
-        canvaDesignId: data.designId,
-        canvaDesignUrl: data.designUrl,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Canva design failed");
-    } finally {
-      setCanvaLoading(null);
     }
   };
 
@@ -222,30 +199,6 @@ export default function PostDetailPage() {
                       <ImageIcon size={10} />
                       Create Image
                     </button>
-
-                    {pp.canvaDesignUrl ? (
-                      <a
-                        href={pp.canvaDesignUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[10px] text-[#fe710c]/60 hover:text-[#fe710c] transition-colors uppercase tracking-widest"
-                      >
-                        <ExternalLink size={10} /> Open in Canva
-                      </a>
-                    ) : (
-                      <button
-                        onClick={() => handleCreateCanvaDesign(pp)}
-                        disabled={canvaLoading === pp.platform}
-                        className="flex items-center gap-1 text-[10px] text-white/20 hover:text-[#fe710c] transition-colors uppercase tracking-widest disabled:opacity-40"
-                      >
-                        {canvaLoading === pp.platform ? (
-                          <Loader2 size={10} className="animate-spin" />
-                        ) : (
-                          <Palette size={10} />
-                        )}
-                        Design in Canva
-                      </button>
-                    )}
                   </>
                 )}
               </div>

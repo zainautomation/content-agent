@@ -117,7 +117,6 @@ const STATUS_LABELS: Record<PostStatus, string> = {
   needs_revision: "Needs Revision", scheduled: "Scheduled", published: "Published",
 };
 const INTEGRATIONS = [
-  { id: "canva", name: "Canva", icon: "🎨", fields: [{ key: "accessToken", label: "Access Token", type: "password", placeholder: "Canva access token" }] },
   { id: "linkedin", name: "LinkedIn", icon: "💼", fields: [{ key: "accessToken", label: "Access Token", type: "password", placeholder: "LinkedIn OAuth token" }] },
   { id: "facebook", name: "Facebook", icon: "📘", fields: [{ key: "accessToken", label: "Page Access Token", type: "password", placeholder: "Facebook Page token" }, { key: "pageId", label: "Page ID", placeholder: "e.g. 123456789" }] },
   { id: "instagram", name: "Instagram", icon: "📸", fields: [{ key: "accessToken", label: "Access Token", type: "password", placeholder: "Instagram access token" }, { key: "pageId", label: "IG User ID", placeholder: "Instagram user ID" }] },
