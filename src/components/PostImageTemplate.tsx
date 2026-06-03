@@ -115,9 +115,9 @@ export default function PostImageTemplate({
     const cols = (data.columns ?? []).slice(0, 3);
     const parts = data.titleParts ?? [];
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(38)}px ${s(46)}px ${s(28)}px` }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(48)}px ${s(46)}px ${s(28)}px` }}>
         {/* Title */}
-        <div style={{ textAlign: "center", marginBottom: s(10), flexShrink: 0, lineHeight: 1.1 }}>
+        <div style={{ textAlign: "center", marginBottom: s(32), flexShrink: 0, lineHeight: 1.15 }}>
           {parts.map((p, i) => (
             <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: s(68), fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
               {p.text}
@@ -133,7 +133,7 @@ export default function PostImageTemplate({
 
         {/* Centre tool logo */}
         {data.centerToolName && getLogo(data.centerToolName) && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: s(12), flexShrink: 0 }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: s(24), flexShrink: 0 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={getLogo(data.centerToolName)!} alt={data.centerToolName}
               style={{ width: s(68), height: s(68), objectFit: "contain" }} />
@@ -176,9 +176,9 @@ export default function PostImageTemplate({
   if (data.type === "list") {
     const items = (data.items ?? []).slice(0, 3);
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(48)}px ${s(58)}px ${s(40)}px` }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(52)}px ${s(58)}px ${s(40)}px` }}>
         {/* Title */}
-        <div style={{ marginBottom: s(10), flexShrink: 0 }}>
+        <div style={{ marginBottom: s(20), flexShrink: 0 }}>
           {data.titleWhite && (
             <div style={{ color: WHITE, fontSize: s(60), fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
               {data.titleWhite}
@@ -193,7 +193,7 @@ export default function PostImageTemplate({
 
         {/* Subtitle */}
         {data.subtitle && (
-          <div style={{ color: MUTED, fontSize: s(17), lineHeight: 1.5, marginBottom: s(12), flexShrink: 0 }}>
+          <div style={{ color: MUTED, fontSize: s(17), lineHeight: 1.5, marginBottom: s(18), flexShrink: 0 }}>
             {data.subtitle}
           </div>
         )}
@@ -266,9 +266,9 @@ export default function PostImageTemplate({
     const toolNamesArr = data.toolNames ?? [];
     const parts = data.titleParts ?? [];
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(46)}px ${s(52)}px ${s(38)}px` }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(52)}px ${s(52)}px ${s(38)}px` }}>
         {/* Title */}
-        <div style={{ marginBottom: s(18), flexShrink: 0, fontSize: s(50), fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+        <div style={{ marginBottom: s(28), flexShrink: 0, fontSize: s(50), fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
           {parts.length > 0
             ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
             : (
@@ -357,9 +357,9 @@ export default function PostImageTemplate({
   // ── FLOW ──────────────────────────────────────────────────────────────
   const stages = data.stages ?? [];
   return wrap(
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(38)}px ${s(46)}px ${s(32)}px` }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(48)}px ${s(46)}px ${s(32)}px` }}>
       {/* Title */}
-      <div style={{ textAlign: "center", marginBottom: s(4), flexShrink: 0 }}>
+      <div style={{ textAlign: "center", marginBottom: s(28), flexShrink: 0 }}>
         <div style={{ color: ORANGE, fontSize: s(56), fontWeight: 400, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>

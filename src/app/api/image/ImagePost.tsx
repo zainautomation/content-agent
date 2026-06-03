@@ -61,9 +61,9 @@ export default function ImagePost({
     const cols  = (data.columns ?? []).slice(0, 3);
     const parts = data.titleParts ?? [];
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "38px 46px 28px" }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 28px" }}>
         {/* Title */}
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 10, lineHeight: 1.1 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 32, lineHeight: 1.15 }}>
           {parts.map((p, i) => (
             <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
               {p.text}
@@ -79,7 +79,7 @@ export default function ImagePost({
 
         {/* Centre tool logo */}
         {data.centerToolName && getLogo(data.centerToolName) && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
             <img src={getLogo(data.centerToolName)!} style={{ width: 68, height: 68, objectFit: "contain" }} />
           </div>
         )}
@@ -119,8 +119,8 @@ export default function ImagePost({
   if (data.type === "list") {
     const items = (data.items ?? []).slice(0, 3);
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 58px 40px" }}>
-        <div style={{ marginBottom: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 58px 40px" }}>
+        <div style={{ marginBottom: 20 }}>
           {data.titleWhite && (
             <div style={{ color: WHITE, fontSize: 60, fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
               {data.titleWhite}
@@ -134,7 +134,7 @@ export default function ImagePost({
         </div>
 
         {data.subtitle && (
-          <div style={{ color: MUTED, fontSize: 17, lineHeight: 1.5, marginBottom: 12 }}>
+          <div style={{ color: MUTED, fontSize: 17, lineHeight: 1.5, marginBottom: 18 }}>
             {data.subtitle}
           </div>
         )}
@@ -202,8 +202,8 @@ export default function ImagePost({
     const toolNamesArr = data.toolNames ?? [];
     const parts = data.titleParts ?? [];
     return wrap(
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "46px 52px 38px" }}>
-        <div style={{ marginBottom: 18, fontSize: 50, fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 52px 38px" }}>
+        <div style={{ marginBottom: 28, fontSize: 50, fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
           {parts.length > 0
             ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
             : (
@@ -284,8 +284,8 @@ export default function ImagePost({
   // ── FLOW ────────────────────────────────────────────────────────────
   const stages = data.stages ?? [];
   return wrap(
-    <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "38px 46px 32px" }}>
-      <div style={{ textAlign: "center", marginBottom: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 32px" }}>
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
         <div style={{ color: ORANGE, fontSize: 56, fontWeight: 400, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>
