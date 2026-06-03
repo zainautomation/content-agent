@@ -78,7 +78,7 @@ export default function PostImageTemplate({
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(140), maxWidth: s(500), width: "auto", objectFit: "contain" }}
+      style={{ height: s(180), width: "auto" }}
     />
   );
 
@@ -119,7 +119,7 @@ export default function PostImageTemplate({
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: s(32), flexShrink: 0, lineHeight: 1.15 }}>
           {parts.map((p, i) => (
-            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: s(68), fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
+            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: s(68), fontWeight: 400, letterSpacing: "-0.02em" }}>
               {p.text}
             </span>
           ))}
@@ -221,7 +221,7 @@ export default function PostImageTemplate({
                 width: s(32), display: "flex", alignItems: "flex-start",
                 justifyContent: "center", flexShrink: 0, paddingTop: s(18),
               }}>
-                <span style={{ color: ORANGE, fontSize: s(20), fontWeight: 700 }}>{i + 1}</span>
+                <span style={{ color: ORANGE, fontSize: s(20), fontWeight: 400 }}>{i + 1}</span>
               </div>
               <div style={{
                 flex: 1, background: CARD_DARK,
@@ -229,7 +229,7 @@ export default function PostImageTemplate({
                 borderRadius: s(14), padding: `${s(16)}px ${s(20)}px`,
                 overflow: "hidden",
               }}>
-                <div style={{ color: ORANGE, fontSize: s(19), fontWeight: 700, marginBottom: s(7) }}>
+                <div style={{ color: ORANGE, fontSize: s(19), fontWeight: 400, marginBottom: s(7) }}>
                   {item.heading}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: s(4) }}>
@@ -270,7 +270,7 @@ export default function PostImageTemplate({
         {/* Title */}
         <div style={{ marginBottom: s(28), flexShrink: 0, fontSize: s(50), fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
           {parts.length > 0
-            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
+            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: 400 }}>{p.text}</span>)
             : (
               <>
                 {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}
@@ -337,7 +337,7 @@ export default function PostImageTemplate({
                           borderRadius: s(12), background: CARD_DARK,
                           display: "flex", alignItems: "center", justifyContent: "center",
                         }}>
-                          <span style={{ color: ORANGE, fontSize: s(18), fontWeight: 700 }}>{name.slice(0, 2).toUpperCase()}</span>
+                          <span style={{ color: ORANGE, fontSize: s(18), fontWeight: 400 }}>{name.slice(0, 2).toUpperCase()}</span>
                         </div>
                       )
                     }

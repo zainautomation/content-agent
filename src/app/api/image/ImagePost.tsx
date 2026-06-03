@@ -28,7 +28,7 @@ export default function ImagePost({
 
   const LogoImg = () =>
     logoUri ? (
-      <img src={logoUri} style={{ height: 140, maxWidth: 500, objectFit: "contain" }} />
+      <img src={logoUri} style={{ height: 180, width: "auto" }} />
     ) : (
       <span style={{ color: WHITE, fontSize: 48, fontWeight: 700, letterSpacing: "-0.02em" }}>Zutomate</span>
     );
@@ -65,7 +65,7 @@ export default function ImagePost({
         {/* Title */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 32, lineHeight: 1.15 }}>
           {parts.map((p, i) => (
-            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
+            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: 400, letterSpacing: "-0.02em" }}>
               {p.text}
             </span>
           ))}
@@ -160,14 +160,14 @@ export default function ImagePost({
                 width: 32, display: "flex", alignItems: "flex-start",
                 justifyContent: "center", paddingTop: 18,
               }}>
-                <span style={{ color: ORANGE, fontSize: 20, fontWeight: 700 }}>{i + 1}</span>
+                <span style={{ color: ORANGE, fontSize: 20, fontWeight: 400 }}>{i + 1}</span>
               </div>
               <div style={{
                 flex: 1, background: CARD_DARK,
                 border: `1.5px solid ${BORDER}`, borderRadius: 14,
                 padding: "16px 20px",
               }}>
-                <div style={{ color: ORANGE, fontSize: 19, fontWeight: 700, marginBottom: 7 }}>
+                <div style={{ color: ORANGE, fontSize: 19, fontWeight: 400, marginBottom: 7 }}>
                   {item.heading}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -205,7 +205,7 @@ export default function ImagePost({
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 52px 38px" }}>
         <div style={{ marginBottom: 28, fontSize: 50, fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
           {parts.length > 0
-            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
+            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: 400 }}>{p.text}</span>)
             : (
               <>
                 {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}
@@ -265,7 +265,7 @@ export default function ImagePost({
                         borderRadius: 12, background: CARD_DARK,
                         display: "flex", alignItems: "center", justifyContent: "center",
                       }}>
-                        <span style={{ color: ORANGE, fontSize: 18, fontWeight: 700 }}>{name.slice(0, 2).toUpperCase()}</span>
+                        <span style={{ color: ORANGE, fontSize: 18, fontWeight: 400 }}>{name.slice(0, 2).toUpperCase()}</span>
                       </div>
                     )}
                     <span style={{ color: WHITE, fontSize: 12, fontWeight: 500 }}>{name}</span>
