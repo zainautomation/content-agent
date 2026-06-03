@@ -62,7 +62,6 @@ export default function ImagePost({
     const parts = data.titleParts ?? [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 28px" }}>
-        {/* Title */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 32, lineHeight: 1.15 }}>
           {parts.map((p, i) => (
             <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: 400, letterSpacing: "-0.02em" }}>
@@ -70,21 +69,19 @@ export default function ImagePost({
             </span>
           ))}
           {!parts.length && (
-            <span style={{ fontSize: 68, fontWeight: 400 }}>
-              {data.titleWhite && <span style={{ color: WHITE, fontWeight: 400 }}>{data.titleWhite} </span>}
-              {data.titleOrange && <span style={{ color: ORANGE, fontWeight: 400 }}>{data.titleOrange}</span>}
-            </span>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+              {data.titleWhite && <span style={{ color: WHITE, fontSize: 68, fontWeight: 400 }}>{data.titleWhite} </span>}
+              {data.titleOrange && <span style={{ color: ORANGE, fontSize: 68, fontWeight: 400 }}>{data.titleOrange}</span>}
+            </div>
           )}
         </div>
 
-        {/* Centre tool logo */}
         {data.centerToolName && getLogo(data.centerToolName) && (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
             <img src={getLogo(data.centerToolName)!} style={{ width: 68, height: 68, objectFit: "contain" }} />
           </div>
         )}
 
-        {/* 3 columns */}
         <div style={{ display: "flex", flex: 1, gap: 14 }}>
           {cols.map((col, ci) => (
             <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
@@ -93,10 +90,7 @@ export default function ImagePost({
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                 {col.items.slice(0, 5).map((item, ii) => (
-                  <div key={ii} style={{
-                    flex: 1, background: CARD_OG, borderRadius: 11,
-                    padding: "10px 14px", display: "flex", flexDirection: "column",
-                  }}>
+                  <div key={ii} style={{ flex: 1, background: CARD_OG, borderRadius: 11, padding: "10px 14px", display: "flex", flexDirection: "column" }}>
                     <div style={{ fontSize: 20, lineHeight: 1, marginBottom: 4 }}>{item.icon}</div>
                     <div style={{ color: WHITE, fontSize: 14, fontWeight: 700, lineHeight: 1.2, marginBottom: 3 }}>{item.heading}</div>
                     <div style={{ color: "rgba(255,255,255,0.80)", fontSize: 11, lineHeight: 1.3 }}>{item.body}</div>
@@ -107,7 +101,6 @@ export default function ImagePost({
           ))}
         </div>
 
-        {/* Bottom logo */}
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
           <LogoImg />
         </div>
@@ -120,7 +113,8 @@ export default function ImagePost({
     const items = (data.items ?? []).slice(0, 3);
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 58px 40px" }}>
-        <div style={{ marginBottom: 20 }}>
+        {/* Title block — needs display flex so two divs are valid children */}
+        <div style={{ display: "flex", flexDirection: "column", marginBottom: 20 }}>
           {data.titleWhite && (
             <div style={{ color: WHITE, fontSize: 60, fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
               {data.titleWhite}
@@ -141,13 +135,7 @@ export default function ImagePost({
 
         {data.tag && (
           <div style={{ display: "flex", marginBottom: 20 }}>
-            <div style={{
-              display: "flex", alignItems: "center",
-              padding: "6px 16px",
-              background: "rgba(254,113,12,0.15)",
-              border: "1px solid rgba(254,113,12,0.50)",
-              borderRadius: 8,
-            }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "6px 16px", background: "rgba(254,113,12,0.15)", border: "1px solid rgba(254,113,12,0.50)", borderRadius: 8 }}>
               <span style={{ color: ORANGE, fontSize: 13, fontWeight: 600 }}>{data.tag}</span>
             </div>
           </div>
@@ -156,23 +144,19 @@ export default function ImagePost({
         <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1 }}>
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "row", gap: 12, alignItems: "flex-start", flex: 1 }}>
-              <div style={{
-                width: 32, display: "flex", alignItems: "flex-start",
-                justifyContent: "center", paddingTop: 18,
-              }}>
+              <div style={{ width: 32, display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 18 }}>
                 <span style={{ color: ORANGE, fontSize: 20, fontWeight: 400 }}>{i + 1}</span>
               </div>
-              <div style={{
-                flex: 1, background: CARD_DARK,
-                border: `1.5px solid ${BORDER}`, borderRadius: 14,
-                padding: "16px 20px",
-              }}>
+              {/* Card — needs display flex for heading + bullets children */}
+              <div style={{ flex: 1, background: CARD_DARK, border: `1.5px solid ${BORDER}`, borderRadius: 14, padding: "16px 20px", display: "flex", flexDirection: "column" }}>
                 <div style={{ color: ORANGE, fontSize: 19, fontWeight: 400, marginBottom: 7 }}>
                   {item.heading}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {(item.bullets ?? []).map((b, bi) => (
-                    <div key={bi} style={{ color: MUTED, fontSize: 14, lineHeight: 1.4 }}>→ {b}</div>
+                    <div key={bi} style={{ display: "flex" }}>
+                      <span style={{ color: MUTED, fontSize: 14, lineHeight: 1.4 }}>{`→ ${b}`}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -181,13 +165,10 @@ export default function ImagePost({
         </div>
 
         {data.statsBar && (
-          <div style={{
-            border: `1.5px dashed ${BORDER}`, borderRadius: 12,
-            padding: "13px 20px", textAlign: "center", marginTop: 14,
-          }}>
-            <div style={{ color: WHITE, fontSize: 16, fontWeight: 600, lineHeight: 1.6 }}>
+          <div style={{ border: `1.5px dashed ${BORDER}`, borderRadius: 12, padding: "13px 20px", display: "flex", justifyContent: "center", marginTop: 14 }}>
+            <span style={{ color: WHITE, fontSize: 16, fontWeight: 600, lineHeight: 1.6 }}>
               {data.statsBar}
-            </div>
+            </span>
           </div>
         )}
 
@@ -207,26 +188,21 @@ export default function ImagePost({
           {parts.length > 0
             ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: 400 }}>{p.text}</span>)
             : (
-              <>
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
                 {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}
                 {data.titleOrange && <span style={{ color: ORANGE }}>{data.titleOrange}</span>}
-              </>
+              </div>
             )}
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
           {steps.map((step, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "row", gap: 14, alignItems: "center", flex: 1 }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: "50%",
-                background: ORANGE, display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: ORANGE, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <span style={{ color: WHITE, fontSize: 15, fontWeight: 700 }}>{i + 1}</span>
               </div>
-              <div style={{
-                flex: 1, border: `1.5px dashed ${BORDER}`,
-                borderRadius: 12, padding: "12px 18px",
-              }}>
+              {/* Step card — needs display flex for heading + body */}
+              <div style={{ flex: 1, border: `1.5px dashed ${BORDER}`, borderRadius: 12, padding: "12px 18px", display: "flex", flexDirection: "column" }}>
                 <div style={{ color: WHITE, fontSize: 17, fontWeight: 700, marginBottom: 3 }}>{step.heading}</div>
                 <div style={{ color: MUTED, fontSize: 13, lineHeight: 1.4 }}>{step.body}</div>
               </div>
@@ -235,15 +211,10 @@ export default function ImagePost({
         </div>
 
         {toolNamesArr.length > 0 && (
-          <div style={{ marginTop: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 14 }}>
             {data.toolsLabel && (
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
-                <div style={{
-                  display: "flex", padding: "6px 18px",
-                  background: "rgba(254,113,12,0.15)",
-                  border: "1px solid rgba(254,113,12,0.50)",
-                  borderRadius: 8,
-                }}>
+                <div style={{ display: "flex", padding: "6px 18px", background: "rgba(254,113,12,0.15)", border: "1px solid rgba(254,113,12,0.50)", borderRadius: 8 }}>
                   <span style={{ color: ORANGE, fontSize: 14, fontWeight: 600 }}>{data.toolsLabel}</span>
                 </div>
               </div>
@@ -254,17 +225,9 @@ export default function ImagePost({
                 return (
                   <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
                     {logo ? (
-                      <img src={logo} style={{
-                        width: 62, height: 62,
-                        border: `2px solid ${BORDER}`,
-                        borderRadius: 12, objectFit: "contain", background: CARD_DARK,
-                      }} />
+                      <img src={logo} style={{ width: 62, height: 62, border: `2px solid ${BORDER}`, borderRadius: 12, objectFit: "contain", background: CARD_DARK }} />
                     ) : (
-                      <div style={{
-                        width: 62, height: 62, border: `2px solid ${BORDER}`,
-                        borderRadius: 12, background: CARD_DARK,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>
+                      <div style={{ width: 62, height: 62, border: `2px solid ${BORDER}`, borderRadius: 12, background: CARD_DARK, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <span style={{ color: ORANGE, fontSize: 18, fontWeight: 400 }}>{name.slice(0, 2).toUpperCase()}</span>
                       </div>
                     )}
@@ -285,7 +248,8 @@ export default function ImagePost({
   const stages = data.stages ?? [];
   return wrap(
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 32px" }}>
-      <div style={{ textAlign: "center", marginBottom: 28 }}>
+      {/* Title — needs display flex so title + subtitle are valid children */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 28 }}>
         <div style={{ color: ORANGE, fontSize: 56, fontWeight: 400, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>
@@ -298,11 +262,14 @@ export default function ImagePost({
         {stages.map((stage, i) => (
           <div key={i} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {i > 0 && (
-              <div style={{ textAlign: "center", color: ORANGE, fontSize: 18, lineHeight: 1 }}>↓</div>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <span style={{ color: ORANGE, fontSize: 18, lineHeight: 1 }}>↓</span>
+              </div>
             )}
 
             {stage.label && !stage.nodes?.length && !stage.tools?.length && (
-              <div style={{ textAlign: "center" }}>
+              /* Label-only stage — needs display flex for label + sublabel */
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: 24, fontWeight: 400 }}>
                   {stage.label}
                 </div>
@@ -313,19 +280,17 @@ export default function ImagePost({
             {!!stage.nodes?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 22, fontWeight: 400 }}>
-                    {stage.label}
+                  /* Label + optional sublabel — needs display flex */
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: 22, fontWeight: 400 }}>
+                      {stage.label}
+                    </div>
                     {stage.sublabel && <div style={{ color: MUTED, fontSize: 13, fontWeight: 400 }}>{stage.sublabel}</div>}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
                   {stage.nodes!.map((node, ni) => (
-                    <div key={ni} style={{
-                      display: "flex", padding: "9px 20px",
-                      border: `1.5px solid ${BORDER}`,
-                      borderRadius: 28, background: CARD_DARK,
-                      color: WHITE, fontSize: 15, fontWeight: 600,
-                    }}>
+                    <div key={ni} style={{ display: "flex", padding: "9px 20px", border: `1.5px solid ${BORDER}`, borderRadius: 28, background: CARD_DARK, color: WHITE, fontSize: 15, fontWeight: 600 }}>
                       {node}
                     </div>
                   ))}
@@ -336,19 +301,17 @@ export default function ImagePost({
             {!!stage.tools?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 20, fontWeight: 400 }}>
-                    {stage.label}
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <span style={{ color: stage.orange ? ORANGE : WHITE, fontSize: 20, fontWeight: 400 }}>
+                      {stage.label}
+                    </span>
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
                   {stage.tools!.map((tool, ti) => {
                     const logo = getLogo(tool.name);
                     return (
-                      <div key={ti} style={{
-                        display: "flex", flexDirection: "column", alignItems: "center",
-                        background: CARD_DARK, border: `1.5px solid ${BORDER}`,
-                        borderRadius: 14, padding: "12px 16px", gap: 6, minWidth: 150,
-                      }}>
+                      <div key={ti} style={{ display: "flex", flexDirection: "column", alignItems: "center", background: CARD_DARK, border: `1.5px solid ${BORDER}`, borderRadius: 14, padding: "12px 16px", gap: 6, minWidth: 150 }}>
                         {logo && <img src={logo} style={{ width: 38, height: 38, objectFit: "contain" }} />}
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                           <div style={{ color: WHITE, fontSize: 14, fontWeight: 700 }}>{tool.name}</div>
