@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     // ── Image data generation ─────────────────────────────────────────
     if (mode === "image-data") {
-      const { content, pillar, imagePrompt, systemPrompt } = body;
+      const { content, pillar, imagePrompt, systemPrompt, templateType } = body;
       if (!content || !imagePrompt) {
         return NextResponse.json({ error: "content and imagePrompt are required" }, { status: 400 });
       }
@@ -88,7 +88,10 @@ export async function POST(req: NextRequest) {
         : "none uploaded yet";
 
       const resolvedPrompt = imagePrompt.replace("{TOOL_NAMES}", toolNames);
-      const userPrompt = `${resolvedPrompt}\n\nPOST CONTENT:\n${content}\n\nPILLAR: ${pillar}`;
+      const typeInstruction = templateType
+        ? `\n\nIMPORTANT: You MUST use the "${templateType}" template type. Do not choose a different type.`
+        : "";
+      const userPrompt = `${resolvedPrompt}${typeInstruction}\n\nPOST CONTENT:\n${content}\n\nPILLAR: ${pillar}`;
       const raw = await callClaude(userPrompt, systemPrompt ?? "", "fast");
       const jsonMatch = raw.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
@@ -96,6 +99,7 @@ export async function POST(req: NextRequest) {
       }
       const data = JSON.parse(jsonMatch[0]);
       // normalize
+      if (templateType) data.type = templateType;
       if (!data.type) data.type = "list";
       if (!Array.isArray(data.items)) data.items = [];
       return NextResponse.json({ data });

@@ -17,9 +17,10 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   const brand       = useSettingsStore((s) => s.brand);
   const imagePrompt = brand.prompts?.imagePost || DEFAULT_IMAGE_PROMPT;
 
+  const [selectedType,   setSelectedType]  = useState<"list" | "stats" | "tools" | null>(null);
   const [theme,          setTheme]         = useState<ImageTheme>("dark");
   const [capturing,      setCapturing]     = useState(false);
-  const [aiLoading,      setAiLoading]     = useState(true);
+  const [aiLoading,      setAiLoading]     = useState(false);
   const [aiError,        setAiError]       = useState<string | null>(null);
   const [data,           setData]          = useState<ImageTemplateData | null>(null);
   const [editData,       setEditData]      = useState<ImageTemplateData | null>(null);
@@ -44,11 +45,11 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       }
       setToolLogos(logos);
     }).catch(() => {});
-    generateWithAI();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const generateWithAI = async () => {
+  const generateWithAI = async (type?: "list" | "stats" | "tools") => {
+    const resolvedType = type ?? selectedType ?? undefined;
     setAiLoading(true);
     setAiError(null);
     try {
@@ -61,6 +62,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
           pillar,
           imagePrompt,
           systemPrompt: brand.systemPrompt,
+          templateType: resolvedType,
         }),
       });
       const json = await res.json();
@@ -231,6 +233,14 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
             <ImageIcon size={14} className="text-[#fe710c]" />
             <span className="text-sm font-semibold text-white">Image Post</span>
             <span className="text-[10px] text-white/25 uppercase tracking-widest ml-1">{platform} · 1080×1080</span>
+            {selectedType && (
+              <button
+                onClick={() => { setSelectedType(null); setData(null); setEditData(null); setAiError(null); }}
+                className="flex items-center gap-1 ml-2 px-2 py-0.5 rounded-full bg-[#fe710c]/10 border border-[#fe710c]/20 text-[#fe710c] text-[10px] font-semibold uppercase tracking-widest hover:bg-[#fe710c]/20 transition-colors"
+              >
+                {selectedType} · change
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5 bg-white/[0.05] border border-white/[0.08] rounded-lg p-0.5">
@@ -249,8 +259,40 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
           </div>
         </div>
 
+        {/* Template picker — shown before generation */}
+        {!selectedType && (
+          <div className="flex flex-1 flex-col items-center justify-center gap-8 p-10">
+            <div className="text-center">
+              <p className="text-sm font-semibold text-white/80 mb-1">Choose a template</p>
+              <p className="text-[11px] text-white/30">Pick the layout that fits your post best</p>
+            </div>
+            <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
+              {([
+                { type: "list",  label: "List",  desc: "Step-by-step points, insights, frameworks",  icon: "▤" },
+                { type: "stats", label: "Stats", desc: "Results with numbers, metrics, proof",         icon: "▣" },
+                { type: "tools", label: "Tools", desc: "Tech stack, tool comparisons, software",       icon: "⊞" },
+              ] as const).map((t) => (
+                <button
+                  key={t.type}
+                  onClick={() => {
+                    setSelectedType(t.type);
+                    generateWithAI(t.type);
+                  }}
+                  className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-white/[0.04] border border-white/[0.08] hover:border-[#fe710c]/50 hover:bg-[#fe710c]/5 transition-all group"
+                >
+                  <span className="text-3xl text-white/20 group-hover:text-[#fe710c]/60 transition-colors">{t.icon}</span>
+                  <div className="text-center">
+                    <p className="text-sm font-semibold text-white/70 group-hover:text-white transition-colors mb-1">{t.label}</p>
+                    <p className="text-[10px] text-white/25 leading-relaxed">{t.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Body */}
-        <div className="flex flex-1 overflow-hidden">
+        {selectedType && <div className="flex flex-1 overflow-hidden">
 
           {/* Left — preview */}
           <div className="flex flex-col items-center justify-between gap-4 p-5 border-r border-white/[0.06] shrink-0" style={{ width: 460 }}>
@@ -494,7 +536,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
               </div>
             </form>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );
