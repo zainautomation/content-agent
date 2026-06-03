@@ -72,7 +72,7 @@ export default function ImagePost({
           {!parts.length && (
             <span style={{ fontSize: 68, fontWeight: 400 }}>
               {data.titleWhite && <span style={{ color: WHITE, fontWeight: 400 }}>{data.titleWhite} </span>}
-              {data.titleOrange && <span style={{ color: ORANGE, fontWeight: 700 }}>{data.titleOrange}</span>}
+              {data.titleOrange && <span style={{ color: ORANGE, fontWeight: 400 }}>{data.titleOrange}</span>}
             </span>
           )}
         </div>
@@ -127,7 +127,7 @@ export default function ImagePost({
             </div>
           )}
           {data.titleOrange && (
-            <div style={{ color: ORANGE, fontSize: 70, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
+            <div style={{ color: ORANGE, fontSize: 70, fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
               {data.titleOrange}
             </div>
           )}
@@ -286,7 +286,7 @@ export default function ImagePost({
   return wrap(
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "38px 46px 32px" }}>
       <div style={{ textAlign: "center", marginBottom: 4 }}>
-        <div style={{ color: ORANGE, fontSize: 56, fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
+        <div style={{ color: ORANGE, fontSize: 56, fontWeight: 400, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>
         {data.flowSubtitle && (
@@ -303,7 +303,7 @@ export default function ImagePost({
 
             {stage.label && !stage.nodes?.length && !stage.tools?.length && (
               <div style={{ textAlign: "center" }}>
-                <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: 24, fontWeight: 700 }}>
+                <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: 24, fontWeight: 400 }}>
                   {stage.label}
                 </div>
                 {stage.sublabel && <div style={{ color: MUTED, fontSize: 13, marginTop: 2 }}>{stage.sublabel}</div>}
@@ -313,7 +313,7 @@ export default function ImagePost({
             {!!stage.nodes?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 22, fontWeight: 700 }}>
+                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 22, fontWeight: 400 }}>
                     {stage.label}
                     {stage.sublabel && <div style={{ color: MUTED, fontSize: 13, fontWeight: 400 }}>{stage.sublabel}</div>}
                   </div>
@@ -336,7 +336,7 @@ export default function ImagePost({
             {!!stage.tools?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 20, fontWeight: 700 }}>
+                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: 20, fontWeight: 400 }}>
                     {stage.label}
                   </div>
                 )}

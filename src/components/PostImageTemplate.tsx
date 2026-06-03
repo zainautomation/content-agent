@@ -126,7 +126,7 @@ export default function PostImageTemplate({
           {!parts.length && (
             <>
               {data.titleWhite && <span style={{ color: WHITE, fontSize: s(68), fontWeight: 400 }}>{data.titleWhite} </span>}
-              {data.titleOrange && <span style={{ color: ORANGE, fontSize: s(68), fontWeight: 700 }}>{data.titleOrange}</span>}
+              {data.titleOrange && <span style={{ color: ORANGE, fontSize: s(68), fontWeight: 400 }}>{data.titleOrange}</span>}
             </>
           )}
         </div>
@@ -185,7 +185,7 @@ export default function PostImageTemplate({
             </div>
           )}
           {data.titleOrange && (
-            <div style={{ color: ORANGE, fontSize: s(70), fontWeight: 700, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
+            <div style={{ color: ORANGE, fontSize: s(70), fontWeight: 400, lineHeight: 1.05, letterSpacing: "-0.025em" }}>
               {data.titleOrange}
             </div>
           )}
@@ -360,7 +360,7 @@ export default function PostImageTemplate({
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(38)}px ${s(46)}px ${s(32)}px` }}>
       {/* Title */}
       <div style={{ textAlign: "center", marginBottom: s(4), flexShrink: 0 }}>
-        <div style={{ color: ORANGE, fontSize: s(56), fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
+        <div style={{ color: ORANGE, fontSize: s(56), fontWeight: 400, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>
         {data.flowSubtitle && (
@@ -379,7 +379,7 @@ export default function PostImageTemplate({
             {/* Label-only stage */}
             {stage.label && !stage.nodes?.length && !stage.tools?.length && (
               <div style={{ textAlign: "center", flexShrink: 0 }}>
-                <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: s(24), fontWeight: 700 }}>
+                <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: s(24), fontWeight: 400 }}>
                   {stage.label}
                 </div>
                 {stage.sublabel && <div style={{ color: MUTED, fontSize: s(13), marginTop: s(2) }}>{stage.sublabel}</div>}
@@ -390,7 +390,7 @@ export default function PostImageTemplate({
             {!!stage.nodes?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: s(5), flexShrink: 0 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(22), fontWeight: 700 }}>
+                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(22), fontWeight: 400 }}>
                     {stage.label}
                     {stage.sublabel && <div style={{ color: MUTED, fontSize: s(13), fontWeight: 400 }}>{stage.sublabel}</div>}
                   </div>
@@ -414,7 +414,7 @@ export default function PostImageTemplate({
             {!!stage.tools?.length && (
               <div style={{ display: "flex", flexDirection: "column", gap: s(6), flexShrink: 0 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(20), fontWeight: 700 }}>
+                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(20), fontWeight: 400 }}>
                     {stage.label}
                   </div>
                 )}
