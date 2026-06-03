@@ -28,7 +28,7 @@ export default function ImagePost({
 
   const LogoImg = () =>
     logoUri ? (
-      <img src={logoUri} style={{ height: 90, maxWidth: 380, objectFit: "contain" }} />
+      <img src={logoUri} style={{ height: 140, maxWidth: 500, objectFit: "contain" }} />
     ) : (
       <span style={{ color: WHITE, fontSize: 48, fontWeight: 700, letterSpacing: "-0.02em" }}>Zutomate</span>
     );
