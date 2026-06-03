@@ -102,10 +102,12 @@ export async function POST(req: NextRequest) {
         .filter(Boolean) as { name: string; data: Buffer; weight: Weight; style: "normal" }[];
 
       const toolNamesToLoad: string[] = [];
-      if (imageData.type === "stats" && Array.isArray(imageData.toolNames))
-        toolNamesToLoad.push(...imageData.toolNames);
-      if (imageData.type === "tools" && Array.isArray(imageData.toolList))
-        toolNamesToLoad.push(...imageData.toolList.map((t: { name: string }) => t.name));
+      if (imageData.centerToolName) toolNamesToLoad.push(imageData.centerToolName);
+      if (Array.isArray(imageData.toolNames)) toolNamesToLoad.push(...imageData.toolNames);
+      if (Array.isArray(imageData.toolList)) toolNamesToLoad.push(...imageData.toolList.map((t: { name: string }) => t.name));
+      if (Array.isArray(imageData.stages))
+        for (const s of imageData.stages)
+          if (Array.isArray(s.tools)) toolNamesToLoad.push(...s.tools.map((t: { name: string }) => t.name));
 
       const [logoUri, photoUri, toolLogos, { default: ImagePost }] = await Promise.all([
         findCompanyLogo(),
