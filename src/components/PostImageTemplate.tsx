@@ -78,7 +78,7 @@ export default function PostImageTemplate({
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(40), maxWidth: s(200), width: "auto", objectFit: "contain" }}
+      style={{ height: s(72), maxWidth: s(320), width: "auto", objectFit: "contain" }}
     />
   );
 
@@ -119,13 +119,13 @@ export default function PostImageTemplate({
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: s(10), flexShrink: 0, lineHeight: 1.1 }}>
           {parts.map((p, i) => (
-            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: s(68), fontWeight: p.orange ? 800 : 600, letterSpacing: "-0.02em" }}>
+            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: s(68), fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
               {p.text}
             </span>
           ))}
           {!parts.length && (
             <>
-              {data.titleWhite && <span style={{ color: WHITE, fontSize: s(68), fontWeight: 600 }}>{data.titleWhite} </span>}
+              {data.titleWhite && <span style={{ color: WHITE, fontSize: s(68), fontWeight: 400 }}>{data.titleWhite} </span>}
               {data.titleOrange && <span style={{ color: ORANGE, fontSize: s(68), fontWeight: 800 }}>{data.titleOrange}</span>}
             </>
           )}
@@ -180,7 +180,7 @@ export default function PostImageTemplate({
         {/* Title */}
         <div style={{ marginBottom: s(10), flexShrink: 0 }}>
           {data.titleWhite && (
-            <div style={{ color: WHITE, fontSize: s(60), fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
+            <div style={{ color: WHITE, fontSize: s(60), fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
               {data.titleWhite}
             </div>
           )}
@@ -269,9 +269,9 @@ export default function PostImageTemplate({
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(46)}px ${s(52)}px ${s(38)}px` }}>
         {/* Title */}
-        <div style={{ marginBottom: s(18), flexShrink: 0, fontSize: s(50), fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
+        <div style={{ marginBottom: s(18), flexShrink: 0, fontSize: s(50), fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em" }}>
           {parts.length > 0
-            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE }}>{p.text}</span>)
+            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
             : (
               <>
                 {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}

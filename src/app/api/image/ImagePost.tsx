@@ -28,9 +28,9 @@ export default function ImagePost({
 
   const LogoImg = () =>
     logoUri ? (
-      <img src={logoUri} style={{ height: 40, maxWidth: 200, objectFit: "contain" }} />
+      <img src={logoUri} style={{ height: 72, maxWidth: 320, objectFit: "contain" }} />
     ) : (
-      <span style={{ color: WHITE, fontSize: 28, fontWeight: 800, letterSpacing: "-0.02em" }}>Zutomate</span>
+      <span style={{ color: WHITE, fontSize: 42, fontWeight: 800, letterSpacing: "-0.02em" }}>Zutomate</span>
     );
 
   const Footer = ({ tagline }: { tagline?: string }) => (
@@ -65,13 +65,13 @@ export default function ImagePost({
         {/* Title */}
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 10, lineHeight: 1.1 }}>
           {parts.map((p, i) => (
-            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: p.orange ? 800 : 600, letterSpacing: "-0.02em" }}>
+            <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontSize: 68, fontWeight: p.orange ? 800 : 400, letterSpacing: "-0.02em" }}>
               {p.text}
             </span>
           ))}
           {!parts.length && (
-            <span style={{ fontSize: 68, fontWeight: 700 }}>
-              {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}
+            <span style={{ fontSize: 68, fontWeight: 400 }}>
+              {data.titleWhite && <span style={{ color: WHITE, fontWeight: 400 }}>{data.titleWhite} </span>}
               {data.titleOrange && <span style={{ color: ORANGE, fontWeight: 800 }}>{data.titleOrange}</span>}
             </span>
           )}
@@ -122,7 +122,7 @@ export default function ImagePost({
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 58px 40px" }}>
         <div style={{ marginBottom: 10 }}>
           {data.titleWhite && (
-            <div style={{ color: WHITE, fontSize: 60, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
+            <div style={{ color: WHITE, fontSize: 60, fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
               {data.titleWhite}
             </div>
           )}
@@ -204,9 +204,9 @@ export default function ImagePost({
     const parts = data.titleParts ?? [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "46px 52px 38px" }}>
-        <div style={{ marginBottom: 18, fontSize: 50, fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
+        <div style={{ marginBottom: 18, fontSize: 50, fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
           {parts.length > 0
-            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE }}>{p.text}</span>)
+            ? parts.map((p, i) => <span key={i} style={{ color: p.orange ? ORANGE : WHITE, fontWeight: p.orange ? 800 : 400 }}>{p.text}</span>)
             : (
               <>
                 {data.titleWhite && <span style={{ color: WHITE }}>{data.titleWhite} </span>}
