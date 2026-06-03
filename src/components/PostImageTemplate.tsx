@@ -126,7 +126,7 @@ export default function PostImageTemplate({
           {!parts.length && (
             <>
               {data.titleWhite && <span style={{ color: WHITE, fontSize: s(68), fontWeight: 400 }}>{data.titleWhite} </span>}
-              {data.titleOrange && <span style={{ color: ORANGE, fontSize: s(68), fontWeight: 800 }}>{data.titleOrange}</span>}
+              {data.titleOrange && <span style={{ color: ORANGE, fontSize: s(68), fontWeight: 700 }}>{data.titleOrange}</span>}
             </>
           )}
         </div>
@@ -360,7 +360,7 @@ export default function PostImageTemplate({
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(38)}px ${s(46)}px ${s(32)}px` }}>
       {/* Title */}
       <div style={{ textAlign: "center", marginBottom: s(4), flexShrink: 0 }}>
-        <div style={{ color: ORANGE, fontSize: s(56), fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
+        <div style={{ color: ORANGE, fontSize: s(56), fontWeight: 700, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
           {data.flowTitle ?? ""}
         </div>
         {data.flowSubtitle && (
