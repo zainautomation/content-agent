@@ -395,111 +395,27 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
               <>
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Edit Fields</p>
 
-                {data.type === "stats" || data.type === "tools" ? (
-                  <div className="space-y-3">
-                    <div className="bg-[#fe710c]/5 border border-[#fe710c]/20 rounded-lg px-4 py-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-[#fe710c]/70 mb-1">
-                        {data.type === "stats" ? "Stats Layout" : "Tools Layout"} — AI Generated
-                      </p>
-                      <p className="text-[10px] text-white/35 leading-relaxed">
-                        Edit the JSON directly or use Regenerate AI for a different variation.
-                      </p>
-                    </div>
-                    <div>
-                      <FL>Raw JSON</FL>
-                      <textarea
-                        value={JSON.stringify(editData, null, 2)}
-                        onChange={(e) => {
-                          try { setEditData(JSON.parse(e.target.value)); } catch { /* ignore while typing */ }
-                        }}
-                        className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[10px] text-white/60 font-mono focus:outline-none focus:border-[#fe710c]/30 transition-colors resize-none"
-                        rows={18}
-                      />
-                    </div>
-                    <div>
-                      <ST>Author Bar</ST>
-                      <div className="space-y-2">
-                        <div><FL>Name</FL>
-                          <TI value={editData?.authorName ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorName: v } : p)} placeholder="e.g. Syed Ayan Hassan" />
-                        </div>
-                        <div><FL>Title / Handle</FL>
-                          <TI value={editData?.authorTitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorTitle: v } : p)} placeholder="e.g. GTM Automation Agency" />
-                        </div>
-                      </div>
-                    </div>
+                <div className="space-y-3">
+                  <div className="bg-[#fe710c]/5 border border-[#fe710c]/20 rounded-lg px-4 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-[#fe710c]/70 mb-1">
+                      {(data.type ?? "list").charAt(0).toUpperCase() + (data.type ?? "list").slice(1)} Layout — AI Generated
+                    </p>
+                    <p className="text-[10px] text-white/35 leading-relaxed">
+                      Edit the JSON directly or use Regenerate AI or the Refine prompt below.
+                    </p>
                   </div>
-                ) : (
-                  <>
-                    <div>
-                      <ST>Tag Pill</ST>
-                      <TI value={editData?.tag ?? ""} onChange={(v) => setEditData(p => p ? { ...p, tag: v } : p)} placeholder="e.g. GTM AUTOMATION" />
-                    </div>
-
-                    <div>
-                      <ST>Title</ST>
-                      <div className="space-y-2">
-                        <div><FL>Main <span className="text-white/15 normal-case font-normal">(white)</span></FL>
-                          <TI value={editData?.titleMain ?? ""} onChange={(v) => setEditData(p => p ? { ...p, titleMain: v } : p)} />
-                        </div>
-                        <div><FL>Accent <span className="text-white/15 normal-case font-normal">(orange)</span></FL>
-                          <TI value={editData?.titleAccent ?? ""} onChange={(v) => setEditData(p => p ? { ...p, titleAccent: v } : p)} />
-                        </div>
-                        <div><FL>Subtitle</FL>
-                          <TI value={editData?.subtitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, subtitle: v } : p)} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <ST>Cards</ST>
-                        {(editData?.items ?? []).length < 4 && (
-                          <button onClick={addItem} className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-widest text-[#fe710c]/60 hover:text-[#fe710c] transition-colors">
-                            <Plus size={9} /> Add
-                          </button>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        {(editData?.items ?? []).map((item, i) => (
-                          <div key={i} className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Card {i + 1}</p>
-                              {(editData?.items ?? []).length > 1 && (
-                                <button onClick={() => removeItem(i)} className="text-white/15 hover:text-red-400 transition-colors">
-                                  <Trash2 size={10} />
-                                </button>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-[1fr_1fr] gap-2">
-                              <div><FL>Heading</FL>
-                                <input value={item.heading} onChange={(e) => updateItem(i, "heading", e.target.value)}
-                                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
-                                />
-                              </div>
-                              <div><FL>Body</FL>
-                                <input value={item.body} onChange={(e) => updateItem(i, "body", e.target.value)}
-                                  className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white/80 focus:outline-none focus:border-[#fe710c]/30"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <ST>Author Bar</ST>
-                      <div className="space-y-2">
-                        <div><FL>Name</FL>
-                          <TI value={editData?.authorName ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorName: v } : p)} placeholder="e.g. Syed Ayan Hassan" />
-                        </div>
-                        <div><FL>Title / Handle</FL>
-                          <TI value={editData?.authorTitle ?? ""} onChange={(v) => setEditData(p => p ? { ...p, authorTitle: v } : p)} placeholder="e.g. GTM Automation Agency" />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  <div>
+                    <FL>Raw JSON</FL>
+                    <textarea
+                      value={JSON.stringify(editData, null, 2)}
+                      onChange={(e) => {
+                        try { setEditData(JSON.parse(e.target.value)); } catch { /* ignore while typing */ }
+                      }}
+                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[10px] text-white/60 font-mono focus:outline-none focus:border-[#fe710c]/30 transition-colors resize-none"
+                      rows={20}
+                    />
+                  </div>
+                </div>
               </>
             )}
             </div>
