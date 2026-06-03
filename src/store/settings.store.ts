@@ -181,63 +181,113 @@ Output format for the 2-week plan:
     imagePost: `You are creating structured data for a 1080×1080 social media image post for Zutomate.
 
 Choose the best template type based on the post content:
-- "list" → step-by-step posts, how-to, insights, frameworks
-- "stats" → results posts with specific numbers (meetings booked, emails sent, deals closed, etc.)
-- "tools" → posts about a tech stack, tool comparison, or specific software tools
+- "grid"     → post about one tool/AI powering multiple functions — rendered as 3 columns of orange cards
+- "list"     → post with 2-3 major sections each containing multiple bullet points
+- "workflow" → post describing a step-by-step process (3-6 steps) plus the tools used
+- "flow"     → post showing how data or leads move through a connected system or pipeline
 
 AVAILABLE TOOL LOGOS: {TOOL_NAMES}
-(Only include tools from this list in the output — others will show as text-only)
+(Only include exact names from this list in toolNames / centerToolName / tool name fields)
 
 Return JSON for the chosen type. No explanation, no markdown fences.
+
+=== FOR "grid" ===
+{
+  "type": "grid",
+  "titleParts": [
+    { "text": "Tool Name", "orange": true },
+    { "text": " As The ", "orange": false },
+    { "text": "Category", "orange": true }
+  ],
+  "centerToolName": "exact tool name if logo available, else omit this field",
+  "columns": [
+    {
+      "heading": "Column Category Name",
+      "items": [
+        { "icon": "emoji", "heading": "Feature name 3-5 words", "body": "One short sentence." },
+        { "icon": "emoji", "heading": "...", "body": "..." },
+        { "icon": "emoji", "heading": "...", "body": "..." },
+        { "icon": "emoji", "heading": "...", "body": "..." },
+        { "icon": "emoji", "heading": "...", "body": "..." }
+      ]
+    }
+  ],
+  "tagline": "We Build Predictable Growth Systems for B2B Businesses",
+  "authorName": "",
+  "authorTitle": ""
+}
 
 === FOR "list" ===
 {
   "type": "list",
-  "tag": "2-3 words ALL CAPS",
-  "titleMain": "headline start, white text, max 6 words",
-  "titleAccent": "orange punchline, max 3 words",
-  "subtitle": "1 compelling sentence, max 120 chars, specific to the post",
+  "titleWhite": "First line — white, max 6 words",
+  "titleOrange": "Second line — orange bold, max 5 words",
+  "subtitle": "1-2 supporting sentences, max 140 chars.",
+  "tag": "Short label e.g. Here's what it covers",
   "items": [
-    { "icon": "", "heading": "3-6 word specific heading", "body": "1-2 sentences of real substance" },
-    { "icon": "", "heading": "...", "body": "..." },
-    { "icon": "", "heading": "...", "body": "..." }
+    {
+      "heading": "Section heading — orange",
+      "bullets": ["First bullet point", "Second bullet point", "Third bullet point", "Fourth bullet point"]
+    },
+    { "heading": "...", "bullets": ["...", "...", "...", "..."] },
+    { "heading": "...", "bullets": ["...", "...", "...", "..."] }
   ],
+  "statsBar": "Key stat | Key stat | Key stat\nClosing question or CTA",
+  "tagline": "We Build Predictable Growth Systems for B2B Businesses",
   "authorName": "",
   "authorTitle": ""
 }
 
-=== FOR "stats" ===
+=== FOR "workflow" ===
 {
-  "type": "stats",
-  "tag": "Category — Time context (e.g. Cold Email Results — Last 30 Days)",
-  "headline": "IMPACT STATEMENT IN CAPS — max 8 words, the big number/result",
-  "subheadline": "CONTEXT IN CAPS — max 8 words (e.g. ONE PERSON. NO ADS. NO INBOUND.)",
-  "stats": [
-    { "value": "exact number from post", "label": "what it measures" }
+  "type": "workflow",
+  "titleParts": [
+    { "text": "The ", "orange": false },
+    { "text": "Workflow Name", "orange": true },
+    { "text": "\\nWe're Using Right Now", "orange": false }
   ],
-  "stackLabel": "The Exact Stack",
-  "toolNames": ["only tools mentioned in post that have logos available"],
+  "steps": [
+    { "heading": "Step name 2-4 words", "body": "One sentence describing this step." },
+    { "heading": "...", "body": "..." },
+    { "heading": "...", "body": "..." },
+    { "heading": "...", "body": "..." },
+    { "heading": "...", "body": "..." }
+  ],
+  "toolsLabel": "Tools Running the System",
+  "toolNames": ["only exact names from AVAILABLE TOOL LOGOS"],
+  "tagline": "We Build Predictable Growth Systems for B2B Businesses",
   "authorName": "",
   "authorTitle": ""
 }
 
-=== FOR "tools" ===
+=== FOR "flow" ===
 {
-  "type": "tools",
-  "tag": "TOOLS ALL CAPS category",
-  "titleMain": "headline white part",
-  "headlineAccent": "orange accent part",
-  "toolList": [
-    { "name": "exact tool name matching available logos", "description": "what it does, max 8 words" }
+  "type": "flow",
+  "flowTitle": "System or Process Title",
+  "flowSubtitle": "One sentence describing what this flow does",
+  "stages": [
+    { "nodes": ["Source Node 1", "Source Node 2"] },
+    { "label": "Stage Label", "orange": true, "sublabel": "What this stage does", "nodes": ["Tool A", "Tool B", "Tool C"] },
+    { "label": "Process Label", "orange": true },
+    { "tools": [
+      { "name": "exact tool name", "body": "What it does in 4-5 words" },
+      { "name": "exact tool name", "body": "What it does in 4-5 words" }
+    ]},
+    { "label": "Outcome", "orange": true, "sublabel": "What happens next", "tools": [{ "name": "exact tool name", "body": "Pipeline and close" }] }
   ],
+  "tagline": "We Build Predictable Growth Systems for B2B Businesses",
   "authorName": "",
   "authorTitle": ""
 }
 
 Rules:
-— Only use numbers in stats that are explicitly in the post. Do not invent metrics.
-— For tools type, prefer tools that have logos available.
-— icon fields must always be empty string "".
+— grid: exactly 3 columns, exactly 5 items per column
+— list: exactly 3 items, exactly 4 bullets each
+— workflow: 4-5 steps, toolNames only from AVAILABLE TOOL LOGOS
+— flow: 4-6 stages mixing label, nodes, and tools stages
+— tool logos: only use names from AVAILABLE TOOL LOGOS — never invent names
+— tagline is always "We Build Predictable Growth Systems for B2B Businesses"
+— authorName and authorTitle are always ""
 — Return only the JSON object.`,
 
     carouselPost: `You are creating a LinkedIn carousel post for Zutomate — a GTM automation agency.

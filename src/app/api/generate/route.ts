@@ -98,10 +98,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "No JSON returned from AI" }, { status: 500 });
       }
       const data = JSON.parse(jsonMatch[0]);
-      // normalize
+      // enforce selected type; default to list
       if (templateType) data.type = templateType;
       if (!data.type) data.type = "list";
-      if (!Array.isArray(data.items)) data.items = [];
+      // normalize per-type arrays
+      if (data.type === "list" && !Array.isArray(data.items)) data.items = [];
+      if (data.type === "grid" && !Array.isArray(data.columns)) data.columns = [];
+      if (data.type === "workflow" && !Array.isArray(data.steps)) data.steps = [];
+      if (data.type === "flow" && !Array.isArray(data.stages)) data.stages = [];
       return NextResponse.json({ data });
     }
 

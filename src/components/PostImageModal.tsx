@@ -17,7 +17,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   const brand       = useSettingsStore((s) => s.brand);
   const imagePrompt = brand.prompts?.imagePost || DEFAULT_IMAGE_PROMPT;
 
-  const [selectedType,   setSelectedType]  = useState<"list" | "stats" | "tools" | null>(null);
+  const [selectedType,   setSelectedType]  = useState<"list" | "grid" | "workflow" | "flow" | null>(null);
   const [theme,          setTheme]         = useState<ImageTheme>("dark");
   const [capturing,      setCapturing]     = useState(false);
   const [aiLoading,      setAiLoading]     = useState(false);
@@ -48,7 +48,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const generateWithAI = async (type?: "list" | "stats" | "tools") => {
+  const generateWithAI = async (type?: "list" | "grid" | "workflow" | "flow") => {
     const resolvedType = type ?? selectedType ?? undefined;
     setAiLoading(true);
     setAiError(null);
@@ -266,11 +266,12 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
               <p className="text-sm font-semibold text-white/80 mb-1">Choose a template</p>
               <p className="text-[11px] text-white/30">Pick the layout that fits your post best</p>
             </div>
-            <div className="grid grid-cols-3 gap-4 w-full max-w-xl">
+            <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
               {([
-                { type: "list",  label: "List",  desc: "Step-by-step points, insights, frameworks",  icon: "▤" },
-                { type: "stats", label: "Stats", desc: "Results with numbers, metrics, proof",         icon: "▣" },
-                { type: "tools", label: "Tools", desc: "Tech stack, tool comparisons, software",       icon: "⊞" },
+                { type: "grid",     label: "Grid",     desc: "Tool or feature breakdown across 3 categories", icon: "▦" },
+                { type: "list",     label: "List",     desc: "Numbered sections with arrow bullet points",     icon: "▤" },
+                { type: "workflow", label: "Workflow",  desc: "Step-by-step process + tool logos at bottom",   icon: "▷" },
+                { type: "flow",     label: "Flow",     desc: "Vertical flowchart — stages, nodes, tools",      icon: "⬇" },
               ] as const).map((t) => (
                 <button
                   key={t.type}
