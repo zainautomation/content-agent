@@ -316,7 +316,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
                   <AlertCircle size={24} className="text-red-400/60" />
                   <p className="text-xs text-red-400/70 leading-relaxed">{aiError}</p>
                   <button
-                    onClick={generateWithAI}
+                    onClick={() => generateWithAI()}
                     className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/50 hover:text-[#fe710c] hover:border-[#fe710c]/30 transition-colors"
                   >
                     <RefreshCw size={10} /> Try Again
@@ -352,7 +352,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
                 >
                   <RefreshCw size={10} /> Apply & Preview
                 </button>
-                <button onClick={generateWithAI} disabled={aiLoading}
+                <button onClick={() => generateWithAI()} disabled={aiLoading}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-[10px] font-semibold uppercase tracking-widest text-white/40 hover:text-[#fe710c] hover:border-[#fe710c]/30 disabled:opacity-30 transition-colors"
                 >
                   <Sparkles size={10} /> Regenerate AI
