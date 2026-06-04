@@ -48,6 +48,21 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const sanitize = (d: ImageTemplateData): ImageTemplateData => ({
+    ...d,
+    titleParts:  Array.isArray(d.titleParts)  ? d.titleParts  : [],
+    items:       (Array.isArray(d.items)  ? d.items  : []).map((it) => ({ ...it, bullets: Array.isArray(it.bullets) ? it.bullets : [] })),
+    columns:     (Array.isArray(d.columns) ? d.columns : []).map((c) => ({ ...c, items: Array.isArray(c.items) ? c.items : [] })),
+    steps:       Array.isArray(d.steps)      ? d.steps      : [],
+    toolNames:   Array.isArray(d.toolNames)  ? d.toolNames  : [],
+    toolList:    Array.isArray(d.toolList)   ? d.toolList   : [],
+    stages:      (Array.isArray(d.stages) ? d.stages : []).map((s) => ({
+      ...s,
+      nodes: Array.isArray(s.nodes) ? s.nodes : [],
+      tools: Array.isArray(s.tools) ? s.tools : [],
+    })),
+  });
+
   const generateWithAI = async (type?: "list" | "grid" | "workflow" | "flow") => {
     const resolvedType = type ?? selectedType ?? undefined;
     setAiLoading(true);
@@ -67,11 +82,11 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       });
       const json = await res.json();
       if (res.ok && json.data) {
-        const merged = {
+        const merged = sanitize({
           ...json.data,
           authorName:  brand.authorName  ?? "",
           authorTitle: brand.authorTitle ?? "",
-        };
+        });
         setData(merged);
         setEditData(merged);
       } else {
@@ -84,7 +99,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     }
   };
 
-  const applyEdit = () => editData && setData({ ...editData });
+  const applyEdit = () => editData && setData(sanitize({ ...editData }));
 
   const handlePostToLinkedIn = async () => {
     if (!data) return;
@@ -151,8 +166,9 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       });
       const json = await res.json();
       if (res.ok && json.data) {
-        setData(json.data);
-        setEditData(json.data);
+        const safe = sanitize(json.data);
+        setData(safe);
+        setEditData(safe);
         setUpdatePrompt("");
       } else {
         setUpdateError(json.error ?? "Update failed — try again");
