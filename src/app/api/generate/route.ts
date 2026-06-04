@@ -101,11 +101,36 @@ export async function POST(req: NextRequest) {
       // enforce selected type; default to list
       if (templateType) data.type = templateType;
       if (!data.type) data.type = "list";
-      // normalize per-type arrays
-      if (data.type === "list" && !Array.isArray(data.items)) data.items = [];
-      if (data.type === "grid" && !Array.isArray(data.columns)) data.columns = [];
-      if (data.type === "workflow" && !Array.isArray(data.steps)) data.steps = [];
-      if (data.type === "flow" && !Array.isArray(data.stages)) data.stages = [];
+      // normalize all array fields regardless of type
+      if (!Array.isArray(data.items))     data.items = [];
+      if (!Array.isArray(data.columns))   data.columns = [];
+      if (!Array.isArray(data.steps))     data.steps = [];
+      if (!Array.isArray(data.stages))    data.stages = [];
+      if (!Array.isArray(data.titleParts)) data.titleParts = [];
+      if (!Array.isArray(data.toolNames)) data.toolNames = [];
+      if (!Array.isArray(data.toolList))  data.toolList = [];
+      // normalize bullets inside list items
+      if (Array.isArray(data.items)) {
+        data.items = data.items.map((item: Record<string, unknown>) => ({
+          ...item,
+          bullets: Array.isArray(item.bullets) ? item.bullets : [],
+        }));
+      }
+      // normalize items inside columns
+      if (Array.isArray(data.columns)) {
+        data.columns = data.columns.map((col: Record<string, unknown>) => ({
+          ...col,
+          items: Array.isArray(col.items) ? col.items : [],
+        }));
+      }
+      // normalize tools inside stages
+      if (Array.isArray(data.stages)) {
+        data.stages = data.stages.map((s: Record<string, unknown>) => ({
+          ...s,
+          nodes: Array.isArray(s.nodes) ? s.nodes : [],
+          tools: Array.isArray(s.tools) ? s.tools : [],
+        }));
+      }
       return NextResponse.json({ data });
     }
 

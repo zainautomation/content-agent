@@ -58,8 +58,8 @@ export default function ImagePost({
 
   // ── GRID ────────────────────────────────────────────────────────────
   if (data.type === "grid") {
-    const cols  = (data.columns ?? []).slice(0, 3);
-    const parts = data.titleParts ?? [];
+    const cols  = (Array.isArray(data.columns) ? data.columns : []).slice(0, 3);
+    const parts = Array.isArray(data.titleParts) ? data.titleParts : [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 28px" }}>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: 32, lineHeight: 1.15 }}>
@@ -110,7 +110,7 @@ export default function ImagePost({
 
   // ── LIST ────────────────────────────────────────────────────────────
   if (data.type === "list") {
-    const items = (data.items ?? []).slice(0, 3);
+    const items = (Array.isArray(data.items) ? data.items : []).slice(0, 3);
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 58px 40px" }}>
         {/* Title block — needs display flex so two divs are valid children */}
@@ -153,7 +153,7 @@ export default function ImagePost({
                   {item.heading}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  {(item.bullets ?? []).map((b, bi) => (
+                  {(Array.isArray(item.bullets) ? item.bullets : []).map((b, bi) => (
                     <div key={bi} style={{ display: "flex" }}>
                       <span style={{ color: MUTED, fontSize: 14, lineHeight: 1.4 }}>{`→ ${b}`}</span>
                     </div>
@@ -179,9 +179,9 @@ export default function ImagePost({
 
   // ── WORKFLOW ────────────────────────────────────────────────────────
   if (data.type === "workflow") {
-    const steps = (data.steps ?? []).slice(0, 5);
-    const toolNamesArr = data.toolNames ?? [];
-    const parts = data.titleParts ?? [];
+    const steps = (Array.isArray(data.steps) ? data.steps : []).slice(0, 5);
+    const toolNamesArr = Array.isArray(data.toolNames) ? data.toolNames : [];
+    const parts = Array.isArray(data.titleParts) ? data.titleParts : [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "52px 52px 38px" }}>
         <div style={{ marginBottom: 28, fontSize: 50, fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.02em", display: "flex", flexWrap: "wrap" }}>
@@ -245,7 +245,7 @@ export default function ImagePost({
   }
 
   // ── FLOW ────────────────────────────────────────────────────────────
-  const stages = data.stages ?? [];
+  const stages = Array.isArray(data.stages) ? data.stages : [];
   return wrap(
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "48px 46px 32px" }}>
       {/* Title — needs display flex so title + subtitle are valid children */}
