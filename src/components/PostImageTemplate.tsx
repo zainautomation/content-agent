@@ -364,7 +364,7 @@ export default function PostImageTemplate({
           {data.flowTitle ?? ""}
         </div>
         {data.flowSubtitle && (
-          <div style={{ color: MUTED, fontSize: s(16), marginTop: s(5) }}>{data.flowSubtitle}</div>
+          <div style={{ color: MUTED, fontSize: s(16), marginTop: s(14) }}>{data.flowSubtitle}</div>
         )}
       </div>
 
