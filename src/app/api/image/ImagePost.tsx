@@ -89,7 +89,7 @@ export default function ImagePost({
                 {col.heading}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-                {col.items.slice(0, 5).map((item, ii) => (
+                {(Array.isArray(col.items) ? col.items : []).slice(0, 5).map((item, ii) => (
                   <div key={ii} style={{ flex: 1, background: CARD_OG, borderRadius: 11, padding: "10px 14px", display: "flex", flexDirection: "column" }}>
                     <div style={{ fontSize: 20, lineHeight: 1, marginBottom: 4 }}>{item.icon}</div>
                     <div style={{ color: WHITE, fontSize: 14, fontWeight: 700, lineHeight: 1.2, marginBottom: 3 }}>{item.heading}</div>
@@ -289,7 +289,7 @@ export default function ImagePost({
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                  {stage.nodes!.map((node, ni) => (
+                  {(Array.isArray(stage.nodes) ? stage.nodes : []).map((node, ni) => (
                     <div key={ni} style={{ display: "flex", padding: "9px 20px", border: `1.5px solid ${BORDER}`, borderRadius: 28, background: CARD_DARK, color: WHITE, fontSize: 15, fontWeight: 600 }}>
                       {node}
                     </div>
@@ -308,7 +308,7 @@ export default function ImagePost({
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-                  {stage.tools!.map((tool, ti) => {
+                  {(Array.isArray(stage.tools) ? stage.tools : []).map((tool, ti) => {
                     const logo = getLogo(tool.name);
                     return (
                       <div key={ti} style={{ display: "flex", flexDirection: "column", alignItems: "center", background: CARD_DARK, border: `1.5px solid ${BORDER}`, borderRadius: 14, padding: "12px 16px", gap: 6, minWidth: 150 }}>

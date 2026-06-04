@@ -80,8 +80,29 @@ export async function POST(req: NextRequest) {
   const auth = await getAuthInfo(req);
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data, theme = "dark" }: { data: ImageTemplateData; theme: ImageTheme } =
+  const { data: rawData, theme = "dark" }: { data: ImageTemplateData; theme: ImageTheme } =
     await req.json();
+
+  // Sanitize all array fields before Satori renders them
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: ImageTemplateData = {
+    ...rawData,
+    titleParts: Array.isArray(rawData.titleParts) ? rawData.titleParts : [],
+    items: (Array.isArray(rawData.items) ? rawData.items : []).map((it: any) => ({
+      ...it, bullets: Array.isArray(it.bullets) ? it.bullets : [],
+    })),
+    columns: (Array.isArray(rawData.columns) ? rawData.columns : []).map((c: any) => ({
+      ...c, items: Array.isArray(c.items) ? c.items : [],
+    })),
+    steps:     Array.isArray(rawData.steps)     ? rawData.steps     : [],
+    toolNames: Array.isArray(rawData.toolNames) ? rawData.toolNames : [],
+    toolList:  Array.isArray(rawData.toolList)  ? rawData.toolList  : [],
+    stages: (Array.isArray(rawData.stages) ? rawData.stages : []).map((s: any) => ({
+      ...s,
+      nodes: Array.isArray(s.nodes) ? s.nodes : [],
+      tools: Array.isArray(s.tools) ? s.tools : [],
+    })),
+  };
 
   type Weight = 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
   const fontWeights = [400, 500, 600, 700, 800] as const;

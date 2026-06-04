@@ -148,7 +148,7 @@ export default function PostImageTemplate({
                 {col.heading}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: s(8), flex: 1, overflow: "hidden" }}>
-                {col.items.slice(0, 5).map((item, ii) => (
+                {(Array.isArray(col.items) ? col.items : []).slice(0, 5).map((item, ii) => (
                   <div key={ii} style={{
                     flex: 1, background: CARD_OG, borderRadius: s(11),
                     padding: `${s(10)}px ${s(14)}px`,
@@ -396,7 +396,7 @@ export default function PostImageTemplate({
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: s(10), flexWrap: "wrap" }}>
-                  {stage.nodes!.map((node, ni) => (
+                  {(Array.isArray(stage.nodes) ? stage.nodes : []).map((node, ni) => (
                     <div key={ni} style={{
                       padding: `${s(9)}px ${s(20)}px`,
                       border: `${s(1.5)}px solid ${BORDER}`,
@@ -419,7 +419,7 @@ export default function PostImageTemplate({
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: s(10), flexWrap: "wrap" }}>
-                  {stage.tools!.map((tool, ti) => {
+                  {(Array.isArray(stage.tools) ? stage.tools : []).map((tool, ti) => {
                     const logo = getLogo(tool.name);
                     return (
                       <div key={ti} style={{
