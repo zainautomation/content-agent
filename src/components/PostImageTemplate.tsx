@@ -112,8 +112,8 @@ export default function PostImageTemplate({
 
   // ── GRID ──────────────────────────────────────────────────────────────
   if (data.type === "grid") {
-    const cols = (data.columns ?? []).slice(0, 3);
-    const parts = data.titleParts ?? [];
+    const cols = (Array.isArray(data.columns) ? data.columns : []).slice(0, 3);
+    const parts = Array.isArray(data.titleParts) ? data.titleParts : [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(48)}px ${s(46)}px ${s(28)}px` }}>
         {/* Title */}
@@ -174,7 +174,7 @@ export default function PostImageTemplate({
 
   // ── LIST ──────────────────────────────────────────────────────────────
   if (data.type === "list") {
-    const items = (data.items ?? []).slice(0, 3);
+    const items = (Array.isArray(data.items) ? data.items : []).slice(0, 3);
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(52)}px ${s(58)}px ${s(40)}px` }}>
         {/* Title */}
@@ -233,7 +233,7 @@ export default function PostImageTemplate({
                   {item.heading}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: s(4) }}>
-                  {(item.bullets ?? []).map((b, bi) => (
+                  {(Array.isArray(item.bullets) ? item.bullets : []).map((b, bi) => (
                     <div key={bi} style={{ color: MUTED, fontSize: s(14), lineHeight: 1.4 }}>→ {b}</div>
                   ))}
                 </div>
@@ -262,9 +262,9 @@ export default function PostImageTemplate({
 
   // ── WORKFLOW ──────────────────────────────────────────────────────────
   if (data.type === "workflow") {
-    const steps = (data.steps ?? []).slice(0, 5);
-    const toolNamesArr = data.toolNames ?? [];
-    const parts = data.titleParts ?? [];
+    const steps = (Array.isArray(data.steps) ? data.steps : []).slice(0, 5);
+    const toolNamesArr = Array.isArray(data.toolNames) ? data.toolNames : [];
+    const parts = Array.isArray(data.titleParts) ? data.titleParts : [];
     return wrap(
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(52)}px ${s(52)}px ${s(38)}px` }}>
         {/* Title */}
@@ -355,7 +355,7 @@ export default function PostImageTemplate({
   }
 
   // ── FLOW ──────────────────────────────────────────────────────────────
-  const stages = data.stages ?? [];
+  const stages = Array.isArray(data.stages) ? data.stages : [];
   return wrap(
     <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: `${s(48)}px ${s(46)}px ${s(32)}px` }}>
       {/* Title */}
