@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X, Download, Loader2, ImageIcon, Sparkles, RefreshCw, Moon, Sun, Plus, Trash2, AlertCircle, Check, Send } from "lucide-react";
 import PostImageTemplate, { type ImageTemplateData, type ImageTheme } from "./PostImageTemplate";
 import { useSettingsStore, DEFAULT_IMAGE_PROMPT } from "@/store/settings.store";
@@ -32,6 +32,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
   const [updatePrompt,   setUpdatePrompt]  = useState("");
   const [updating,       setUpdating]      = useState(false);
   const [updateError,    setUpdateError]   = useState<string | null>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
 
   const PREVIEW_SCALE = 0.39;
 
@@ -106,22 +107,16 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     setLiPosting(true);
     setLiResult(null);
     try {
-      // Step 1 — render image server-side
-      let imgRes: Response;
+      // Step 1 — capture image client-side with html2canvas
+      let imageBlob: Blob;
       try {
-        imgRes = await fetch("/api/image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ data, theme }),
-        });
+        const canvas = await captureCanvas();
+        imageBlob = await new Promise<Blob>((resolve, reject) =>
+          canvas.toBlob((b) => b ? resolve(b) : reject(new Error("Canvas to blob failed")), "image/png", 1.0)
+        );
       } catch (e) {
-        throw new Error(`Image render failed: ${e instanceof Error ? e.message : "network error"}`);
+        throw new Error(`Image capture failed: ${e instanceof Error ? e.message : "unknown error"}`);
       }
-      if (!imgRes.ok) {
-        const err = await imgRes.json().catch(() => ({}));
-        throw new Error(`Image render failed (${imgRes.status}): ${(err as { error?: string }).error ?? ""}`);
-      }
-      const imageBlob = await imgRes.blob();
 
       // Step 2 — post to n8n via proxy
       const form = new FormData();
@@ -180,28 +175,32 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     }
   };
 
+  const captureCanvas = async (): Promise<HTMLCanvasElement> => {
+    const el = downloadRef.current;
+    if (!el) throw new Error("Template not ready");
+    const html2canvas = (await import("html2canvas")).default;
+    await document.fonts.ready;
+    return html2canvas(el, {
+      useCORS: true,
+      scale: 1,
+      backgroundColor: null,
+      logging: false,
+      width: 1080,
+      height: 1080,
+    });
+  };
+
   const handleDownload = async () => {
     if (!data) return;
     setCapturing(true);
     try {
-      const res = await fetch("/api/image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data, theme }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error ?? `Server error ${res.status}`);
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      const canvas = await captureCanvas();
       const link = document.createElement("a");
       link.download = `zutomate-${platform}-${theme}-${Date.now()}.png`;
-      link.href = url;
+      link.href = canvas.toDataURL("image/png", 1.0);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Download failed", e);
       alert(e instanceof Error ? e.message : "Download failed");
@@ -471,6 +470,21 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
           </div>
         </div>}
       </div>
+
+      {/* Hidden full-scale template for html2canvas capture */}
+      {data && (
+        <div style={{ position: "fixed", left: -9999, top: -9999, pointerEvents: "none", zIndex: -1 }}>
+          <PostImageTemplate
+            data={data}
+            templateRef={downloadRef}
+            scale={1}
+            theme={theme}
+            authorPhotoUrl={authorPhotoUrl}
+            companyLogoUrl={companyLogoUrl}
+            toolLogos={toolLogos}
+          />
+        </div>
+      )}
     </div>
   );
 }
