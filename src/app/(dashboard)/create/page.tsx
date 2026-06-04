@@ -909,24 +909,36 @@ export default function CreatePage() {
                     <p className="text-sm text-white/30">No posts generated yet</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {posts.map((post) => (
-                      <div key={post.id} className="bg-[var(--bg-surface)] border border-white/[0.07] rounded-xl p-4 flex items-center gap-3 hover:border-white/[0.15] transition-colors group cursor-pointer"
+                      <div key={post.id} className="bg-[var(--bg-surface)] border border-white/[0.07] rounded-xl p-4 hover:border-white/[0.15] transition-colors group cursor-pointer"
                         onClick={() => router.push(`/posts/${post.id}`)}>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate">{post.title}</p>
-                          <p className="text-[11px] text-white/25 mt-0.5">{formatDate(post.createdAt)}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-2">
+                        {/* Header row */}
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white/80 group-hover:text-white transition-colors truncate">{post.title}</p>
+                            <p className="text-[11px] text-white/25 mt-0.5">{formatDate(post.createdAt)}</p>
+                          </div>
+                          <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLES[post.status]}`}>{STATUS_LABELS[post.status]}</span>
+                          <button onClick={(e) => { e.stopPropagation(); deletePost(post.id); }}
+                            className="p-1.5 text-white/15 hover:text-red-400 rounded-lg hover:bg-red-500/10 transition-colors shrink-0">
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                        {/* Platform post content previews */}
+                        {post.platformPosts.length > 0 && (
+                          <div className="mt-3 space-y-2">
                             {post.platformPosts.map((pp) => (
-                              <span key={pp.platform} className="text-[10px] bg-white/[0.05] text-white/35 px-2 py-0.5 rounded-full border border-white/[0.07]">{PLATFORM_LABELS[pp.platform]}</span>
+                              <div key={pp.platform} className="bg-white/[0.03] border border-white/[0.05] rounded-lg p-3">
+                                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{PLATFORM_LABELS[pp.platform]}</span>
+                                <p className="text-xs text-white/55 mt-1.5 leading-relaxed line-clamp-3 whitespace-pre-line">{pp.content}</p>
+                                {pp.hashtags?.length > 0 && (
+                                  <p className="text-[10px] text-[#fe710c]/50 mt-1.5 truncate">{pp.hashtags.map((h) => `#${h}`).join(" ")}</p>
+                                )}
+                              </div>
                             ))}
                           </div>
-                        </div>
-                        <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 ${STATUS_STYLES[post.status]}`}>{STATUS_LABELS[post.status]}</span>
-                        <button onClick={(e) => { e.stopPropagation(); deletePost(post.id); }}
-                          className="p-1.5 text-white/15 hover:text-red-400 rounded-lg hover:bg-red-500/10 transition-colors shrink-0">
-                          <Trash2 size={12} />
-                        </button>
+                        )}
                       </div>
                     ))}
                   </div>
