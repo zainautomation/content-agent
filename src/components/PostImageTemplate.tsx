@@ -44,7 +44,7 @@ export interface ImageTemplateData {
 
 interface Props {
   data: ImageTemplateData;
-  templateRef: React.RefObject<HTMLDivElement>;
+  templateRef: React.RefObject<HTMLDivElement | null>;
   scale?: number;
   theme?: ImageTheme;
   authorPhotoUrl?: string | null;
