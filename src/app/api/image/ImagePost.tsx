@@ -28,7 +28,7 @@ export default function ImagePost({
 
   const LogoImg = () =>
     logoUri ? (
-      <img src={logoUri} style={{ height: 180, width: "auto" }} />
+      <img src={logoUri} style={{ height: 220, width: "auto" }} />
     ) : (
       <span style={{ color: WHITE, fontSize: 48, fontWeight: 700, letterSpacing: "-0.02em" }}>Zutomate</span>
     );
@@ -38,7 +38,7 @@ export default function ImagePost({
       display: "flex", alignItems: "center", justifyContent: "space-between",
       borderTop: `1px solid ${DIVIDER}`, paddingTop: 14, marginTop: 16,
     }}>
-      <span style={{ color: SUBTLE, fontSize: 12 }}>
+      <span style={{ color: WHITE, fontSize: 18, fontWeight: 400 }}>
         {tagline || data.tagline || "We Build Predictable Growth Systems for B2B Businesses"}
       </span>
       <LogoImg />

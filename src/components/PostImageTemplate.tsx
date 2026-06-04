@@ -78,7 +78,7 @@ export default function PostImageTemplate({
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(180), width: "auto" }}
+      style={{ height: s(220), width: "auto" }}
     />
   );
 
@@ -88,7 +88,7 @@ export default function PostImageTemplate({
       borderTop: `${s(1)}px solid ${DIVIDER}`,
       paddingTop: s(14), marginTop: s(16), flexShrink: 0,
     }}>
-      <span style={{ color: SUBTLE, fontSize: s(12), fontWeight: 400 }}>
+      <span style={{ color: WHITE, fontSize: s(18), fontWeight: 400 }}>
         {tagline || data.tagline || "We Build Predictable Growth Systems for B2B Businesses"}
       </span>
       <LogoImg />
