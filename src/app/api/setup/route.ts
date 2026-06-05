@@ -3,6 +3,10 @@ import type { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+const DEFAULT_BRAND_SETTINGS = JSON.stringify({
+  brandColors: { background: "#091428", accent: "#fe710c", highlight: "#c44b0e", text: "#ffffff" },
+});
+
 export async function GET() {
   try {
     const count = await prisma.user.count();
@@ -29,7 +33,7 @@ export async function POST(req: NextRequest) {
 
   const passwordHash = await bcrypt.hash(password, 12);
   const workspace = await prisma.workspace.create({
-    data: { name: `${name.trim()}'s Workspace` },
+    data: { name: `${name.trim()}'s Workspace`, brandSettings: DEFAULT_BRAND_SETTINGS },
   });
   await prisma.user.create({
     data: {

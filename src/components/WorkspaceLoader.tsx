@@ -1,18 +1,23 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { usePostsStore } from "@/store/posts.store";
 import { useSettingsStore } from "@/store/settings.store";
 import { useScheduleStore } from "@/store/schedule.store";
 
 export default function WorkspaceLoader() {
-  const hydrated = useRef(false);
+  const { data: session } = useSession();
+  const userId = (session?.user as { id?: string } | undefined)?.id ?? null;
+  const lastUserId = useRef<string | null>(null);
+
   const hydratePosts = usePostsStore((s) => s.hydrate);
   const hydrateSettings = useSettingsStore((s) => s.hydrate);
   const hydrateSchedule = useScheduleStore((s) => s.hydrate);
 
   useEffect(() => {
-    if (hydrated.current) return;
-    hydrated.current = true;
+    if (!userId) return;
+    if (userId === lastUserId.current) return;
+    lastUserId.current = userId;
 
     Promise.all([
       fetch("/api/posts").then((r) => r.json()),
@@ -25,7 +30,7 @@ export default function WorkspaceLoader() {
         if (settingsData.scheduled) hydrateSchedule(settingsData.scheduled);
       })
       .catch(console.error);
-  }, [hydratePosts, hydrateSettings, hydrateSchedule]);
+  }, [userId, hydratePosts, hydrateSettings, hydrateSchedule]);
 
   return null;
 }

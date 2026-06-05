@@ -4,6 +4,10 @@ import bcrypt from "bcryptjs";
 import { getAuthInfo } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
+const DEFAULT_BRAND_SETTINGS = JSON.stringify({
+  brandColors: { background: "#091428", accent: "#fe710c", highlight: "#c44b0e", text: "#ffffff" },
+});
+
 type Params = { params: Promise<{ slug?: string[] }> };
 
 async function requireAdmin(req: NextRequest) {
@@ -175,7 +179,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   if (existing) return NextResponse.json({ error: "Email already registered" }, { status: 400 });
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const workspace = await prisma.workspace.create({ data: { name: `${name.trim()}'s Workspace` } });
+  const workspace = await prisma.workspace.create({ data: { name: `${name.trim()}'s Workspace`, brandSettings: DEFAULT_BRAND_SETTINGS } });
   const user = await prisma.user.create({
     data: { name: name.trim(), email: email.toLowerCase().trim(), passwordHash, role: "USER", workspaceId: workspace.id },
   });
