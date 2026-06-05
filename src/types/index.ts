@@ -83,6 +83,7 @@ export interface BrandSettings {
     background: string;
     accent: string;
     highlight: string;
+    text: string;
   };
   platformOverrides: Partial<Record<Platform, string>>;
   prompts: {

@@ -9,7 +9,7 @@ type Params = { params: Promise<{ slug?: string[] }> };
 const DEFAULT_BRAND: BrandSettings = {
   systemPrompt: "",
   brandVoice: "professional",
-  brandColors: { background: "#091428", accent: "#fe710c", highlight: "#c44b0e" },
+  brandColors: { background: "#091428", accent: "#fe710c", highlight: "#c44b0e", text: "#ffffff" },
   platformOverrides: {},
   prompts: {
     linkedinPost: "", commentsReplies: "", coldDm: "", coldEmail: "",

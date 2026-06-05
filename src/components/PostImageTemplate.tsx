@@ -52,12 +52,12 @@ interface Props {
   toolLogos?: Record<string, string>;
   accentColor?: string;
   bgColor?: string;
+  textColor?: string;
 }
 
 const BG_DEFAULT = "#091428";
 const CARD_OG    = "#c44b0e";
 const CARD_DARK  = "#0d1e3b";
-const WHITE      = "#ffffff";
 const MUTED      = "rgba(255,255,255,0.65)";
 const SUBTLE     = "rgba(255,255,255,0.35)";
 const DIVIDER    = "rgba(255,255,255,0.10)";
@@ -70,9 +70,11 @@ export default function PostImageTemplate({
   toolLogos = {},
   accentColor,
   bgColor,
+  textColor,
 }: Props) {
   const s = (n: number) => n * scale;
   const BG     = bgColor || BG_DEFAULT;
+  const WHITE  = textColor || "#ffffff";
   const ORANGE = accentColor || "#fe710c";
   const BORDER = `${ORANGE}cc`;
   const ORANGE_BG = `${ORANGE}26`;   // ~15% opacity fill

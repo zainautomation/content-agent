@@ -41,6 +41,7 @@ Proof points to use when relevant:
     background: "#091428",
     accent: "#fe710c",
     highlight: "#c44b0e",
+    text: "#ffffff",
   },
   platformOverrides: {
     linkedin: "Use a professional, thought-leadership tone. Include industry insights.",

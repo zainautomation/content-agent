@@ -205,7 +205,7 @@ export default function CreatePage() {
   const [activeTab, setActiveTab] = useState<RightTab>("create");
 
   /* Brand form */
-  const [brandForm, setBrandForm] = useState({ systemPrompt: brand.systemPrompt, brandVoice: brand.brandVoice, background: brand.brandColors.background, accent: brand.brandColors.accent, highlight: brand.brandColors.highlight });
+  const [brandForm, setBrandForm] = useState({ systemPrompt: brand.systemPrompt, brandVoice: brand.brandVoice, background: brand.brandColors.background, accent: brand.brandColors.accent, highlight: brand.brandColors.highlight, text: brand.brandColors.text });
   const [brandSaved, setBrandSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [brandError, setBrandError] = useState("");
 
@@ -265,6 +265,7 @@ export default function CreatePage() {
       background: brand.brandColors.background || prev.background,
       accent: brand.brandColors.accent || prev.accent,
       highlight: brand.brandColors.highlight || prev.highlight,
+      text: brand.brandColors.text || prev.text,
     }));
     setPrompts((prev) => {
       const next = { ...prev };
@@ -392,7 +393,7 @@ export default function CreatePage() {
   const saveBrand = async () => {
     setBrandSaved("saving"); setBrandError("");
     try {
-      await updateBrand({ systemPrompt: brandForm.systemPrompt, brandVoice: brandForm.brandVoice, brandColors: { background: brandForm.background, accent: brandForm.accent, highlight: brandForm.highlight } });
+      await updateBrand({ systemPrompt: brandForm.systemPrompt, brandVoice: brandForm.brandVoice, brandColors: { background: brandForm.background, accent: brandForm.accent, highlight: brandForm.highlight, text: brandForm.text } });
       setBrandSaved("saved"); setTimeout(() => setBrandSaved("idle"), 2000);
     } catch (err) {
       setBrandError(err instanceof Error ? err.message : "Save failed");
@@ -802,7 +803,7 @@ export default function CreatePage() {
                 <Card className="p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-3">Brand Colors</p>
                   <div className="flex gap-6">
-                    {[{ key: "background" as const, label: "Background" }, { key: "accent" as const, label: "Accent" }, { key: "highlight" as const, label: "Highlight" }].map(({ key, label }) => (
+                    {[{ key: "background" as const, label: "Background" }, { key: "accent" as const, label: "Accent" }, { key: "highlight" as const, label: "Highlight" }, { key: "text" as const, label: "Text" }].map(({ key, label }) => (
                       <div key={key} className="flex flex-col items-center gap-2">
                         <input type="color" value={brandForm[key]} onChange={(e) => setBrandForm({ ...brandForm, [key]: e.target.value })} className="w-12 h-12 rounded-lg cursor-pointer border border-white/10" />
                         <span className="text-[10px] text-white/30">{label}</span>

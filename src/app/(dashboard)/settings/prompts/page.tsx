@@ -82,6 +82,7 @@ export default function PromptsSettingsPage() {
     backgroundColor: brand.brandColors.background,
     accentColor: brand.brandColors.accent,
     highlightColor: brand.brandColors.highlight,
+    textColor: brand.brandColors.text,
     platformOverrides: { ...brand.platformOverrides } as Record<Platform, string>,
   });
 
@@ -150,6 +151,7 @@ export default function PromptsSettingsPage() {
       backgroundColor: brand.brandColors.background || prev.backgroundColor,
       accentColor: brand.brandColors.accent || prev.accentColor,
       highlightColor: brand.brandColors.highlight || prev.highlightColor,
+      textColor: brand.brandColors.text || prev.textColor,
       platformOverrides: Object.keys(brand.platformOverrides ?? {}).length
         ? { ...prev.platformOverrides, ...brand.platformOverrides } as Record<Platform, string>
         : prev.platformOverrides,
@@ -185,6 +187,7 @@ export default function PromptsSettingsPage() {
         background: masterForm.backgroundColor,
         accent: masterForm.accentColor,
         highlight: masterForm.highlightColor,
+        text: masterForm.textColor,
       },
       platformOverrides: masterForm.platformOverrides,
     })
@@ -202,7 +205,7 @@ export default function PromptsSettingsPage() {
     await updateBrand({
       systemPrompt: masterForm.systemPrompt,
       brandVoice: masterForm.brandVoice,
-      brandColors: { background: masterForm.backgroundColor, accent: masterForm.accentColor, highlight: masterForm.highlightColor },
+      brandColors: { background: masterForm.backgroundColor, accent: masterForm.accentColor, highlight: masterForm.highlightColor, text: masterForm.textColor },
       platformOverrides: masterForm.platformOverrides,
     });
     for (const key of Object.keys(prompts) as PromptKey[]) await updatePrompt(key, prompts[key]);
@@ -297,6 +300,7 @@ export default function PromptsSettingsPage() {
                 { key: "backgroundColor" as const, label: "Background" },
                 { key: "accentColor" as const, label: "Accent" },
                 { key: "highlightColor" as const, label: "Highlight" },
+                { key: "textColor" as const, label: "Text" },
               ]).map(({ key, label }) => (
                 <div key={key} className="flex flex-col items-center gap-2">
                   <input type="color" value={masterForm[key]} onChange={(e) => setMasterForm({ ...masterForm, [key]: e.target.value })}
