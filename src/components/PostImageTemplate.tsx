@@ -78,7 +78,7 @@ export default function PostImageTemplate({
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(220), width: "auto" }}
+      style={{ height: s(150), width: "auto" }}
     />
   );
 
@@ -214,7 +214,7 @@ export default function PostImageTemplate({
         )}
 
         {/* Numbered items */}
-        <div style={{ display: "flex", flexDirection: "column", gap: s(12), flex: 1, overflow: "hidden" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: s(12), flex: 1, overflow: "hidden", minHeight: 0 }}>
           {items.map((item, i) => (
             <div key={i} style={{ display: "flex", flexDirection: "row", gap: s(12), alignItems: "flex-start", flex: 1 }}>
               <div style={{
@@ -369,7 +369,7 @@ export default function PostImageTemplate({
       </div>
 
       {/* Stages */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: s(8), overflow: "hidden" }}>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: s(8), overflow: "hidden", minHeight: 0 }}>
         {stages.map((stage, i) => (
           <React.Fragment key={i}>
             {i > 0 && (

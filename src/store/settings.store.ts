@@ -232,7 +232,7 @@ Return JSON for the chosen type. No explanation, no markdown fences.
     { "heading": "...", "bullets": ["...", "...", "...", "..."] },
     { "heading": "...", "bullets": ["...", "...", "...", "..."] }
   ],
-  "statsBar": "Key stat | Key stat | Key stat\nClosing question or CTA",
+  "statsBar": "Stat one | Stat two | Stat three — numbers/results only, no questions or CTAs",
   "tagline": "We Build Predictable Growth Systems for B2B Businesses",
   "authorName": "",
   "authorTitle": ""
