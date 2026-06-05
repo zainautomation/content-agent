@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { usePostsStore } from "@/store/posts.store";
@@ -9,7 +9,7 @@ import {
   Loader2, Zap, ArrowRight, Link2, FileText, ImageIcon,
   History, CalendarDays, PlugZap, Sparkles, Palette,
   Clock, Trash2, Check, Save, ZapOff, X, Moon, Sun, LogOut,
-  LayoutTemplate,
+  LayoutTemplate, Upload, User, Building2, Plus,
 } from "lucide-react";
 import type { Platform, BrandSettings, PostStatus } from "@/types";
 import dynamic from "next/dynamic";
@@ -190,6 +190,17 @@ export default function CreatePage() {
   const [carouselModal, setCarouselModal] = useState<{ content: string; platform: Platform } | null>(null);
   const [thumbnails,    setThumbnails]    = useState<Record<string, string>>({});
 
+  /* Brand assets */
+  const [assetPhotoPath, setAssetPhotoPath] = useState<string | null>(null);
+  const [assetLogoPath,  setAssetLogoPath]  = useState<string | null>(null);
+  const [assetTools,     setAssetTools]     = useState<{ name: string; path: string }[]>([]);
+  const [assetToolName,  setAssetToolName]  = useState("");
+  const [assetUploading, setAssetUploading] = useState<string | null>(null);
+  const [assetFlash,     setAssetFlash]     = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef  = useRef<HTMLInputElement>(null);
+  const toolInputRef  = useRef<HTMLInputElement>(null);
+
   /* Tab */
   const [activeTab, setActiveTab] = useState<RightTab>("create");
 
@@ -202,6 +213,38 @@ export default function CreatePage() {
   const [prompts, setPrompts] = useState({ ...brand.prompts });
   const [promptSaved, setPromptSaved] = useState<string | null>(null);
   const [promptError, setPromptError] = useState("");
+
+  // Brand asset helpers
+  const loadBrandAssets = useCallback(async () => {
+    const res = await fetch("/api/image");
+    if (!res.ok) return;
+    const json = await res.json();
+    setAssetPhotoPath(json.authorPhoto ? `${json.authorPhoto}?t=${Date.now()}` : null);
+    setAssetLogoPath(json.companyLogo  ? `${json.companyLogo}?t=${Date.now()}`  : null);
+    setAssetTools(json.tools ?? []);
+  }, []);
+  const uploadBrandAsset = async (file: File, type: string, name?: string) => {
+    setAssetUploading(type);
+    const form = new FormData();
+    form.append("type", type); form.append("file", file);
+    if (name) form.append("name", name);
+    await fetch("/api/assets", { method: "POST", body: form });
+    setAssetUploading(null);
+    setAssetFlash(type);
+    setTimeout(() => setAssetFlash(null), 2000);
+    await loadBrandAssets();
+  };
+  const deleteBrandAsset = async (type: string, name?: string) => {
+    const p = new URLSearchParams({ type });
+    if (name) p.set("name", name);
+    await fetch(`/api/assets?${p}`, { method: "DELETE" });
+    if (type === "author-photo") setAssetPhotoPath(null);
+    if (type === "company-logo") setAssetLogoPath(null);
+    await loadBrandAssets();
+  };
+  useEffect(() => {
+    if (activeTab === "brand") loadBrandAssets();
+  }, [activeTab, loadBrandAssets]);
 
   // Load image thumbnails from localStorage when history tab opens
   useEffect(() => {
@@ -765,6 +808,93 @@ export default function CreatePage() {
                         <span className="text-[10px] text-white/30">{label}</span>
                       </div>
                     ))}
+                  </div>
+                </Card>
+
+                {/* ── Brand Assets ── */}
+                <Card className="p-4 space-y-5">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25">Brand Assets</p>
+
+                  {/* Author Photo */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden border border-white/[0.10] bg-white/[0.04] shrink-0 cursor-pointer group"
+                      onClick={() => photoInputRef.current?.click()}>
+                      {assetPhotoPath
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={assetPhotoPath} alt="Author" className="w-full h-full object-cover" />
+                        : <div className="w-full h-full flex items-center justify-center"><User size={18} className="text-white/20" /></div>}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Upload size={11} className="text-white" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white/60 mb-1.5">Author Photo</p>
+                      <div className="flex gap-2">
+                        <button onClick={() => photoInputRef.current?.click()} disabled={assetUploading === "author-photo"}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.10] text-[10px] text-white/50 hover:text-white transition-all disabled:opacity-40">
+                          {assetUploading === "author-photo" ? <span className="animate-pulse">Uploading…</span> : assetFlash === "author-photo" ? <><Check size={10} className="text-green-400" /><span className="text-green-400">Saved</span></> : <><Upload size={10} />Upload</>}
+                        </button>
+                        {assetPhotoPath && <button onClick={() => deleteBrandAsset("author-photo")} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[10px] text-white/25 hover:text-red-400 transition-all"><Trash2 size={10} />Remove</button>}
+                      </div>
+                    </div>
+                    <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { setAssetPhotoPath(URL.createObjectURL(f)); uploadBrandAsset(f, "author-photo"); } e.target.value = ""; }} />
+                  </div>
+
+                  {/* Company Logo */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-white/[0.10] bg-white/[0.04] shrink-0 cursor-pointer group flex items-center justify-center"
+                      onClick={() => logoInputRef.current?.click()}>
+                      {assetLogoPath
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={assetLogoPath} alt="Logo" className="w-full h-full object-contain p-1.5" />
+                        : <Building2 size={18} className="text-white/20" />}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Upload size={11} className="text-white" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white/60 mb-1.5">Company Logo</p>
+                      <div className="flex gap-2">
+                        <button onClick={() => logoInputRef.current?.click()} disabled={assetUploading === "company-logo"}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.10] text-[10px] text-white/50 hover:text-white transition-all disabled:opacity-40">
+                          {assetUploading === "company-logo" ? <span className="animate-pulse">Uploading…</span> : assetFlash === "company-logo" ? <><Check size={10} className="text-green-400" /><span className="text-green-400">Saved</span></> : <><Upload size={10} />Upload</>}
+                        </button>
+                        {assetLogoPath && <button onClick={() => deleteBrandAsset("company-logo")} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-[10px] text-white/25 hover:text-red-400 transition-all"><Trash2 size={10} />Remove</button>}
+                      </div>
+                    </div>
+                    <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { setAssetLogoPath(URL.createObjectURL(f)); uploadBrandAsset(f, "company-logo"); } e.target.value = ""; }} />
+                  </div>
+
+                  {/* Tool Logos */}
+                  <div>
+                    <p className="text-xs text-white/60 mb-2">Tool Logos</p>
+                    {assetTools.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2 mb-3">
+                        {assetTools.map((tool) => (
+                          <div key={tool.path} className="group flex items-center gap-2 p-2 rounded-lg bg-white/[0.04] border border-white/[0.07] hover:border-white/[0.12] transition-all">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={tool.path} alt={tool.name} className="w-6 h-6 rounded object-contain shrink-0" />
+                            <p className="text-[10px] text-white/50 truncate flex-1 capitalize">{tool.name}</p>
+                            <button onClick={() => deleteBrandAsset("tool-logo", tool.path.split("/").pop()?.split(".")[0])}
+                              className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all shrink-0"><Trash2 size={10} /></button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <input type="text" value={assetToolName} onChange={(e) => setAssetToolName(e.target.value)}
+                        placeholder="Tool name e.g. Clay"
+                        className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-1.5 text-xs text-white/70 placeholder:text-white/20 focus:outline-none focus:border-[#fe710c]/30" />
+                      <button onClick={() => { if (assetToolName.trim()) toolInputRef.current?.click(); }}
+                        disabled={!assetToolName.trim() || assetUploading === "tool-logo"}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.10] text-[10px] text-white/50 hover:text-white transition-all disabled:opacity-40">
+                        {assetUploading === "tool-logo" ? <span className="animate-pulse">Uploading…</span> : assetFlash === "tool-logo" ? <><Check size={10} className="text-green-400" /><span className="text-green-400">Saved</span></> : <><Plus size={10} />Add Logo</>}
+                      </button>
+                    </div>
+                    <input ref={toolInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) { uploadBrandAsset(f, "tool-logo", assetToolName.trim()); setAssetToolName(""); } e.target.value = ""; }} />
                   </div>
                 </Card>
 

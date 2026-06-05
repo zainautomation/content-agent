@@ -358,6 +358,7 @@ export default function PostImageModal({ content, platform, pillar, postId, onCl
                     authorPhotoUrl={authorPhotoUrl}
                     companyLogoUrl={companyLogoUrl}
                     toolLogos={toolLogos}
+                    accentColor={brand.brandColors?.primary}
                   />
                   {updating && (
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
@@ -492,6 +493,7 @@ export default function PostImageModal({ content, platform, pillar, postId, onCl
             authorPhotoUrl={authorPhotoUrl}
             companyLogoUrl={companyLogoUrl}
             toolLogos={toolLogos}
+            accentColor={brand.brandColors?.primary}
           />
         </div>
       )}

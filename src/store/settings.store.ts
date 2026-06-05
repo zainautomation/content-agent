@@ -38,9 +38,9 @@ Proof points to use when relevant:
   authorName: "",
   authorTitle: "",
   brandColors: {
-    primary: "#6366f1",
-    secondary: "#8b5cf6",
-    accent: "#ec4899",
+    primary: "#fe710c",
+    secondary: "#c44b0e",
+    accent: "#ff8a2e",
   },
   platformOverrides: {
     linkedin: "Use a professional, thought-leadership tone. Include industry insights.",

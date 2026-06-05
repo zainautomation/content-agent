@@ -50,13 +50,12 @@ interface Props {
   authorPhotoUrl?: string | null;
   companyLogoUrl?: string | null;
   toolLogos?: Record<string, string>;
+  accentColor?: string;
 }
 
 const BG         = "#091428";
-const ORANGE     = "#fe710c";
 const CARD_OG    = "#c44b0e";
 const CARD_DARK  = "#0d1e3b";
-const BORDER     = "rgba(254,113,12,0.80)";
 const WHITE      = "#ffffff";
 const MUTED      = "rgba(255,255,255,0.65)";
 const SUBTLE     = "rgba(255,255,255,0.35)";
@@ -68,8 +67,11 @@ export default function PostImageTemplate({
   scale = 1,
   companyLogoUrl,
   toolLogos = {},
+  accentColor,
 }: Props) {
   const s = (n: number) => n * scale;
+  const ORANGE = accentColor || "#fe710c";
+  const BORDER = `${ORANGE}cc`;
   const getLogo = (name: string) =>
     toolLogos[name] ?? toolLogos[name.toLowerCase()] ?? null;
 
