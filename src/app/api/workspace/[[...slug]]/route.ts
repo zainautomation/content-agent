@@ -39,7 +39,16 @@ export async function GET(req: NextRequest, { params }: Params) {
     }
 
     const stored = JSON.parse(workspace.brandSettings || "{}");
-    const brand = { ...DEFAULT_BRAND, ...stored };
+    // Migrate old brandColors shape {primary, secondary, accent} → {background, accent, highlight, text}
+    if (stored.brandColors && "primary" in stored.brandColors) {
+      stored.brandColors = {
+        background: DEFAULT_BRAND.brandColors.background,
+        accent:     stored.brandColors.primary   || DEFAULT_BRAND.brandColors.accent,
+        highlight:  stored.brandColors.secondary || DEFAULT_BRAND.brandColors.highlight,
+        text:       "#ffffff",
+      };
+    }
+    const brand = { ...DEFAULT_BRAND, ...stored, brandColors: { ...DEFAULT_BRAND.brandColors, ...(stored.brandColors ?? {}) } };
     const permissions = JSON.parse((workspace as unknown as { permissions?: string }).permissions || "{}");
 
     if (resource === "settings") {
