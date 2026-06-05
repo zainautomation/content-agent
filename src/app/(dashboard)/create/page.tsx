@@ -188,6 +188,7 @@ export default function CreatePage() {
   const [savedPostId, setSavedPostId] = useState<string | null>(null);
   const [imageModal,    setImageModal]    = useState<{ content: string; platform: Platform } | null>(null);
   const [carouselModal, setCarouselModal] = useState<{ content: string; platform: Platform } | null>(null);
+  const [thumbnails,    setThumbnails]    = useState<Record<string, string>>({});
 
   /* Tab */
   const [activeTab, setActiveTab] = useState<RightTab>("create");
@@ -201,6 +202,17 @@ export default function CreatePage() {
   const [prompts, setPrompts] = useState({ ...brand.prompts });
   const [promptSaved, setPromptSaved] = useState<string | null>(null);
   const [promptError, setPromptError] = useState("");
+
+  // Load image thumbnails from localStorage when history tab opens
+  useEffect(() => {
+    if (activeTab !== "history") return;
+    const thumbs: Record<string, string> = {};
+    posts.forEach((post) => {
+      const t = localStorage.getItem(`post-image-${post.id}`);
+      if (t) thumbs[post.id] = t;
+    });
+    setThumbnails(thumbs);
+  }, [activeTab, posts]);
 
   // Sync forms when store hydrates from server — only overwrite with non-empty server values
   useEffect(() => {
@@ -925,20 +937,29 @@ export default function CreatePage() {
                             <Trash2 size={12} />
                           </button>
                         </div>
-                        {/* Platform post content previews */}
-                        {post.platformPosts.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            {post.platformPosts.map((pp) => (
-                              <div key={pp.platform} className="bg-white/[0.03] border border-white/[0.05] rounded-lg p-3">
-                                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{PLATFORM_LABELS[pp.platform]}</span>
-                                <p className="text-xs text-white/55 mt-1.5 leading-relaxed line-clamp-3 whitespace-pre-line">{pp.content}</p>
-                                {pp.hashtags?.length > 0 && (
-                                  <p className="text-[10px] text-[#fe710c]/50 mt-1.5 truncate">{pp.hashtags.map((h) => `#${h}`).join(" ")}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {/* Body: content previews + optional thumbnail */}
+                        <div className="mt-3 flex gap-3 items-start">
+                          {/* Platform content */}
+                          {post.platformPosts.length > 0 && (
+                            <div className="flex-1 space-y-2 min-w-0">
+                              {post.platformPosts.map((pp) => (
+                                <div key={pp.platform} className="bg-white/[0.03] border border-white/[0.05] rounded-lg p-3">
+                                  <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{PLATFORM_LABELS[pp.platform]}</span>
+                                  <p className="text-xs text-white/55 mt-1.5 leading-relaxed line-clamp-3 whitespace-pre-line">{pp.content}</p>
+                                  {pp.hashtags?.length > 0 && (
+                                    <p className="text-[10px] text-[#fe710c]/50 mt-1.5 truncate">{pp.hashtags.map((h) => `#${h}`).join(" ")}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* Image thumbnail */}
+                          {thumbnails[post.id] && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={thumbnails[post.id]} alt="Post image"
+                              className="w-[88px] h-[88px] rounded-lg object-cover shrink-0 border border-white/[0.08]" />
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -951,7 +972,7 @@ export default function CreatePage() {
       </div>
 
       {imageModal && (
-        <PostImageModal content={imageModal.content} platform={imageModal.platform} pillar={pillar} onClose={() => setImageModal(null)} />
+        <PostImageModal content={imageModal.content} platform={imageModal.platform} pillar={pillar} postId={savedPostId ?? undefined} onClose={() => setImageModal(null)} />
       )}
       {carouselModal && (
         <CarouselModal content={carouselModal.content} platform={carouselModal.platform} pillar={pillar} onClose={() => setCarouselModal(null)} />

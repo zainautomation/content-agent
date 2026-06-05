@@ -353,6 +353,7 @@ export default function PostDetailPage() {
           content={imageModal.content}
           platform={imageModal.platform}
           pillar="educate"
+          postId={id}
           onClose={() => setImageModal(null)}
         />
       )}

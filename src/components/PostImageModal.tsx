@@ -10,10 +10,11 @@ interface Props {
   content: string;
   platform: string;
   pillar: Pillar;
+  postId?: string;
   onClose: () => void;
 }
 
-export default function PostImageModal({ content, platform, pillar, onClose }: Props) {
+export default function PostImageModal({ content, platform, pillar, postId, onClose }: Props) {
   const brand       = useSettingsStore((s) => s.brand);
   const imagePrompt = brand.prompts?.imagePost || DEFAULT_IMAGE_PROMPT;
 
@@ -180,7 +181,7 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
     if (!el) throw new Error("Template not ready");
     const html2canvas = (await import("html2canvas")).default;
     await document.fonts.ready;
-    return html2canvas(el, {
+    const canvas = await html2canvas(el, {
       useCORS: true,
       scale: 1,
       backgroundColor: null,
@@ -188,6 +189,15 @@ export default function PostImageModal({ content, platform, pillar, onClose }: P
       width: 1080,
       height: 1080,
     });
+    if (postId) {
+      try {
+        const thumb = document.createElement("canvas");
+        thumb.width = thumb.height = 162;
+        thumb.getContext("2d")!.drawImage(canvas, 0, 0, 1080, 1080, 0, 0, 162, 162);
+        localStorage.setItem(`post-image-${postId}`, thumb.toDataURL("image/jpeg", 0.6));
+      } catch { /* silent */ }
+    }
+    return canvas;
   };
 
   const handleDownload = async () => {

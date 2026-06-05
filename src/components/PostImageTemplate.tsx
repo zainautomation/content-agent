@@ -364,7 +364,7 @@ export default function PostImageTemplate({
           {data.flowTitle ?? ""}
         </div>
         {data.flowSubtitle && (
-          <div style={{ color: MUTED, fontSize: s(16), marginTop: s(14) }}>{data.flowSubtitle}</div>
+          <div style={{ color: MUTED, fontSize: s(16), marginTop: s(22) }}>{data.flowSubtitle}</div>
         )}
       </div>
 
@@ -382,17 +382,21 @@ export default function PostImageTemplate({
                 <div style={{ color: stage.orange ? ORANGE : WHITE, fontSize: s(24), fontWeight: 400 }}>
                   {stage.label}
                 </div>
-                {stage.sublabel && <div style={{ color: MUTED, fontSize: s(13), marginTop: s(2) }}>{stage.sublabel}</div>}
+                {stage.sublabel && <div style={{ color: MUTED, fontSize: s(13), marginTop: s(10) }}>{stage.sublabel}</div>}
               </div>
             )}
 
             {/* Nodes row */}
             {!!stage.nodes?.length && (
-              <div style={{ display: "flex", flexDirection: "column", gap: s(5), flexShrink: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: s(10), flexShrink: 0 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(22), fontWeight: 400 }}>
-                    {stage.label}
-                    {stage.sublabel && <div style={{ color: MUTED, fontSize: s(13), fontWeight: 400 }}>{stage.sublabel}</div>}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: s(8) }}>
+                    <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(22), fontWeight: 400 }}>
+                      {stage.label}
+                    </div>
+                    {stage.sublabel && (
+                      <div style={{ color: MUTED, fontSize: s(13), fontWeight: 400, textAlign: "center" }}>{stage.sublabel}</div>
+                    )}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: s(10), flexWrap: "wrap" }}>
@@ -402,6 +406,7 @@ export default function PostImageTemplate({
                       border: `${s(1.5)}px solid ${BORDER}`,
                       borderRadius: s(28), background: CARD_DARK,
                       color: WHITE, fontSize: s(15), fontWeight: 600,
+                      textAlign: "center",
                     }}>
                       {node}
                     </div>
@@ -412,10 +417,15 @@ export default function PostImageTemplate({
 
             {/* Tool cards */}
             {!!stage.tools?.length && (
-              <div style={{ display: "flex", flexDirection: "column", gap: s(6), flexShrink: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: s(10), flexShrink: 0 }}>
                 {stage.label && (
-                  <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(20), fontWeight: 400 }}>
-                    {stage.label}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: s(8) }}>
+                    <div style={{ textAlign: "center", color: stage.orange ? ORANGE : WHITE, fontSize: s(20), fontWeight: 400 }}>
+                      {stage.label}
+                    </div>
+                    {stage.sublabel && (
+                      <div style={{ color: MUTED, fontSize: s(13), fontWeight: 400, textAlign: "center" }}>{stage.sublabel}</div>
+                    )}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "center", gap: s(10), flexWrap: "wrap" }}>
