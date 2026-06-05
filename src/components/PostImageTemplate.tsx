@@ -95,9 +95,9 @@ export default function PostImageTemplate({
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
       borderTop: `${s(1)}px solid ${DIVIDER}`,
-      paddingTop: s(14), marginTop: s(16), flexShrink: 0,
+      paddingTop: s(14), marginTop: s(16), flexShrink: 0, gap: s(16),
     }}>
-      <span style={{ color: WHITE, fontSize: s(18), fontWeight: 400 }}>
+      <span style={{ color: WHITE, fontSize: s(18), fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
         {tagline || data.tagline || "We Build Predictable Growth Systems for B2B Businesses"}
       </span>
       <LogoImg />
