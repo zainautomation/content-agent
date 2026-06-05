@@ -79,9 +79,9 @@ export default function PromptsSettingsPage() {
   const [masterForm, setMasterForm] = useState({
     systemPrompt: brand.systemPrompt,
     brandVoice: brand.brandVoice,
-    primaryColor: brand.brandColors.primary,
-    secondaryColor: brand.brandColors.secondary,
+    backgroundColor: brand.brandColors.background,
     accentColor: brand.brandColors.accent,
+    highlightColor: brand.brandColors.highlight,
     platformOverrides: { ...brand.platformOverrides } as Record<Platform, string>,
   });
 
@@ -147,9 +147,9 @@ export default function PromptsSettingsPage() {
     setMasterForm((prev) => ({
       systemPrompt: brand.systemPrompt || prev.systemPrompt,
       brandVoice: brand.brandVoice || prev.brandVoice,
-      primaryColor: brand.brandColors.primary || prev.primaryColor,
-      secondaryColor: brand.brandColors.secondary || prev.secondaryColor,
+      backgroundColor: brand.brandColors.background || prev.backgroundColor,
       accentColor: brand.brandColors.accent || prev.accentColor,
+      highlightColor: brand.brandColors.highlight || prev.highlightColor,
       platformOverrides: Object.keys(brand.platformOverrides ?? {}).length
         ? { ...prev.platformOverrides, ...brand.platformOverrides } as Record<Platform, string>
         : prev.platformOverrides,
@@ -182,9 +182,9 @@ export default function PromptsSettingsPage() {
       systemPrompt: masterForm.systemPrompt,
       brandVoice: masterForm.brandVoice,
       brandColors: {
-        primary: masterForm.primaryColor,
-        secondary: masterForm.secondaryColor,
+        background: masterForm.backgroundColor,
         accent: masterForm.accentColor,
+        highlight: masterForm.highlightColor,
       },
       platformOverrides: masterForm.platformOverrides,
     })
@@ -202,7 +202,7 @@ export default function PromptsSettingsPage() {
     await updateBrand({
       systemPrompt: masterForm.systemPrompt,
       brandVoice: masterForm.brandVoice,
-      brandColors: { primary: masterForm.primaryColor, secondary: masterForm.secondaryColor, accent: masterForm.accentColor },
+      brandColors: { background: masterForm.backgroundColor, accent: masterForm.accentColor, highlight: masterForm.highlightColor },
       platformOverrides: masterForm.platformOverrides,
     });
     for (const key of Object.keys(prompts) as PromptKey[]) await updatePrompt(key, prompts[key]);
@@ -294,9 +294,9 @@ export default function PromptsSettingsPage() {
             <label className="block text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-3">Brand Colors</label>
             <div className="flex gap-6">
               {([
-                { key: "primaryColor" as const, label: "Primary" },
-                { key: "secondaryColor" as const, label: "Secondary" },
+                { key: "backgroundColor" as const, label: "Background" },
                 { key: "accentColor" as const, label: "Accent" },
+                { key: "highlightColor" as const, label: "Highlight" },
               ]).map(({ key, label }) => (
                 <div key={key} className="flex flex-col items-center gap-2">
                   <input type="color" value={masterForm[key]} onChange={(e) => setMasterForm({ ...masterForm, [key]: e.target.value })}

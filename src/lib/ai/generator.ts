@@ -12,7 +12,7 @@ export async function generatePlatformPost(
   const systemPrompt = `${brand.systemPrompt}
 
 Brand voice: ${brand.brandVoice}
-Brand colors: primary ${brand.brandColors.primary}, secondary ${brand.brandColors.secondary}
+Brand colors: background ${brand.brandColors.background}, accent ${brand.brandColors.accent}, highlight ${brand.brandColors.highlight}
 ${platformOverride}
 
 Always return valid JSON only — no markdown wrapper, no explanation outside JSON.`;

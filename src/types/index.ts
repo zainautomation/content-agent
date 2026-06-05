@@ -80,9 +80,9 @@ export interface BrandSettings {
   authorName?: string;
   authorTitle?: string;
   brandColors: {
-    primary: string;
-    secondary: string;
+    background: string;
     accent: string;
+    highlight: string;
   };
   platformOverrides: Partial<Record<Platform, string>>;
   prompts: {

@@ -51,9 +51,10 @@ interface Props {
   companyLogoUrl?: string | null;
   toolLogos?: Record<string, string>;
   accentColor?: string;
+  bgColor?: string;
 }
 
-const BG         = "#091428";
+const BG_DEFAULT = "#091428";
 const CARD_OG    = "#c44b0e";
 const CARD_DARK  = "#0d1e3b";
 const WHITE      = "#ffffff";
@@ -68,8 +69,10 @@ export default function PostImageTemplate({
   companyLogoUrl,
   toolLogos = {},
   accentColor,
+  bgColor,
 }: Props) {
   const s = (n: number) => n * scale;
+  const BG     = bgColor || BG_DEFAULT;
   const ORANGE = accentColor || "#fe710c";
   const BORDER = `${ORANGE}cc`;
   const ORANGE_BG = `${ORANGE}26`;   // ~15% opacity fill
