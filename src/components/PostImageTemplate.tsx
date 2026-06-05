@@ -72,6 +72,8 @@ export default function PostImageTemplate({
   const s = (n: number) => n * scale;
   const ORANGE = accentColor || "#fe710c";
   const BORDER = `${ORANGE}cc`;
+  const ORANGE_BG = `${ORANGE}26`;   // ~15% opacity fill
+  const ORANGE_BD = `${ORANGE}80`;   // ~50% opacity border
   const getLogo = (name: string) =>
     toolLogos[name] ?? toolLogos[name.toLowerCase()] ?? null;
 
@@ -206,8 +208,8 @@ export default function PostImageTemplate({
             <div style={{
               display: "inline-flex", alignItems: "center",
               padding: `${s(6)}px ${s(16)}px`,
-              background: "rgba(254,113,12,0.15)",
-              border: `${s(1)}px solid rgba(254,113,12,0.50)`,
+              background: ORANGE_BG,
+              border: `${s(1)}px solid ${ORANGE_BD}`,
               borderRadius: s(8),
             }}>
               <span style={{ color: ORANGE, fontSize: s(13), fontWeight: 600 }}>{data.tag}</span>
