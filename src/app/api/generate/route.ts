@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { optimizeInput, OPTIMIZER_RESPONSE_FORMAT } from "@/lib/ai/optimizer";
 import { generateAllPlatformPosts } from "@/lib/ai/generator";
 import { callClaude } from "@/lib/ai/client";
+import { getAuthInfo } from "@/lib/api-auth";
 import type { Platform, BrandSettings } from "@/types";
 
 export const maxDuration = 120;
@@ -80,9 +81,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "content and imagePrompt are required" }, { status: 400 });
       }
 
-      // Load available tool names for the AI to reference
+      // Load available tool names for the AI to reference (scoped to this workspace)
+      const auth = await getAuthInfo(req);
       const { listFolder } = await import("@/lib/supabase-storage");
-      const toolFiles = await listFolder("tools");
+      const toolFiles = await listFolder(`tools/${auth?.workspaceId ?? "unknown"}`);
       const toolNames = toolFiles.length
         ? toolFiles.map((f) => f.name.replace(/\.[^.]+$/, "").replace(/-/g, " ")).join(", ")
         : "none uploaded yet";

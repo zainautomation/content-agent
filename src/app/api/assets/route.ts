@@ -27,16 +27,16 @@ export async function POST(req: NextRequest) {
 
     if (type === "author-photo" || type === "company-logo") {
       const baseName = type === "author-photo" ? "author-photo" : "company-logo";
-      // Remove old versions of all extensions first
-      await deleteAssets([".jpg", ".jpeg", ".png", ".webp", ".svg"].map((e) => `brand/${baseName}${e}`)).catch(() => {});
-      const url = await uploadAsset(`brand/${baseName}${ext}`, buffer, mime);
+      const wsFolder = `brand/${auth.workspaceId}`;
+      await deleteAssets([".jpg", ".jpeg", ".png", ".webp", ".svg"].map((e) => `${wsFolder}/${baseName}${e}`)).catch(() => {});
+      const url = await uploadAsset(`${wsFolder}/${baseName}${ext}`, buffer, mime);
       return NextResponse.json({ path: url });
     }
 
     if (type === "tool-logo") {
       if (!name) return NextResponse.json({ error: "Missing tool name" }, { status: 400 });
       const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-      const url = await uploadAsset(`tools/${safeName}${ext}`, buffer, mime);
+      const url = await uploadAsset(`tools/${auth.workspaceId}/${safeName}${ext}`, buffer, mime);
       return NextResponse.json({ path: url });
     }
 
@@ -57,12 +57,13 @@ export async function DELETE(req: NextRequest) {
 
     if (type === "author-photo" || type === "company-logo") {
       const baseName = type === "author-photo" ? "author-photo" : "company-logo";
-      await deleteAssets([".svg", ".jpg", ".jpeg", ".png", ".webp"].map((e) => `brand/${baseName}${e}`)).catch(() => {});
+      const wsFolder = `brand/${auth.workspaceId}`;
+      await deleteAssets([".svg", ".jpg", ".jpeg", ".png", ".webp"].map((e) => `${wsFolder}/${baseName}${e}`)).catch(() => {});
       return NextResponse.json({ ok: true });
     }
 
     if (type === "tool-logo" && name) {
-      const tools = await listFolder("tools");
+      const tools = await listFolder(`tools/${auth.workspaceId}`);
       const match = tools.find((t) => t.name.startsWith(name + ".") || t.name === name);
       if (match) await deleteAssets([match.fullPath]);
       return NextResponse.json({ ok: true });

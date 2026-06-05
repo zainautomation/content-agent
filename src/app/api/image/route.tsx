@@ -19,33 +19,33 @@ function loadFont(weight: number): Buffer | null {
   return null;
 }
 
-async function findAuthorPhoto(): Promise<string | null> {
-  const files = await listFolder("brand");
+async function findAuthorPhoto(workspaceId: string): Promise<string | null> {
+  const files = await listFolder(`brand/${workspaceId}`);
   const match = files.find((f) => f.name.startsWith("author-photo.") && !f.name.endsWith(".svg"));
   return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-async function findCompanyLogo(): Promise<string | null> {
-  const files = await listFolder("brand");
+async function findCompanyLogo(workspaceId: string): Promise<string | null> {
+  const files = await listFolder(`brand/${workspaceId}`);
   const match = files.find((f) => f.name.startsWith("company-logo.") && !f.name.endsWith(".svg"));
   return match ? fetchAsDataUri(match.publicUrl) : null;
 }
 
-async function findAuthorPhotoPath(): Promise<string | null> {
-  const files = await listFolder("brand");
+async function findAuthorPhotoPath(workspaceId: string): Promise<string | null> {
+  const files = await listFolder(`brand/${workspaceId}`);
   const match = files.find((f) => f.name.startsWith("author-photo."));
   return match ? match.publicUrl : null;
 }
 
-async function findCompanyLogoPath(): Promise<string | null> {
-  const files = await listFolder("brand");
+async function findCompanyLogoPath(workspaceId: string): Promise<string | null> {
+  const files = await listFolder(`brand/${workspaceId}`);
   const match = files.find((f) => f.name.startsWith("company-logo."));
   return match ? match.publicUrl : null;
 }
 
-async function loadToolLogos(names: string[]): Promise<Record<string, string>> {
+async function loadToolLogos(names: string[], workspaceId: string): Promise<Record<string, string>> {
   if (!names.length) return {};
-  const files = await listFolder("tools");
+  const files = await listFolder(`tools/${workspaceId}`);
   const result: Record<string, string> = {};
   for (const name of names) {
     const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -121,9 +121,9 @@ export async function POST(req: NextRequest) {
 
   const toolNamesToLoad = extractToolNames(data);
   const [logoUri, photoUri, toolLogos] = await Promise.all([
-    findCompanyLogo(),
-    findAuthorPhoto(),
-    loadToolLogos(toolNamesToLoad),
+    findCompanyLogo(auth.workspaceId),
+    findAuthorPhoto(auth.workspaceId),
+    loadToolLogos(toolNamesToLoad, auth.workspaceId),
   ]);
 
   let svg: string;
@@ -153,9 +153,9 @@ export async function GET(req: NextRequest) {
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const [toolFiles, authorPhoto, companyLogo] = await Promise.all([
-    listFolder("tools"),
-    findAuthorPhotoPath(),
-    findCompanyLogoPath(),
+    listFolder(`tools/${auth.workspaceId}`),
+    findAuthorPhotoPath(auth.workspaceId),
+    findCompanyLogoPath(auth.workspaceId),
   ]);
 
   const tools = toolFiles.map((f) => {
