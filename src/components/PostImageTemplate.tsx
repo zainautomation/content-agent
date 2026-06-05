@@ -82,12 +82,12 @@ export default function PostImageTemplate({
   const getLogo = (name: string) =>
     toolLogos[name] ?? toolLogos[name.toLowerCase()] ?? null;
 
-  const LogoImg = () => (
+  const LogoImg = ({ height = 150 }: { height?: number }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={companyLogoUrl || "/zutomate-logo.svg"}
       alt="Logo"
-      style={{ height: s(150), width: "auto" }}
+      style={{ height: s(height), width: "auto", maxWidth: s(220), objectFit: "contain", flexShrink: 0 }}
     />
   );
 
@@ -95,12 +95,13 @@ export default function PostImageTemplate({
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "space-between",
       borderTop: `${s(1)}px solid ${DIVIDER}`,
-      paddingTop: s(14), marginTop: s(16), flexShrink: 0, gap: s(16),
+      paddingTop: s(14), marginTop: s(16), flexShrink: 0, gap: s(20),
+      minWidth: 0,
     }}>
-      <span style={{ color: WHITE, fontSize: s(18), fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>
+      <span style={{ color: WHITE, fontSize: s(20), fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1, minWidth: 0 }}>
         {tagline || data.tagline || "We Build Predictable Growth Systems for B2B Businesses"}
       </span>
-      <LogoImg />
+      <LogoImg height={56} />
     </div>
   );
 
